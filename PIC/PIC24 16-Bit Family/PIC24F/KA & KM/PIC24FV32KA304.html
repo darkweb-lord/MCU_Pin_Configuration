@@ -145,6 +145,7 @@ tbody tr:last-child td{border-bottom:none}
 .g-CMP{background:rgba(139,92,246,.16);border-color:rgba(139,92,246,.5);color:#c4b5fd}
 .g-OSC{background:rgba(236,72,153,.16);border-color:rgba(236,72,153,.5);color:#f9a8d4}
 .g-INT{background:rgba(20,184,166,.16);border-color:rgba(20,184,166,.5);color:#79ecdc}
+.g-ICSP{background:rgba(250,204,21,.16);border-color:rgba(250,204,21,.5);color:#fde68a}
 .g-OTHER{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.18);color:var(--t3)}
 
 /* SELECTION */
@@ -227,7 +228,7 @@ tr.conflict td{background:rgba(255,71,87,.12)}
   <div class="hero-in">
     <div class="tagpill">⚡ 16-BIT XLP MICROCONTROLLER</div>
     <h1 class="hero-title">PIC24FV32KA304</h1>
-    <p class="hero-sub">Pin Configuration Tool</p>
+    <p class="hero-sub">Liquid Glass Pin Mapper — interactive configuration, conflict checking &amp; export</p>
     <div class="stats">
       <div class="stat"><div class="stat-v" id="sPins">44</div><div class="stat-l">Package Pins</div></div>
       <div class="stat"><div class="stat-v" id="sIO">38</div><div class="stat-l">Assignable I/O</div></div>
@@ -332,12 +333,38 @@ tr.conflict td{background:rgba(255,71,87,.12)}
 
   <!-- EXPORT -->
   <div class="panel" id="panel-export">
-    <div class="sh"><h2>Export Configuration</h2><p>Download your pin assignment for documentation, review or firmware</p></div>
+    <div class="sh"><h2>Export Configuration</h2><p>Choose which columns and which pins to include, then download as CSV</p></div>
 
-    <div class="info"><strong id="expCount">0</strong> pin(s) selected on the <strong id="expPkg">44</strong>-pin package.</div>
+    <div class="info"><strong id="expCount">0</strong> of <strong id="expTotal">0</strong> selected pin(s) will be exported
+      on the <strong id="expPkg">44</strong>-pin package.</div>
+
+    <label class="flabel">Choose Columns</label>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:22px">
+      <div class="fbtns" id="colCheckboxes" style="margin-bottom:0"></div>
+      <button class="btn" id="colsAll" style="padding:7px 15px;font-size:.76rem">All Columns</button>
+      <button class="btn" id="colsNone" style="padding:7px 15px;font-size:.76rem">No Columns</button>
+    </div>
+
+    <label class="flabel">Choose Pins to Export</label>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <button class="btn" id="rowsAll" style="padding:7px 15px;font-size:.76rem">Select All Pins</button>
+      <button class="btn" id="rowsNone" style="padding:7px 15px;font-size:.76rem">Deselect All Pins</button>
+    </div>
+    <div class="tw" style="margin-bottom:26px">
+      <table id="exportRowsTable">
+        <thead><tr>
+          <th style="width:44px">✓</th>
+          <th>Pin</th>
+          <th>Port Pin</th>
+          <th>Primary</th>
+          <th>Assigned Function</th>
+        </tr></thead>
+        <tbody id="exportRowsBody"></tbody>
+      </table>
+    </div>
 
     <div class="exp-grid">
-      <button class="exp-btn" id="btnCsv">📄 CSV File<small>.csv — universal spreadsheet import</small></button>
+      <button class="exp-btn" id="btnCsv">📄 Export CSV<small>.csv — only the columns &amp; pins ticked above</small></button>
     </div>
 
     <div class="sh" style="margin-top:34px"><h2>Preview</h2><p>Exactly what will be written to file</p></div>
@@ -468,9 +495,10 @@ DB[44] = DB[48].filter(function(p){ return p[1] !== "N/C"; })
 /* =========================================================
    PERIPHERAL GROUPS — derived from each pin's function string
    ========================================================= */
-var GROUPS = ["GPIO","UART","SPI","I2C","ADC","TIMER","IC","OC","CMP","OSC","INT","PWR"];
+var GROUPS = ["GPIO","UART","SPI","I2C","ADC","TIMER","IC","OC","CMP","OSC","INT","ICSP","PWR"];
 var LABEL = {GPIO:"GPIO",UART:"UART",SPI:"SPI",I2C:"I2C",ADC:"ADC",TIMER:"Timer",
-  IC:"Input Cap",OC:"PWM/OC",CMP:"Comparator",OSC:"Oscillator",INT:"Interrupt",PWR:"Power",OTHER:"Other"};
+  IC:"Input Cap",OC:"PWM/OC",CMP:"Comparator",OSC:"Oscillator",INT:"Interrupt",
+  ICSP:"ICSP/Prog",PWR:"Power",OTHER:"Other"};
 
 function groupsOf(p){
   var s = String(p[4]).toUpperCase(), g = [];
@@ -484,6 +512,7 @@ function groupsOf(p){
   if(/(C[123]IN[ABCD]|C[123]OUT|CVREF)/.test(s))                g.push("CMP");
   if(/\b(OSCI|OSCO|SOSCI|SOSCO|CLKI|CLKO|SCLKI|REFO)\b/.test(s)) g.push("OSC");
   if(/\bINT[0-2]\b/.test(s))                                    g.push("INT");
+  if(/\bPGE[CD]\d\b/.test(s))                                   g.push("ICSP");
   if(/\b(VDD|VSS|AVDD|AVSS|VCAP|MCLR|VPP)\b/.test(s))           g.push("PWR");
   if(/\bR[ABC]\d{1,2}\b/.test(s) && p[1] !== "N/C" &&
      p[1] !== "VDD" && p[1] !== "VSS")                          g.push("GPIO");
@@ -498,7 +527,7 @@ function isFixed(p){
 }
 
 /* Real selectable functions for a pin, parsed from its own mux string */
-var SKIP = /^(CN\d+|R[ABC]\d+|PGE[CD]\d|VPP|No|Connection|VSS|VDD|AVSS|AVDD)$/i;
+var SKIP = /^(CN\d+|R[ABC]\d+|VPP|No|Connection|VSS|VDD|AVSS|AVDD)$/i;
 function funcsOf(p){
   var out = ["GPIO"];
   String(p[4]).split("/").forEach(function(tok){
@@ -515,6 +544,22 @@ function funcsOf(p){
 var PKG = 44, PINS = DB[44];
 var filter = "ALL", sortKey = "num", sortAsc = true;
 var sel = {};
+
+/* Export column definitions — order shown = order exported */
+var COLS = [
+  {key:"pin",      label:"Pin",                    get:function(p){ return p[0]; }},
+  {key:"portPin",  label:"Port Pin",                get:function(p){ return p[1]; }},
+  {key:"port",     label:"Port",                    get:function(p){ return p[2]; }},
+  {key:"primary",  label:"Primary Function",        get:function(p){ return p[3]; }},
+  {key:"assigned", label:"Assigned Function",       get:function(p,pin){ return sel[pin]; }},
+  {key:"adc",      label:"ADC Channel",             get:function(p){ return p[5]; }},
+  {key:"groups",   label:"Peripheral Groups",       get:function(p){ return groupsOf(p).join(" "); }},
+  {key:"mux",      label:"Multiplexed Functions",   get:function(p){ return p[4]; }},
+  {key:"package",  label:"Package",                 get:function(){ return PKG + "-pin"; }}
+];
+var exportCols = {};
+COLS.forEach(function(c){ exportCols[c.key] = true; });   /* all columns on by default */
+var exportRows = {};                                      /* pin -> include in export, synced with sel */
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
@@ -736,7 +781,7 @@ function findConflicts(){
 function renderSidebar(){
   var pins = selectedPins();
   $("selBadge").textContent = pins.length;
-  $("expCount").textContent = pins.length;
+  $("expTotal").textContent = pins.length;
 
   var badFns = Object.keys(findConflicts());
   $("conflictMsg").textContent = badFns.length ? "⚠ Duplicate assignment: " + badFns.join(", ") : "";
@@ -760,28 +805,107 @@ function renderSidebar(){
     }).join("");
   }
 
-  var can = pins.length > 0;
+  renderExportPanel();
+}
+
+/* =========================================================
+   EXPORT — column selection + per-pin row selection
+   ========================================================= */
+function syncExportRows(){
+  var pins = selectedPins(), have = {};
+  pins.forEach(function(pin){
+    have[pin] = true;
+    if(exportRows[pin] === undefined) exportRows[pin] = true;   /* newly selected pins default checked */
+  });
+  Object.keys(exportRows).forEach(function(k){ if(!have[k]) delete exportRows[k]; });  /* drop deselected pins */
+}
+
+function exportedPins(){
+  return selectedPins().filter(function(pin){ return exportRows[pin]; });
+}
+
+function buildColCheckboxes(){
+  var box = $("colCheckboxes");
+  box.innerHTML = "";
+  COLS.forEach(function(c){
+    var b = document.createElement("button");
+    b.className = "fbtn" + (exportCols[c.key] ? " active" : "");
+    b.textContent = c.label;
+    b.setAttribute("data-col", c.key);
+    b.addEventListener("click", function(){
+      exportCols[c.key] = !exportCols[c.key];
+      b.classList.toggle("active", exportCols[c.key]);
+      renderExportPanel();
+    });
+    box.appendChild(b);
+  });
+}
+
+function renderExportRowsTable(){
+  var body = $("exportRowsBody");
+  var pins = selectedPins();
+  if(!pins.length){
+    body.innerHTML = '<tr class="empty-row"><td colspan="5">No pins selected yet — pick pins on the Selection tab.</td></tr>';
+    return;
+  }
+  body.innerHTML = pins.map(function(pin){
+    var p = pinRow(pin);
+    var on = !!exportRows[pin];
+    return '<tr'+(on?' class="picked"':'')+'>'+
+      '<td><input type="checkbox" class="chk" data-exp-pin="'+pin+'"'+(on?" checked":"")+'></td>'+
+      '<td class="pnum">'+pin+'</td>'+
+      '<td class="pgpio">'+esc(p[1])+'</td>'+
+      '<td class="pprim">'+esc(p[3])+'</td>'+
+      '<td class="fn" style="font-family:var(--mono);font-size:.78rem;color:var(--cy)">'+esc(sel[pin])+'</td>'+
+      '</tr>';
+  }).join("");
+
+  body.querySelectorAll("input[data-exp-pin]").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var pin = parseInt(this.getAttribute("data-exp-pin"), 10);
+      exportRows[pin] = this.checked;
+      this.closest("tr").classList.toggle("picked", this.checked);
+      updateExportCountAndPreview();
+    });
+  });
+}
+
+function updateExportCountAndPreview(){
+  $("expCount").textContent = exportedPins().length;
+  var can = exportedPins().length > 0;
   ["btnCsv","btnSideExport"].forEach(function(id){ $(id).disabled = !can; });
   renderPreview();
 }
 
+function renderExportPanel(){
+  syncExportRows();
+  renderExportRowsTable();
+  updateExportCountAndPreview();
+}
+
 function renderPreview(){
-  var pins = selectedPins();
-  if(!pins.length){
-    $("preview").textContent = "No pins selected yet. Open the Selection tab to choose pins.";
+  var pins = exportedPins();
+  var cols = COLS.filter(function(c){ return exportCols[c.key]; });
+  if(!pins.length || !cols.length){
+    $("preview").textContent = !pins.length
+      ? "No pins ticked for export. Choose pins in the table above."
+      : "No columns selected. Choose at least one column above.";
     return;
   }
-  var pad = function(s,n){ s = String(s); while(s.length < n) s += " "; return s; };
-  var out = "PIC24FV32KA304  ·  " + PKG + "-pin package  ·  " + pins.length + " pin(s)\n" +
-            "Generated " + new Date().toLocaleString() + "\n\n" +
-            pad("PIN",5)+pad("PORT PIN",10)+pad("PORT",8)+pad("ASSIGNED",16)+"ADC\n" +
-            new Array(58).join("-") + "\n";
+  var pad = function(s,n){ s = String(s); return s.length >= n ? s + "  " : s + new Array(n - s.length + 1).join(" "); };
+  var widths = cols.map(function(c){ return Math.max(c.label.length, 10); });
+  var out = "PIC24FV32KA304  ·  " + PKG + "-pin package  ·  " + pins.length + " pin(s)  ·  " +
+            cols.length + " column(s)\nGenerated " + new Date().toLocaleString() + "\n\n";
+  out += cols.map(function(c,i){ return pad(c.label, widths[i]); }).join("") + "\n";
+  out += new Array(cols.reduce(function(a,b,i){return a+widths[i];},0) + 2).join("-") + "\n";
   pins.forEach(function(pin){
     var p = pinRow(pin);
-    out += pad(p[0],5)+pad(p[1],10)+pad(p[2],8)+pad(sel[pin],16)+p[5]+"\n";
+    out += cols.map(function(c,i){ return pad(c.get(p, pin), widths[i]); }).join("") + "\n";
   });
-  var bad = Object.keys(findConflicts());
-  if(bad.length) out += "\n! WARNING - duplicate assignments: " + bad.join(", ") + "\n";
+  var bad = Object.keys(findConflicts()).filter(function(f){
+    return exportedPins().some(function(pin){ return sel[pin] === f; });
+  });
+  if(bad.length) out += "\n! WARNING - duplicate assignments among exported pins: " + bad.join(", ") + "\n";
   $("preview").textContent = out;
 }
 
@@ -789,11 +913,11 @@ function renderPreview(){
    EXPORTS
    ========================================================= */
 function rowsForExport(){
-  var head = ["Pin","Port Pin","Port","Primary Function","Assigned Function",
-              "ADC Channel","Peripheral Groups","Multiplexed Functions"];
-  var body = selectedPins().map(function(pin){
+  var cols = COLS.filter(function(c){ return exportCols[c.key]; });
+  var head = cols.map(function(c){ return c.label; });
+  var body = exportedPins().map(function(pin){
     var p = pinRow(pin);
-    return [p[0], p[1], p[2], p[3], sel[pin], p[5], groupsOf(p).join(" "), p[4]];
+    return cols.map(function(c){ return c.get(p, pin); });
   });
   return [head].concat(body);
 }
@@ -810,12 +934,13 @@ function download(name, content, mime){
 }
 
 function exportCsv(){
-  if(!selectedPins().length){ toast("Select at least one pin first", true); return; }
+  if(!exportedPins().length){ toast("Tick at least one pin to export", true); return; }
+  if(!COLS.some(function(c){ return exportCols[c.key]; })){ toast("Tick at least one column to export", true); return; }
   var q = function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; };
   var csv = rowsForExport().map(function(r){ return r.map(q).join(","); }).join("\r\n");
   download("PIC24FV32KA304_" + PKG + "pin_PinAssignment.csv",
            "\uFEFF" + csv, "text/csv;charset=utf-8");
-  toast("CSV exported");
+  toast("CSV exported — " + exportedPins().length + " pin(s)");
 }
 
 /* =========================================================
@@ -831,6 +956,7 @@ function buildPeriphTable(){
     ["Input Cap","g-IC","3× Input Capture with 4-deep FIFO"],
     ["PWM/OC","g-OC","3× Output Compare / PWM with fault inputs (OCFA / OCFB)"],
     ["Comparator","g-CMP","3× analogue comparators with CVREF DAC"],
+    ["ICSP/Prog","g-ICSP","PGECx/PGEDx In-Circuit Serial Programming &amp; debug pins"],
     ["Other","g-OTHER","CTMU (cap touch), RTCC, CRC engine, HLVD, 512 B EEPROM"]
   ];
   $("periphTable").innerHTML = rows.map(function(r){
@@ -892,6 +1018,27 @@ document.addEventListener("DOMContentLoaded", function(){
     document.querySelector('.nav-tab[data-panel="export"]').click();
   });
 
+  /* export column bulk select */
+  $("colsAll").addEventListener("click", function(){
+    COLS.forEach(function(c){ exportCols[c.key] = true; });
+    buildColCheckboxes(); renderExportPanel();
+  });
+  $("colsNone").addEventListener("click", function(){
+    COLS.forEach(function(c){ exportCols[c.key] = false; });
+    buildColCheckboxes(); renderExportPanel();
+  });
+
+  /* export row bulk select */
+  $("rowsAll").addEventListener("click", function(){
+    selectedPins().forEach(function(pin){ exportRows[pin] = true; });
+    renderExportRowsTable(); updateExportCountAndPreview();
+  });
+  $("rowsNone").addEventListener("click", function(){
+    selectedPins().forEach(function(pin){ exportRows[pin] = false; });
+    renderExportRowsTable(); updateExportCountAndPreview();
+  });
+
+  buildColCheckboxes();
   buildPeriphTable();
   setPackage(44, true);
 });
