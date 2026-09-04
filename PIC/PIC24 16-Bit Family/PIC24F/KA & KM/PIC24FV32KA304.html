@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PIC24FV32KA304 — Liquid Glass Pin Mapper</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fira+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --glass:rgba(255,255,255,.07);
+  --glass2:rgba(255,255,255,.11);
+  --bd:rgba(255,255,255,.14);
+  --cy:#00f0ff;--pu:#b366ff;--gr:#00d084;--or:#ffa500;--rd:#ff4757;
+  --t1:#fff;--t2:#b0b8d4;--t3:#78809c;
+  --mono:'Fira Mono',monospace;
+}
+body{
+  background:#0a0e27;
+  background-image:
+    radial-gradient(ellipse 800px 600px at 15% 0%,rgba(0,240,255,.10),transparent 60%),
+    radial-gradient(ellipse 700px 500px at 85% 20%,rgba(179,102,255,.12),transparent 60%),
+    radial-gradient(ellipse 900px 600px at 50% 100%,rgba(255,0,110,.08),transparent 60%);
+  background-attachment:fixed;
+  color:var(--t1);font-family:'Poppins',sans-serif;min-height:100vh;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.04)}
+::-webkit-scrollbar-thumb{background:rgba(0,240,255,.3);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,240,255,.5)}
+
+/* HERO */
+.hero{padding:52px 40px 40px;text-align:center;border-bottom:1px solid var(--bd);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),transparent)}
+.hero-in{max-width:1100px;margin:0 auto}
+.tagpill{display:inline-block;color:var(--cy);font-size:.75rem;font-weight:600;padding:6px 16px;
+  border:1px solid rgba(0,240,255,.35);border-radius:50px;margin-bottom:18px;letter-spacing:1.5px;
+  background:rgba(0,240,255,.07);backdrop-filter:blur(12px)}
+h1.hero-title{font-size:2.9rem;font-weight:800;letter-spacing:-1.5px;margin-bottom:10px;
+  background:linear-gradient(110deg,#fff 0%,#00f0ff 48%,#b366ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--t2);font-weight:300;font-size:1rem;margin-bottom:34px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px}
+.stat{padding:18px 12px;border-radius:16px;background:var(--glass);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--bd);transition:.25s;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.stat:hover{transform:translateY(-4px);border-color:rgba(0,240,255,.5);background:rgba(0,240,255,.10)}
+.stat-v{font-size:1.85rem;font-weight:800;font-family:var(--mono);
+  background:linear-gradient(110deg,var(--cy),var(--pu));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.stat-l{font-size:.62rem;color:var(--t3);text-transform:uppercase;letter-spacing:1.6px;margin-top:6px}
+
+/* NAV */
+.nav{display:flex;gap:8px;padding:12px 40px;position:sticky;top:0;z-index:200;
+  background:rgba(10,14,39,.72);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-tab{padding:10px 20px;font-size:.85rem;font-weight:600;color:var(--t3);cursor:pointer;
+  border-radius:12px;border:1px solid transparent;white-space:nowrap;transition:.22s;user-select:none}
+.nav-tab:hover{color:var(--t1);background:var(--glass)}
+.nav-tab.active{color:var(--cy);background:rgba(0,240,255,.13);border-color:rgba(0,240,255,.4);
+  box-shadow:0 0 22px rgba(0,240,255,.18)}
+
+/* PANELS */
+.wrap{max-width:1600px;margin:0 auto}
+.panel{display:none;padding:34px 40px 70px;animation:fi .35s ease}
+.panel.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sh{margin-bottom:22px}
+.sh h2{font-size:1.5rem;font-weight:700;margin-bottom:6px;
+  background:linear-gradient(110deg,#fff,var(--cy));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.sh p{color:var(--t2);font-size:.88rem;font-weight:300}
+.card{background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--bd);border-radius:20px;padding:6px 0;margin-bottom:22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 32px rgba(0,0,0,.25);overflow:hidden}
+.info{background:rgba(0,240,255,.08);border:1px solid rgba(0,240,255,.25);border-left:3px solid var(--cy);
+  backdrop-filter:blur(14px);padding:14px 18px;border-radius:14px;margin-bottom:20px;
+  color:var(--t2);font-size:.87rem;line-height:1.65;font-weight:300}
+.info strong{color:var(--cy);font-weight:600}
+
+/* PACKAGE */
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.pkg-btn{padding:22px 16px;border:1.5px solid var(--bd);border-radius:18px;background:var(--glass);
+  backdrop-filter:blur(14px);color:var(--t2);cursor:pointer;font-size:1.05rem;font-weight:700;
+  font-family:inherit;transition:.25s;text-align:center}
+.pkg-btn:hover{border-color:rgba(0,240,255,.5);background:rgba(0,240,255,.09);color:var(--t1);transform:translateY(-4px)}
+.pkg-btn.active{border-color:var(--cy);background:rgba(0,240,255,.16);color:var(--cy);
+  box-shadow:0 0 34px rgba(0,240,255,.28)}
+.pkg-btn small{display:block;font-size:.7rem;color:var(--t3);margin-top:7px;font-weight:400;letter-spacing:.5px}
+.pkg-btn.active small{color:rgba(0,240,255,.75)}
+
+/* FILTERS */
+.flabel{font-size:.7rem;color:var(--t3);text-transform:uppercase;letter-spacing:1.4px;
+  font-weight:600;display:block;margin-bottom:12px}
+.fbtns{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:22px}
+.fbtn{padding:7px 15px;border:1.5px solid var(--bd);background:var(--glass);color:var(--t2);
+  border-radius:25px;cursor:pointer;font-size:.76rem;font-weight:600;font-family:var(--mono);
+  transition:.2s;backdrop-filter:blur(10px);display:flex;align-items:center;gap:7px}
+.fbtn:hover{border-color:rgba(0,240,255,.5);color:var(--t1)}
+.fbtn .cnt{font-size:.64rem;opacity:.65;font-weight:400}
+.fbtn.active{background:var(--cy);border-color:var(--cy);color:#04121a;box-shadow:0 0 22px rgba(0,240,255,.45)}
+.fbtn.active .cnt{opacity:.8}
+.search{width:100%;max-width:420px;padding:11px 18px;background:var(--glass2);
+  backdrop-filter:blur(14px);border:1.5px solid var(--bd);border-radius:14px;color:var(--t1);
+  font-size:.87rem;font-family:inherit;transition:.25s}
+.search:focus{outline:none;border-color:var(--cy);background:rgba(0,240,255,.09);
+  box-shadow:0 0 24px rgba(0,240,255,.2)}
+.search::placeholder{color:var(--t3)}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:18px;border:1px solid var(--bd);background:rgba(255,255,255,.035);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead th{background:rgba(20,25,55,.9);padding:14px 12px;text-align:left;color:var(--t2);
+  font-weight:600;text-transform:uppercase;letter-spacing:.6px;font-size:.68rem;
+  border-bottom:1px solid var(--bd);white-space:nowrap;transition:.2s}
+#pinTable thead th{cursor:pointer}
+#pinTable thead th:hover{color:var(--cy);background:rgba(0,240,255,.12)}
+thead th .ar{opacity:.35;font-size:.6rem;margin-left:3px}
+thead th.sorted{color:var(--cy)}
+thead th.sorted .ar{opacity:1}
+tbody td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.055);color:var(--t2);vertical-align:middle}
+tbody tr{transition:background .18s}
+tbody tr:hover{background:rgba(0,240,255,.075)}
+tbody tr:last-child td{border-bottom:none}
+.pnum{font-weight:700;color:var(--cy);font-family:var(--mono);font-size:.95rem}
+.pgpio{font-family:var(--mono);color:var(--pu);font-weight:700}
+.pprim{color:var(--t1);font-weight:500;font-size:.8rem}
+.pfunc{font-family:var(--mono);font-size:.72rem;color:var(--t3);line-height:1.5}
+.empty-row td{text-align:center;color:var(--t3);padding:40px;font-size:.9rem}
+
+/* TAGS */
+.tag{display:inline-block;padding:2px 8px;border-radius:7px;font-size:.63rem;font-weight:700;
+  letter-spacing:.4px;border:1px solid;margin:1px 2px 1px 0;font-family:var(--mono);white-space:nowrap}
+.g-UART{background:rgba(255,165,0,.16);border-color:rgba(255,165,0,.5);color:#ffc061}
+.g-SPI{background:rgba(179,102,255,.16);border-color:rgba(179,102,255,.5);color:#d3aaff}
+.g-I2C{background:rgba(77,121,255,.16);border-color:rgba(77,121,255,.5);color:#9fb6ff}
+.g-ADC{background:rgba(0,208,132,.16);border-color:rgba(0,208,132,.5);color:#6ceab5}
+.g-GPIO{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28);color:#c8cee4}
+.g-PWR{background:rgba(255,0,110,.16);border-color:rgba(255,0,110,.5);color:#ff77ab}
+.g-TIMER{background:rgba(255,120,0,.16);border-color:rgba(255,120,0,.5);color:#ffab6b}
+.g-IC{background:rgba(245,200,11,.16);border-color:rgba(245,200,11,.5);color:#ffe07a}
+.g-OC{background:rgba(255,90,60,.16);border-color:rgba(255,90,60,.5);color:#ffa593}
+.g-CMP{background:rgba(139,92,246,.16);border-color:rgba(139,92,246,.5);color:#c4b5fd}
+.g-OSC{background:rgba(236,72,153,.16);border-color:rgba(236,72,153,.5);color:#f9a8d4}
+.g-INT{background:rgba(20,184,166,.16);border-color:rgba(20,184,166,.5);color:#79ecdc}
+.g-OTHER{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.18);color:var(--t3)}
+
+/* SELECTION */
+.sel-wrap{display:grid;grid-template-columns:1fr 330px;gap:22px;align-items:start}
+.side{padding:20px;border-radius:20px;background:rgba(0,240,255,.06);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(0,240,255,.22);position:sticky;top:86px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 8px 32px rgba(0,0,0,.3)}
+.side-t{font-size:.78rem;font-weight:700;color:var(--cy);text-transform:uppercase;letter-spacing:1.3px;
+  margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.dot{width:8px;height:8px;background:var(--cy);border-radius:50%;box-shadow:0 0 10px var(--cy);
+  animation:pl 1.8s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.35}}
+.side-list{max-height:52vh;overflow-y:auto;margin:-4px -4px 0;padding:4px}
+.srow{background:var(--glass);border:1px solid var(--bd);padding:9px 11px;margin-bottom:7px;
+  border-radius:11px;font-size:.76rem;display:flex;justify-content:space-between;
+  align-items:center;gap:8px;transition:.2s}
+.srow:hover{background:rgba(0,240,255,.11);border-color:rgba(0,240,255,.45)}
+.srow .lb{font-family:var(--mono);font-weight:700;color:var(--cy);font-size:.74rem}
+.srow .fn{background:linear-gradient(110deg,var(--cy),var(--pu));color:#04121a;padding:2px 8px;
+  border-radius:7px;font-size:.66rem;font-weight:700;font-family:var(--mono)}
+.side-empty{text-align:center;color:var(--t3);padding:34px 8px;font-size:.83rem;font-weight:300}
+.chk{accent-color:var(--cy);width:17px;height:17px;cursor:pointer}
+.chk:disabled{opacity:.35;cursor:not-allowed}
+select.fs{background:rgba(10,14,39,.9);border:1.5px solid var(--bd);color:var(--t1);
+  padding:6px 9px;border-radius:9px;font-family:var(--mono);font-size:.73rem;cursor:pointer;
+  transition:.2s;width:100%;max-width:200px}
+select.fs:hover{border-color:rgba(0,240,255,.5)}
+select.fs:focus{outline:none;border-color:var(--cy);box-shadow:0 0 16px rgba(0,240,255,.25)}
+select.fs:disabled{opacity:.4;cursor:not-allowed}
+select.fs option{background:#0a0e27;color:#fff}
+tr.picked{background:rgba(0,240,255,.07)}
+tr.conflict td{background:rgba(255,71,87,.12)}
+
+/* BUTTONS */
+.btn{padding:11px 20px;border-radius:14px;border:1.5px solid var(--bd);background:var(--glass2);
+  backdrop-filter:blur(14px);color:var(--t1);font-family:inherit;font-weight:600;font-size:.84rem;
+  cursor:pointer;transition:.25s}
+.btn:hover{transform:translateY(-2px);border-color:var(--cy);box-shadow:0 0 26px rgba(0,240,255,.3)}
+.btn.cy{background:linear-gradient(135deg,rgba(0,240,255,.22),rgba(179,102,255,.18));
+  border-color:rgba(0,240,255,.45);color:var(--cy)}
+.btn.rd{background:rgba(255,71,87,.13);border-color:rgba(255,71,87,.4);color:#ff8b95}
+.btn.rd:hover{border-color:var(--rd);box-shadow:0 0 26px rgba(255,71,87,.3)}
+.btn.full{width:100%;margin-top:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.exp-btn{padding:22px 16px;border-radius:18px;border:1.5px solid var(--bd);
+  background:linear-gradient(135deg,rgba(0,240,255,.13),rgba(179,102,255,.11));
+  backdrop-filter:blur(14px);color:var(--t1);font-family:inherit;font-weight:700;font-size:.95rem;
+  cursor:pointer;transition:.25s;text-align:center;line-height:1.5}
+.exp-btn:hover{transform:translateY(-4px);border-color:var(--cy);box-shadow:0 0 34px rgba(0,240,255,.3)}
+.exp-btn small{display:block;font-size:.68rem;color:var(--t3);font-weight:400;margin-top:4px}
+.exp-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.prev{background:rgba(0,0,0,.32);border:1px solid var(--bd);border-radius:16px;padding:18px;
+  max-height:420px;overflow:auto;font-family:var(--mono);font-size:.76rem;line-height:1.7;
+  color:var(--t2);white-space:pre;backdrop-filter:blur(10px)}
+.warn{background:rgba(255,165,0,.1);border:1px solid rgba(255,165,0,.3);border-left:3px solid var(--or);
+  padding:12px 16px;border-radius:12px;color:#ffcf8a;font-size:.82rem;margin-bottom:18px;font-weight:300}
+.warn strong{color:var(--or);font-weight:600}
+
+/* TOAST */
+#toasts{position:fixed;bottom:26px;right:26px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{background:rgba(0,208,132,.16);border:1px solid rgba(0,208,132,.5);backdrop-filter:blur(18px);
+  border-radius:14px;padding:12px 18px;color:#6ceab5;font-weight:600;font-size:.83rem;
+  animation:sl .3s ease;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.toast.err{background:rgba(255,71,87,.16);border-color:rgba(255,71,87,.5);color:#ff9ba3}
+@keyframes sl{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+
+@media(max-width:1150px){.sel-wrap{grid-template-columns:1fr}.side{position:static}}
+@media(max-width:700px){
+  .hero{padding:34px 18px 26px}h1.hero-title{font-size:2rem}
+  .nav{padding:10px 16px}.panel{padding:24px 16px 60px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-in">
+    <div class="tagpill">⚡ 16-BIT XLP MICROCONTROLLER</div>
+    <h1 class="hero-title">PIC24FV32KA304</h1>
+    <p class="hero-sub">Pin Configuration Tool</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-v" id="sPins">44</div><div class="stat-l">Package Pins</div></div>
+      <div class="stat"><div class="stat-v" id="sIO">38</div><div class="stat-l">Assignable I/O</div></div>
+      <div class="stat"><div class="stat-v" id="sADC">16</div><div class="stat-l">ADC Channels</div></div>
+      <div class="stat"><div class="stat-v">2+2</div><div class="stat-l">UART / SPI</div></div>
+      <div class="stat"><div class="stat-v">5</div><div class="stat-l">Timers</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-tab active" data-panel="overview">📊 Overview</div>
+  <div class="nav-tab" data-panel="pinout">📍 Pinout</div>
+  <div class="nav-tab" data-panel="select">✓ Selection</div>
+  <div class="nav-tab" data-panel="export">⬇ Export</div>
+</div>
+
+<div class="wrap">
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div class="sh"><h2>Device Overview</h2><p>PIC24FV32KA304 family features &amp; specifications</p></div>
+    <div class="info">
+      <strong>PIC24FV32KA304</strong> — 16-bit eXtreme Low Power MCU. 32 KB Flash, 2 KB RAM, 512 B data EEPROM,
+      up to 32 MHz, 2.0–5.5 V operation. Peripherals: 2× UART, 2× SPI, 2× I²C, 16-channel 12-bit ADC,
+      5× 16-bit timers, 3× Input Capture, 3× Output Compare/PWM, 3× comparators, CTMU, RTCC and CRC.
+      Reference: datasheet <em>DS39995C</em>.
+    </div>
+
+    <div class="sh"><h2>Select Package</h2><p>Choose your target pin configuration — every tab updates instantly</p></div>
+    <div class="pkg-grid" id="pkgGrid">
+      <button class="pkg-btn" data-pkg="20"><div>20-Pin</div><small>SPDIP / SSOP / SOIC</small></button>
+      <button class="pkg-btn" data-pkg="28"><div>28-Pin</div><small>SPDIP / SOIC / QFN</small></button>
+      <button class="pkg-btn active" data-pkg="44"><div>44-Pin</div><small>TQFP / QFN</small></button>
+      <button class="pkg-btn" data-pkg="48"><div>48-Pin</div><small>UQFN</small></button>
+    </div>
+
+    <div class="sh" style="margin-top:34px"><h2>Peripheral Summary</h2><p>Resources available on this device</p></div>
+    <div class="card"><table><tbody id="periphTable"></tbody></table></div>
+  </div>
+
+  <!-- PINOUT -->
+  <div class="panel" id="panel-pinout">
+    <div class="sh"><h2>Pin Configuration</h2><p>Filter, search and sort the full pin list for the selected package</p></div>
+
+    <label class="flabel">Filter by Peripheral</label>
+    <div class="fbtns" id="filterBar"></div>
+
+    <label class="flabel">Search Pins</label>
+    <input type="text" id="pinSearch" class="search" placeholder="Search pin number, port pin (RB9), or function (U1TX, AN4)…">
+    <div style="margin:14px 0 18px;font-size:.8rem;color:var(--t3)" id="pinCount"></div>
+
+    <div class="tw">
+      <table id="pinTable">
+        <thead><tr>
+          <th data-sort="num">Pin<span class="ar">▲</span></th>
+          <th data-sort="gpio">Port Pin<span class="ar">▲</span></th>
+          <th data-sort="port">Port<span class="ar">▲</span></th>
+          <th data-sort="prim">Primary Function<span class="ar">▲</span></th>
+          <th>Multiplexed Functions</th>
+          <th>Peripheral Groups</th>
+        </tr></thead>
+        <tbody id="pinBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SELECTION -->
+  <div class="panel" id="panel-select">
+    <div class="sh"><h2>Pin Selection &amp; Assignment</h2>
+      <p>Tick a pin, then choose one of its real multiplexed functions. Duplicate assignments are flagged.</p></div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;align-items:center">
+      <input type="text" id="selSearch" class="search" style="max-width:300px" placeholder="Filter pins…">
+      <button class="btn rd" id="btnClear">Clear All Selections</button>
+      <span id="conflictMsg" style="font-size:.8rem;color:#ff8b95;font-weight:600"></span>
+    </div>
+
+    <div class="sel-wrap">
+      <div>
+        <div class="tw">
+          <table id="selTable">
+            <thead><tr>
+              <th style="width:44px">✓</th>
+              <th>Pin</th>
+              <th>Port Pin</th>
+              <th>Primary</th>
+              <th style="min-width:210px">Assign Function</th>
+            </tr></thead>
+            <tbody id="selBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="side">
+        <div class="side-t"><span class="dot"></span>Selected Pins
+          <span id="selBadge" style="margin-left:auto;color:var(--t3)">0</span></div>
+        <div class="side-list" id="selList"><div class="side-empty">No pins selected yet</div></div>
+        <button class="btn cy full" id="btnSideExport">Export Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="panel" id="panel-export">
+    <div class="sh"><h2>Export Configuration</h2><p>Download your pin assignment for documentation, review or firmware</p></div>
+
+    <div class="info"><strong id="expCount">0</strong> pin(s) selected on the <strong id="expPkg">44</strong>-pin package.</div>
+
+    <div class="exp-grid">
+      <button class="exp-btn" id="btnCsv">📄 CSV File<small>.csv — universal spreadsheet import</small></button>
+    </div>
+
+    <div class="sh" style="margin-top:34px"><h2>Preview</h2><p>Exactly what will be written to file</p></div>
+    <div class="prev" id="preview">No pins selected yet. Open the Selection tab to choose pins.</div>
+  </div>
+
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* =========================================================
+   PIN DATABASE — PIC24FV32KA304 (datasheet DS39995C)
+   [pin, portPin, port, primary, multiplexed, adcChannel]
+   ========================================================= */
+var DB = {};
+
+DB[20] = [
+ [1,"RA5","PORTA","MCLR","MCLR/VPP/RA5","—"],
+ [2,"RA0","PORTA","VREF+/AN0","PGEC2/VREF+/CVREF+/AN0/C3INC/SCK2/CN2/RA0","AN0"],
+ [3,"RA1","PORTA","VREF-/AN1","PGED2/CVREF-/VREF-/AN1/SDO2/CN3/RA1","AN1"],
+ [4,"RB0","PORTB","AN2/U2TX","PGED1/AN2/ULPWU/CTCMP/C1IND/C2INB/C3IND/U2TX/SDI2/OC2/CN4/RB0","AN2"],
+ [5,"RB1","PORTB","AN3/U2RX","PGEC1/AN3/C1INC/C2INA/U2RX/OC3/CTED12/CN5/RB1","AN3"],
+ [6,"RB2","PORTB","AN4/U1RX","AN4/SDA2/T5CK/T4CK/U1RX/CTED13/CN6/RB2","AN4"],
+ [7,"RA2","PORTA","OSCI","OSCI/AN13/C1INB/C2IND/CLKI/CN30/RA2","AN13"],
+ [8,"RA3","PORTA","OSCO","OSCO/AN14/C1INA/C2INC/CLKO/CN29/RA3","AN14"],
+ [9,"RB4","PORTB","SOSCI","PGED3/SOSCI/AN15/U2RTS/CN1/RB4","AN15"],
+ [10,"RA4","PORTA","SOSCO","PGEC3/SOSCO/SCLKI/U2CTS/CN0/RA4","—"],
+ [11,"RB7","PORTB","U1TX","U1TX/C2OUT/OC1/IC1/CTED1/INT0/CN23/RB7","—"],
+ [12,"RB8","PORTB","SCL1","SCL1/U1CTS/C3OUT/CTED10/CN22/RB8","—"],
+ [13,"RB9","PORTB","SDA1","SDA1/T1CK/U1RTS/IC2/CTED4/CN21/RB9","—"],
+ [14,"RA6","PORTA","VCAP","VCAP/RA6","—"],
+ [15,"RB12","PORTB","AN12/SCK1","AN12/HLVDIN/SCK1/SS2/IC3/CTED2/INT2/CN14/RB12","AN12"],
+ [16,"RB13","PORTB","AN11/SDO1","AN11/SDO1/OCFB/CTPLS/CN13/RB13","AN11"],
+ [17,"RB14","PORTB","AN10/SDI1","CVREF/AN10/C3INB/RTCC/SDI1/C1OUT/OCFA/CTED5/INT1/CN12/RB14","AN10"],
+ [18,"RB15","PORTB","AN9/SS1","AN9/C3INA/SCL2/T3CK/T2CK/REFO/SS1/CTED6/CN11/RB15","AN9"],
+ [19,"VSS","—","VSS","VSS/AVSS","—"],
+ [20,"VDD","—","VDD","VDD/AVDD","—"]
+];
+
+DB[28] = [
+ [1,"RA5","PORTA","MCLR","MCLR/VPP/RA5","—"],
+ [2,"RA0","PORTA","VREF+/AN0","PGEC2/VREF+/CVREF+/AN0/C3INC/CTED1/CN2/RA0","AN0"],
+ [3,"RA1","PORTA","VREF-/AN1","PGED2/CVREF-/VREF-/AN1/CN3/RA1","AN1"],
+ [4,"RB0","PORTB","AN2/U2TX","PGED1/AN2/ULPWU/CTCMP/C1IND/C2INB/C3IND/U2TX/CN4/RB0","AN2"],
+ [5,"RB1","PORTB","AN3/U2RX","PGEC1/AN3/C1INC/C2INA/U2RX/CTED12/CN5/RB1","AN3"],
+ [6,"RB2","PORTB","AN4/U1RX","AN4/C1INB/C2IND/SDA2/T5CK/T4CK/U1RX/CTED13/CN6/RB2","AN4"],
+ [7,"RB3","PORTB","AN5/SCL2","AN5/C1INA/C2INC/SCL2/CN7/RB3","AN5"],
+ [8,"VSS","—","VSS","VSS","—"],
+ [9,"RA2","PORTA","OSCI","OSCI/AN13/CLKI/CN30/RA2","AN13"],
+ [10,"RA3","PORTA","OSCO","OSCO/AN14/CLKO/CN29/RA3","AN14"],
+ [11,"RB4","PORTB","SOSCI","SOSCI/AN15/U2RTS/CN1/RB4","AN15"],
+ [12,"RA4","PORTA","SOSCO","SOSCO/SCLKI/U2CTS/CN0/RA4","—"],
+ [13,"VDD","—","VDD","VDD","—"],
+ [14,"RB5","PORTB","ASDA1/SCK2","PGED3/ASDA1/SCK2/CN27/RB5","—"],
+ [15,"RB6","PORTB","ASCL1/SDO2","PGEC3/ASCL1/SDO2/CN24/RB6","—"],
+ [16,"RB7","PORTB","U1TX","U1TX/C2OUT/OC1/INT0/CN23/RB7","—"],
+ [17,"RB8","PORTB","SCL1","SCL1/U1CTS/C3OUT/CTED10/CN22/RB8","—"],
+ [18,"RB9","PORTB","SDA1","SDA1/T1CK/U1RTS/IC2/CTED4/CN21/RB9","—"],
+ [19,"RA7","PORTA","SDI2/IC1","SDI2/IC1/CTED3/CN9/RA7","—"],
+ [20,"RA6","PORTA","VCAP","VCAP/RA6","—"],
+ [21,"RB10","PORTB","SDI1","PGED2/SDI1/OC3/CTED11/CN16/RB10","—"],
+ [22,"RB11","PORTB","SCK1","PGEC2/SCK1/OC2/CTED9/CN15/RB11","—"],
+ [23,"RB12","PORTB","AN12/SS2","AN12/HLVDIN/SS2/IC3/CTED2/INT2/CN14/RB12","AN12"],
+ [24,"RB13","PORTB","AN11/SDO1","AN11/SDO1/OCFB/CTPLS/CN13/RB13","AN11"],
+ [25,"RB14","PORTB","AN10/CVREF","CVREF/AN10/C3INB/RTCC/C1OUT/OCFA/CTED5/INT1/CN12/RB14","AN10"],
+ [26,"RB15","PORTB","AN9/SS1","AN9/C3INA/T3CK/T2CK/REFO/SS1/CTED6/CN11/RB15","AN9"],
+ [27,"VSS","—","AVSS","VSS/AVSS","—"],
+ [28,"VDD","—","AVDD","VDD/AVDD","—"]
+];
+
+/* 48-pin UQFN — N/C at pins 8, 20, 32, 44 */
+DB[48] = [
+ [1,"RB9","PORTB","SDA1","SDA1/T1CK/U1RTS/CTED4/CN21/RB9","—"],
+ [2,"RC6","PORTC","U1RX","U1RX/CN18/RC6","—"],
+ [3,"RC7","PORTC","U1TX","U1TX/CN17/RC7","—"],
+ [4,"RC8","PORTC","OC2","OC2/CN20/RC8","—"],
+ [5,"RC9","PORTC","IC2","IC2/CTED7/CN19/RC9","—"],
+ [6,"RA7","PORTA","IC1","IC1/CTED3/CN9/RA7","—"],
+ [7,"RA6","PORTA","VCAP","VCAP/RA6","—"],
+ [8,"N/C","—","N/C","No Connection","—"],
+ [9,"RB10","PORTB","SDI1","PGED2/SDI1/CTED11/CN16/RB10","—"],
+ [10,"RB11","PORTB","SCK1","PGEC2/SCK1/CTED9/CN15/RB11","—"],
+ [11,"RB12","PORTB","AN12","AN12/HLVDIN/CTED2/INT2/CN14/RB12","AN12"],
+ [12,"RB13","PORTB","AN11/SDO1","AN11/SDO1/CTPLS/CN13/RB13","AN11"],
+ [13,"RA10","PORTA","OC3","OC3/CN35/RA10","—"],
+ [14,"RA11","PORTA","IC3","IC3/CTED8/CN36/RA11","—"],
+ [15,"RB14","PORTB","AN10/CVREF","CVREF/AN10/C3INB/RTCC/C1OUT/OCFA/CTED5/INT1/CN12/RB14","AN10"],
+ [16,"RB15","PORTB","AN9/SS1","AN9/C3INA/T3CK/T2CK/REFO/SS1/CTED6/CN11/RB15","AN9"],
+ [17,"VSS","—","AVSS","AVSS/VSS","—"],
+ [18,"VDD","—","AVDD","AVDD/VDD","—"],
+ [19,"RA5","PORTA","MCLR","MCLR/VPP/RA5","—"],
+ [20,"N/C","—","N/C","No Connection","—"],
+ [21,"RA0","PORTA","VREF+/AN0","PGEC2/VREF+/CVREF+/AN0/C3INC/CTED1/CN2/RA0","AN0"],
+ [22,"RA1","PORTA","VREF-/AN1","PGED2/CVREF-/VREF-/AN1/CN3/RA1","AN1"],
+ [23,"RB0","PORTB","AN2/U2TX","PGED1/AN2/ULPWU/CTCMP/C1IND/C2INB/C3IND/U2TX/CN4/RB0","AN2"],
+ [24,"RB1","PORTB","AN3/U2RX","PGEC1/AN3/C1INC/C2INA/U2RX/CTED12/CN5/RB1","AN3"],
+ [25,"RB2","PORTB","AN4/SDA2","AN4/C1INB/C2IND/SDA2/T5CK/T4CK/CTED13/CN6/RB2","AN4"],
+ [26,"RB3","PORTB","AN5/SCL2","AN5/C1INA/C2INC/SCL2/CN7/RB3","AN5"],
+ [27,"RC0","PORTC","AN6","AN6/C3INC/CN32/RC0","AN6"],
+ [28,"RC1","PORTC","AN7","AN7/C3IND/CN31/RC1","AN7"],
+ [29,"RC2","PORTC","AN8","AN8/CN10/RC2","AN8"],
+ [30,"VDD","—","VDD","VDD","—"],
+ [31,"VSS","—","VSS","VSS","—"],
+ [32,"N/C","—","N/C","No Connection","—"],
+ [33,"RA2","PORTA","OSCI","OSCI/AN13/CLKI/CN30/RA2","AN13"],
+ [34,"RA3","PORTA","OSCO","OSCO/AN14/CLKO/CN29/RA3","AN14"],
+ [35,"RA8","PORTA","OCFB","OCFB/CN33/RA8","—"],
+ [36,"RB4","PORTB","SOSCI","SOSCI/AN15/U2RTS/CN1/RB4","AN15"],
+ [37,"RA4","PORTA","SOSCO","SOSCO/SCLKI/U2CTS/CN0/RA4","—"],
+ [38,"RA9","PORTA","SS2","SS2/CN34/RA9","—"],
+ [39,"RC3","PORTC","SDI2","SDI2/CN28/RC3","—"],
+ [40,"RC4","PORTC","SDO2","SDO2/CN25/RC4","—"],
+ [41,"RC5","PORTC","SCK2","SCK2/CN26/RC5","—"],
+ [42,"VSS","—","VSS","VSS","—"],
+ [43,"VDD","—","VDD","VDD","—"],
+ [44,"N/C","—","N/C","No Connection","—"],
+ [45,"RB5","PORTB","ASDA1","PGED3/ASDA1/CN27/RB5","—"],
+ [46,"RB6","PORTB","ASCL1","PGEC3/ASCL1/CN24/RB6","—"],
+ [47,"RB7","PORTB","OC1","C2OUT/OC1/INT0/CN23/RB7","—"],
+ [48,"RB8","PORTB","SCL1","SCL1/U1CTS/C3OUT/CTED10/CN22/RB8","—"]
+];
+
+/* 44-pin TQFP/QFN = 48-pin table minus the four N/C pins, renumbered 1..44 */
+DB[44] = DB[48].filter(function(p){ return p[1] !== "N/C"; })
+               .map(function(p,i){ return [i+1, p[1], p[2], p[3], p[4], p[5]]; });
+
+/* =========================================================
+   PERIPHERAL GROUPS — derived from each pin's function string
+   ========================================================= */
+var GROUPS = ["GPIO","UART","SPI","I2C","ADC","TIMER","IC","OC","CMP","OSC","INT","PWR"];
+var LABEL = {GPIO:"GPIO",UART:"UART",SPI:"SPI",I2C:"I2C",ADC:"ADC",TIMER:"Timer",
+  IC:"Input Cap",OC:"PWM/OC",CMP:"Comparator",OSC:"Oscillator",INT:"Interrupt",PWR:"Power",OTHER:"Other"};
+
+function groupsOf(p){
+  var s = String(p[4]).toUpperCase(), g = [];
+  if(/U[12](TX|RX|RTS|CTS)/.test(s))                            g.push("UART");
+  if(/\b(SDI|SDO|SCK|SS)[12]\b/.test(s))                        g.push("SPI");
+  if(/\b(A?SCL|A?SDA)[12]\b/.test(s))                           g.push("I2C");
+  if(/\bAN\d{1,2}\b/.test(s))                                   g.push("ADC");
+  if(/\bT[1-5]CK\b/.test(s))                                    g.push("TIMER");
+  if(/\bIC[1-3]\b/.test(s))                                     g.push("IC");
+  if(/\b(OC[1-3]|OCFA|OCFB)\b/.test(s))                         g.push("OC");
+  if(/(C[123]IN[ABCD]|C[123]OUT|CVREF)/.test(s))                g.push("CMP");
+  if(/\b(OSCI|OSCO|SOSCI|SOSCO|CLKI|CLKO|SCLKI|REFO)\b/.test(s)) g.push("OSC");
+  if(/\bINT[0-2]\b/.test(s))                                    g.push("INT");
+  if(/\b(VDD|VSS|AVDD|AVSS|VCAP|MCLR|VPP)\b/.test(s))           g.push("PWR");
+  if(/\bR[ABC]\d{1,2}\b/.test(s) && p[1] !== "N/C" &&
+     p[1] !== "VDD" && p[1] !== "VSS")                          g.push("GPIO");
+  if(!g.length) g.push("OTHER");
+  return g;
+}
+
+/* Power / no-connect pins cannot be assigned */
+function isFixed(p){
+  return p[1] === "N/C" || p[1] === "VSS" || p[1] === "VDD" ||
+         p[3] === "VCAP" || p[3] === "MCLR";
+}
+
+/* Real selectable functions for a pin, parsed from its own mux string */
+var SKIP = /^(CN\d+|R[ABC]\d+|PGE[CD]\d|VPP|No|Connection|VSS|VDD|AVSS|AVDD)$/i;
+function funcsOf(p){
+  var out = ["GPIO"];
+  String(p[4]).split("/").forEach(function(tok){
+    tok = tok.trim();
+    if(!tok || SKIP.test(tok)) return;
+    if(out.indexOf(tok) === -1) out.push(tok);
+  });
+  return out;
+}
+
+/* =========================================================
+   STATE
+   ========================================================= */
+var PKG = 44, PINS = DB[44];
+var filter = "ALL", sortKey = "num", sortAsc = true;
+var sel = {};
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function pinRow(n){ for(var i=0;i<PINS.length;i++) if(PINS[i][0]===n) return PINS[i]; return null; }
+function selectedPins(){ return Object.keys(sel).map(Number).sort(function(a,b){return a-b;}); }
+
+function toast(msg, isErr){
+  var t = document.createElement("div");
+  t.className = "toast" + (isErr ? " err" : "");
+  t.textContent = (isErr ? "✕ " : "✓ ") + msg;
+  $("toasts").appendChild(t);
+  setTimeout(function(){
+    t.style.transition = "opacity .3s"; t.style.opacity = "0";
+    setTimeout(function(){ if(t.parentNode) t.remove(); }, 320);
+  }, 2600);
+}
+
+function tagHtml(gs){
+  return gs.map(function(g){ return '<span class="tag g-'+g+'">'+(LABEL[g]||g)+'</span>'; }).join("");
+}
+
+/* =========================================================
+   PACKAGE SELECT
+   ========================================================= */
+function setPackage(pkg, quiet){
+  PKG  = pkg;
+  PINS = DB[pkg];
+  sel  = {};                       /* pin numbering changes → reset assignments */
+
+  var btns = document.querySelectorAll("#pkgGrid .pkg-btn");
+  for(var i=0;i<btns.length;i++)
+    btns[i].classList.toggle("active", btns[i].getAttribute("data-pkg") === String(pkg));
+
+  var io  = PINS.filter(function(p){ return !isFixed(p); }).length;
+  var adc = PINS.filter(function(p){ return p[5] !== "—"; }).length;
+  $("sPins").textContent = pkg;
+  $("sIO").textContent   = io;
+  $("sADC").textContent  = adc;
+  $("expPkg").textContent = pkg;
+
+  buildFilterBar();
+  renderPinTable();
+  renderSelTable();
+  renderSidebar();
+  if(!quiet) toast(pkg + "-pin package loaded — " + io + " assignable I/O");
+}
+
+/* =========================================================
+   FILTER BAR — built per package, with live counts
+   ========================================================= */
+function buildFilterBar(){
+  var counts = {ALL: PINS.length};
+  GROUPS.forEach(function(g){ counts[g] = 0; });
+  counts.OTHER = 0;
+  PINS.forEach(function(p){
+    groupsOf(p).forEach(function(g){ if(counts[g] !== undefined) counts[g]++; });
+  });
+
+  var order = ["ALL"].concat(GROUPS, ["OTHER"]);
+  var bar = $("filterBar");
+  bar.innerHTML = "";
+  order.forEach(function(g){
+    if(g !== "ALL" && !counts[g]) return;            /* hide empty groups */
+    var b = document.createElement("button");
+    b.className = "fbtn" + (g === filter ? " active" : "");
+    b.setAttribute("data-f", g);
+    b.innerHTML = (g === "ALL" ? "ALL" : (LABEL[g] || g)) +
+                  '<span class="cnt">' + counts[g] + '</span>';
+    b.addEventListener("click", function(){ setFilter(g); });
+    bar.appendChild(b);
+  });
+
+  if(filter !== "ALL" && !counts[filter]) filter = "ALL";   /* group gone in this package */
+}
+
+function setFilter(g){
+  filter = g;
+  var btns = document.querySelectorAll("#filterBar .fbtn");
+  for(var i=0;i<btns.length;i++)
+    btns[i].classList.toggle("active", btns[i].getAttribute("data-f") === g);
+  renderPinTable();
+}
+
+/* =========================================================
+   PINOUT TABLE
+   ========================================================= */
+function renderPinTable(){
+  var q = ($("pinSearch").value || "").trim().toLowerCase();
+
+  var rows = PINS.filter(function(p){
+    if(filter !== "ALL" && groupsOf(p).indexOf(filter) === -1) return false;
+    if(q){
+      var hay = (p[0]+" "+p[1]+" "+p[2]+" "+p[3]+" "+p[4]).toLowerCase();
+      if(hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+
+  var idx = {num:0, gpio:1, port:2, prim:3}, k = idx[sortKey];
+  rows.sort(function(a,b){
+    var r = (k === 0) ? (a[k] - b[k])
+                      : String(a[k]).localeCompare(String(b[k]), undefined, {numeric:true});
+    return sortAsc ? r : -r;
+  });
+
+  var body = $("pinBody");
+  body.innerHTML = "";
+  if(!rows.length){
+    body.innerHTML = '<tr class="empty-row"><td colspan="6">No pins match this filter / search.</td></tr>';
+  } else {
+    rows.forEach(function(p){
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td class="pnum">'+p[0]+'</td>'+
+        '<td class="pgpio">'+esc(p[1])+'</td>'+
+        '<td style="font-size:.76rem;color:var(--t3)">'+esc(p[2])+'</td>'+
+        '<td class="pprim">'+esc(p[3])+'</td>'+
+        '<td class="pfunc">'+esc(p[4])+'</td>'+
+        '<td>'+tagHtml(groupsOf(p))+'</td>';
+      body.appendChild(tr);
+    });
+  }
+
+  var ths = document.querySelectorAll("#pinTable thead th[data-sort]");
+  for(var i=0;i<ths.length;i++){
+    var on = ths[i].getAttribute("data-sort") === sortKey;
+    ths[i].classList.toggle("sorted", on);
+    var ar = ths[i].querySelector(".ar");
+    if(ar) ar.textContent = on ? (sortAsc ? "▲" : "▼") : "▲";
+  }
+
+  $("pinCount").textContent = "Showing " + rows.length + " of " + PINS.length + " pins" +
+    (filter !== "ALL" ? "  ·  group: " + (LABEL[filter]||filter) : "");
+}
+
+/* =========================================================
+   SELECTION TABLE
+   ========================================================= */
+function renderSelTable(){
+  var q = ($("selSearch").value || "").trim().toLowerCase();
+  var body = $("selBody");
+  body.innerHTML = "";
+
+  PINS.forEach(function(p){
+    if(q){
+      var hay = (p[0]+" "+p[1]+" "+p[3]+" "+p[4]).toLowerCase();
+      if(hay.indexOf(q) === -1) return;
+    }
+    var fixed = isFixed(p);
+    var tr = document.createElement("tr");
+    if(sel[p[0]]) tr.className = "picked";
+
+    var opts;
+    if(fixed){
+      opts = '<option>' + esc(p[3]) + ' — fixed</option>';
+    } else {
+      opts = '<option value="">— unassigned —</option>' + funcsOf(p).map(function(f){
+        return '<option value="'+esc(f)+'"'+(sel[p[0]]===f?" selected":"")+'>'+esc(f)+'</option>';
+      }).join("");
+    }
+
+    tr.innerHTML =
+      '<td><input type="checkbox" class="chk" data-pin="'+p[0]+'"'+
+        (sel[p[0]]?" checked":"")+(fixed?" disabled":"")+'></td>'+
+      '<td class="pnum">'+p[0]+'</td>'+
+      '<td class="pgpio">'+esc(p[1])+'</td>'+
+      '<td class="pprim">'+esc(p[3])+'</td>'+
+      '<td><select class="fs" data-pin="'+p[0]+'"'+(fixed?" disabled":"")+'>'+opts+'</select></td>';
+    body.appendChild(tr);
+  });
+
+  if(!body.children.length)
+    body.innerHTML = '<tr class="empty-row"><td colspan="5">No pins match that filter.</td></tr>';
+
+  var cbs = body.querySelectorAll("input.chk");
+  for(var i=0;i<cbs.length;i++){
+    cbs[i].addEventListener("change", function(){
+      var pin = parseInt(this.getAttribute("data-pin"), 10);
+      var dd  = body.querySelector('select.fs[data-pin="'+pin+'"]');
+      if(this.checked){
+        sel[pin] = (dd && dd.value) ? dd.value : "GPIO";
+        if(dd && !dd.value) dd.value = "GPIO";
+      } else {
+        delete sel[pin];
+        if(dd) dd.value = "";
+      }
+      this.parentNode.parentNode.classList.toggle("picked", !!sel[pin]);
+      renderSidebar();
+    });
+  }
+
+  var dds = body.querySelectorAll("select.fs");
+  for(var j=0;j<dds.length;j++){
+    dds[j].addEventListener("change", function(){
+      var pin = parseInt(this.getAttribute("data-pin"), 10);
+      var cb  = body.querySelector('input.chk[data-pin="'+pin+'"]');
+      if(this.value){ sel[pin] = this.value; if(cb) cb.checked = true; }
+      else { delete sel[pin]; if(cb) cb.checked = false; }
+      this.parentNode.parentNode.classList.toggle("picked", !!sel[pin]);
+      renderSidebar();
+    });
+  }
+}
+
+/* =========================================================
+   SIDEBAR · CONFLICTS · PREVIEW
+   ========================================================= */
+function findConflicts(){
+  var used = {}, bad = {};
+  selectedPins().forEach(function(pin){
+    var f = sel[pin];
+    if(f === "GPIO") return;                     /* GPIO on many pins is legal */
+    if(used[f] !== undefined) bad[f] = (bad[f] || [used[f]]).concat(pin);
+    else used[f] = pin;
+  });
+  return bad;
+}
+
+function renderSidebar(){
+  var pins = selectedPins();
+  $("selBadge").textContent = pins.length;
+  $("expCount").textContent = pins.length;
+
+  var badFns = Object.keys(findConflicts());
+  $("conflictMsg").textContent = badFns.length ? "⚠ Duplicate assignment: " + badFns.join(", ") : "";
+
+  var trs = document.querySelectorAll("#selBody tr");
+  for(var i=0;i<trs.length;i++){
+    var cb = trs[i].querySelector("input.chk");
+    if(!cb) continue;
+    var f = sel[parseInt(cb.getAttribute("data-pin"), 10)];
+    trs[i].classList.toggle("conflict", !!(f && badFns.indexOf(f) !== -1));
+  }
+
+  var list = $("selList");
+  if(!pins.length){
+    list.innerHTML = '<div class="side-empty">No pins selected yet</div>';
+  } else {
+    list.innerHTML = pins.map(function(pin){
+      var p = pinRow(pin);
+      return '<div class="srow"><span class="lb">P'+pin+' · '+esc(p[1])+'</span>'+
+             '<span class="fn">'+esc(sel[pin])+'</span></div>';
+    }).join("");
+  }
+
+  var can = pins.length > 0;
+  ["btnCsv","btnSideExport"].forEach(function(id){ $(id).disabled = !can; });
+  renderPreview();
+}
+
+function renderPreview(){
+  var pins = selectedPins();
+  if(!pins.length){
+    $("preview").textContent = "No pins selected yet. Open the Selection tab to choose pins.";
+    return;
+  }
+  var pad = function(s,n){ s = String(s); while(s.length < n) s += " "; return s; };
+  var out = "PIC24FV32KA304  ·  " + PKG + "-pin package  ·  " + pins.length + " pin(s)\n" +
+            "Generated " + new Date().toLocaleString() + "\n\n" +
+            pad("PIN",5)+pad("PORT PIN",10)+pad("PORT",8)+pad("ASSIGNED",16)+"ADC\n" +
+            new Array(58).join("-") + "\n";
+  pins.forEach(function(pin){
+    var p = pinRow(pin);
+    out += pad(p[0],5)+pad(p[1],10)+pad(p[2],8)+pad(sel[pin],16)+p[5]+"\n";
+  });
+  var bad = Object.keys(findConflicts());
+  if(bad.length) out += "\n! WARNING - duplicate assignments: " + bad.join(", ") + "\n";
+  $("preview").textContent = out;
+}
+
+/* =========================================================
+   EXPORTS
+   ========================================================= */
+function rowsForExport(){
+  var head = ["Pin","Port Pin","Port","Primary Function","Assigned Function",
+              "ADC Channel","Peripheral Groups","Multiplexed Functions"];
+  var body = selectedPins().map(function(pin){
+    var p = pinRow(pin);
+    return [p[0], p[1], p[2], p[3], sel[pin], p[5], groupsOf(p).join(" "), p[4]];
+  });
+  return [head].concat(body);
+}
+
+function download(name, content, mime){
+  var blob = new Blob([content], {type: mime});
+  var url  = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+}
+
+function exportCsv(){
+  if(!selectedPins().length){ toast("Select at least one pin first", true); return; }
+  var q = function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; };
+  var csv = rowsForExport().map(function(r){ return r.map(q).join(","); }).join("\r\n");
+  download("PIC24FV32KA304_" + PKG + "pin_PinAssignment.csv",
+           "\uFEFF" + csv, "text/csv;charset=utf-8");
+  toast("CSV exported");
+}
+
+/* =========================================================
+   PERIPHERAL SUMMARY
+   ========================================================= */
+function buildPeriphTable(){
+  var rows = [
+    ["UART","g-UART","2× UART — RS-232 / RS-485 / LIN-J2602, IrDA, auto-baud"],
+    ["SPI","g-SPI","2× SPI — 3-wire / 4-wire, 8- or 16-bit, framed mode"],
+    ["I2C","g-I2C","2× I²C — multi-master / slave, 100 &amp; 400 kHz, SMBus"],
+    ["ADC","g-ADC","12-bit, 16 channels, up to 100 ksps, auto-scan"],
+    ["Timer","g-TIMER","5× 16-bit timers — Timer2/3 and Timer4/5 pairable to 32-bit"],
+    ["Input Cap","g-IC","3× Input Capture with 4-deep FIFO"],
+    ["PWM/OC","g-OC","3× Output Compare / PWM with fault inputs (OCFA / OCFB)"],
+    ["Comparator","g-CMP","3× analogue comparators with CVREF DAC"],
+    ["Other","g-OTHER","CTMU (cap touch), RTCC, CRC engine, HLVD, 512 B EEPROM"]
+  ];
+  $("periphTable").innerHTML = rows.map(function(r){
+    return '<tr><td style="width:190px"><span class="tag '+r[1]+'">'+r[0]+'</span></td>'+
+           '<td style="font-size:.83rem;font-weight:300">'+r[2]+'</td></tr>';
+  }).join("");
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+document.addEventListener("DOMContentLoaded", function(){
+
+  /* nav tabs */
+  var tabs = document.querySelectorAll(".nav-tab");
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].addEventListener("click", function(){
+      var t = document.querySelectorAll(".nav-tab"), p = document.querySelectorAll(".panel");
+      for(var a=0;a<t.length;a++) t[a].classList.remove("active");
+      for(var b=0;b<p.length;b++) p[b].classList.remove("active");
+      this.classList.add("active");
+      $("panel-" + this.getAttribute("data-panel")).classList.add("active");
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  }
+
+  /* package buttons */
+  var pk = document.querySelectorAll("#pkgGrid .pkg-btn");
+  for(var j=0;j<pk.length;j++){
+    pk[j].addEventListener("click", function(){
+      setPackage(parseInt(this.getAttribute("data-pkg"), 10));
+    });
+  }
+
+  /* sortable headers */
+  var ths = document.querySelectorAll("#pinTable thead th[data-sort]");
+  for(var m=0;m<ths.length;m++){
+    ths[m].addEventListener("click", function(){
+      var k = this.getAttribute("data-sort");
+      if(sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; }
+      renderPinTable();
+    });
+  }
+
+  /* searches */
+  $("pinSearch").addEventListener("input", renderPinTable);
+  $("selSearch").addEventListener("input", function(){ renderSelTable(); renderSidebar(); });
+
+  /* clear */
+  $("btnClear").addEventListener("click", function(){
+    if(!selectedPins().length){ toast("Nothing to clear", true); return; }
+    sel = {}; renderSelTable(); renderSidebar(); toast("All selections cleared");
+  });
+
+  /* exports */
+  $("btnCsv").addEventListener("click", exportCsv);
+  $("btnSideExport").addEventListener("click", function(){
+    exportCsv();
+    document.querySelector('.nav-tab[data-panel="export"]').click();
+  });
+
+  buildPeriphTable();
+  setPackage(44, true);
+});
+</script>
+</body>
+</html>

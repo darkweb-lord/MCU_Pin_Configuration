@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PIC32MZ2048EFM064 — Pin Mapping Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b14;--bg2:#0c111e;--bg3:#101624;--card:#0f1520;
+  --border:#1a2535;--border2:#1e3048;
+  --accent:#00d4ff;--green:#10b981;--red:#ef4444;--orange:#f97316;
+  --purple:#a855f7;--yellow:#f59e0b;--pink:#ec4899;--teal:#14b8a6;
+  --txt:#e2e8f0;--txt2:#94a3b8;--txt3:#475569;
+  --mono:'JetBrains Mono',monospace;--ui:'Syne',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--ui);min-height:100vh}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#070b14 0%,#0a0f1c 50%,#12070e 100%);
+  border-bottom:1px solid var(--border2);padding:28px 40px 20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 500px 250px at 75% 50%,rgba(0,212,255,0.07) 0%,transparent 70%);
+  pointer-events:none}
+.hero-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.hero-eyebrow{font-family:var(--mono);font-size:0.68rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.hero-title{font-size:2rem;font-weight:800;letter-spacing:-1.5px;line-height:1.05;
+  background:linear-gradient(120deg,#fff 0%,#00d4ff 45%,#a855f7 90%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.hero-sub{font-size:0.78rem;color:var(--txt2);font-family:var(--mono);margin-bottom:14px}
+.hero-chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:var(--mono);font-size:0.64rem;font-weight:700;padding:3px 10px;
+  border-radius:3px;border:1px solid;white-space:nowrap}
+.chip.a{border-color:rgba(0,212,255,0.4);color:var(--accent);background:rgba(0,212,255,0.06)}
+.chip.g{border-color:rgba(16,185,129,0.4);color:var(--green);background:rgba(16,185,129,0.06)}
+.chip.p{border-color:rgba(168,85,247,0.4);color:var(--purple);background:rgba(168,85,247,0.06)}
+.chip.o{border-color:rgba(249,115,22,0.4);color:var(--orange);background:rgba(249,115,22,0.06)}
+.chip.r{border-color:rgba(239,68,68,0.4);color:var(--red);background:rgba(239,68,68,0.06)}
+
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;min-width:360px}
+.stat{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center}
+.stat-v{font-size:1.4rem;font-weight:800;font-family:var(--mono);color:var(--accent)}
+.stat-l{font-size:0.58rem;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* NAV */
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:0 40px;overflow-x:auto;position:sticky;top:0;z-index:100;gap:0}
+.nav-tab{padding:11px 18px;font-size:0.75rem;font-weight:700;color:var(--txt3);
+  cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;
+  transition:all 0.18s;font-family:var(--mono);user-select:none}
+.nav-tab:hover{color:var(--txt);background:rgba(255,255,255,0.03)}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,212,255,0.04)}
+
+/* PANELS */
+.panel{display:none;padding:24px 40px;animation:fadeIn 0.18s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* SEC HEAD */
+.sh{margin-bottom:16px}
+.sh h2{font-size:1.15rem;font-weight:800;display:flex;align-items:center;gap:10px}
+.sh h2::after{content:'';flex:1;height:1px;background:var(--border2)}
+.sh p{font-size:0.75rem;color:var(--txt3);margin-top:4px;font-family:var(--mono)}
+
+/* FILTERS */
+.filter-bar{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;align-items:center}
+.fl{font-size:0.62rem;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+.fbtn{font-size:0.63rem;font-weight:700;padding:4px 10px;border-radius:3px;
+  border:1px solid var(--border2);background:transparent;color:var(--txt3);
+  cursor:pointer;font-family:var(--mono);transition:all 0.13s;user-select:none}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.on{border-color:transparent!important;color:#000!important}
+.fbtn[data-f="ALL"].on{background:var(--accent)}
+.fbtn[data-f="CAN"].on{background:#ef4444}
+.fbtn[data-f="UART"].on{background:#f97316}
+.fbtn[data-f="SPI"].on{background:#a855f7}
+.fbtn[data-f="I2C"].on{background:#06b6d4}
+.fbtn[data-f="ETH"].on{background:#0ea5e9}
+.fbtn[data-f="USB"].on{background:#14b8a6}
+.fbtn[data-f="ADC"].on{background:#84cc16}
+.fbtn[data-f="GPIO"].on{background:#3b82f6}
+.fbtn[data-f="PPS"].on{background:#818cf8}
+.fbtn[data-f="EXT"].on{background:#10b981}
+.fbtn[data-f="OSC"].on{background:#ec4899}
+.fbtn[data-f="JTAG"].on{background:#f59e0b}
+.fbtn[data-f="ICSP"].on{background:#fb923c}
+.fbtn[data-f="PWR"].on{background:#6b7280}
+.fbtn[data-f="COMP"].on{background:#8b5cf6}
+
+.search-inp{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;
+  color:var(--txt);font-family:var(--mono);font-size:0.7rem;padding:6px 12px;
+  width:200px;outline:none;margin-left:auto}
+.search-inp:focus{border-color:var(--accent)}
+.search-inp::placeholder{color:var(--txt3)}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:0.71rem}
+thead th{background:var(--bg3);color:var(--txt2);padding:8px 10px;font-weight:700;
+  text-align:left;white-space:nowrap;border-bottom:1px solid var(--border2);
+  font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer}
+thead th:hover{color:var(--accent)}
+tbody tr{border-bottom:1px solid rgba(26,37,53,0.7);transition:background 0.1s}
+tbody tr:hover{background:rgba(255,255,255,0.025)}
+tbody tr.hidden{display:none}
+tbody td{padding:6px 10px;vertical-align:middle}
+.pn{font-weight:700;color:var(--accent);font-size:0.78rem;font-family:var(--mono)}
+.pt{color:var(--txt2);font-family:var(--mono);font-size:0.7rem}
+.pf{font-family:var(--mono);font-size:0.68rem;color:var(--txt2)}
+
+/* TAGS */
+.tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:0.58rem;
+  font-weight:700;margin:1px;white-space:nowrap;font-family:var(--mono)}
+.tCAN{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.tUART{background:rgba(249,115,22,.15);color:#fdba74;border:1px solid rgba(249,115,22,.3)}
+.tSPI{background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.3)}
+.tI2C{background:rgba(6,182,212,.15);color:#67e8f9;border:1px solid rgba(6,182,212,.3)}
+.tETH{background:rgba(14,165,233,.15);color:#7dd3fc;border:1px solid rgba(14,165,233,.3)}
+.tUSB{background:rgba(20,184,166,.15);color:#5eead4;border:1px solid rgba(20,184,166,.3)}
+.tADC{background:rgba(132,204,22,.15);color:#bef264;border:1px solid rgba(132,204,22,.3)}
+.tGPIO{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
+.tPPS{background:rgba(129,140,248,.15);color:#c7d2fe;border:1px solid rgba(129,140,248,.3)}
+.tPWR{background:rgba(107,114,128,.2);color:#d1d5db;border:1px solid rgba(107,114,128,.4)}
+.tOSC{background:rgba(236,72,153,.15);color:#f9a8d4;border:1px solid rgba(236,72,153,.3)}
+.tJTAG{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+.tEXT{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)}
+.tICSP{background:rgba(251,146,60,.15);color:#fed7aa;border:1px solid rgba(251,146,60,.3)}
+.tCOMP{background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.3)}
+.tRTCC{background:rgba(236,72,153,.15);color:#fbcfe8;border:1px solid rgba(236,72,153,.2)}
+.t5V{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.25)}
+
+/* SVG CHIP */
+.chip-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0}
+.leg-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px;max-width:800px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:0.65rem;color:var(--txt2)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* PPS */
+.pps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:20px}
+.pcard{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:14px;position:relative;overflow:hidden}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.pcard.can::before{background:#ef4444}.pcard.uart::before{background:#f97316}
+.pcard.spi::before{background:#a855f7}.pcard.i2c::before{background:#06b6d4}
+.pcard.ext::before{background:#10b981}.pcard.eth::before{background:#0ea5e9}
+.pcard-title{font-size:0.75rem;font-weight:800;margin-bottom:8px}
+.pcard-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);
+  border-radius:4px;padding:6px 8px;margin-bottom:4px}
+.pcard-sig{font-size:0.64rem;font-weight:700;color:var(--txt2);font-family:var(--mono)}
+.pcard-pins{font-size:0.59rem;color:var(--txt3);font-family:var(--mono);margin-top:2px;line-height:1.5}
+
+/* INFO BOXES */
+.info{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);
+  border-radius:7px;padding:11px 14px;font-size:0.75rem;color:var(--txt2);line-height:1.7;margin-bottom:14px}
+.info strong{color:var(--accent)}
+.warn{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);
+  border-radius:7px;padding:11px 14px;font-size:0.75rem;color:#fcd34d;line-height:1.7;margin-bottom:14px}
+.ok{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);
+  border-radius:7px;padding:11px 14px;font-size:0.75rem;color:#6ee7b7;line-height:1.7;margin-bottom:14px}
+
+/* MEM CARDS */
+.mem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+.mcard{background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:16px;position:relative;overflow:hidden}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.mcard.f::before{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+.mcard.d::before{background:linear-gradient(90deg,#06b6d4,#3b82f6)}
+.mcard.b::before{background:linear-gradient(90deg,#10b981,#84cc16)}
+.mcard.c::before{background:linear-gradient(90deg,#a855f7,#ec4899)}
+.mcard-title{font-size:0.82rem;font-weight:800;margin-bottom:4px}
+.mcard-sz{font-size:1.5rem;font-weight:800;font-family:var(--mono);margin-bottom:6px}
+.mcard-sz.f{color:#f59e0b}.mcard-sz.d{color:#06b6d4}.mcard-sz.b{color:#10b981}.mcard-sz.c{color:#a855f7}
+.mcard-desc{font-size:0.68rem;color:var(--txt2);line-height:1.7}
+.mcard-addr{font-family:var(--mono);font-size:0.6rem;color:var(--txt3);
+  margin-top:8px;background:rgba(255,255,255,.03);padding:4px 6px;border-radius:3px}
+
+/* SELECTOR */
+.sel-layout{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.sel-side{background:var(--card);border:1px solid var(--border2);border-radius:8px;
+  padding:16px;position:sticky;top:55px}
+.sel-title{font-size:0.85rem;font-weight:800;color:var(--accent);margin-bottom:10px}
+.sel-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 8px;background:rgba(255,255,255,.02);border-radius:4px;
+  margin-bottom:3px;border:1px solid var(--border)}
+.sel-sig{font-family:var(--mono);font-size:0.62rem;color:var(--txt2)}
+.sel-pin{font-family:var(--mono);font-size:0.62rem;font-weight:700;color:var(--accent)}
+.sel-empty{font-size:0.65rem;color:var(--txt3);font-style:italic;padding:5px}
+.sel-grp-name{font-size:0.63rem;font-weight:700;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px}
+
+.xbtn{width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;
+  cursor:pointer;font-family:var(--ui);font-size:0.75rem;margin-top:8px;transition:all 0.18s}
+.xbtn.xl{background:linear-gradient(135deg,#217346,#1e6b3f);color:#fff}
+.xbtn.xl:hover{opacity:0.88}
+.xbtn.csv{background:transparent;border:1px solid var(--accent);color:var(--accent);margin-top:5px}
+.xbtn.clr{background:transparent;border:1px solid rgba(239,68,68,.4);color:#fca5a5;margin-top:5px}
+
+select.fn-sel{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;
+  color:var(--txt2);font-family:var(--mono);font-size:0.6rem;padding:3px 5px;
+  width:100%;cursor:pointer;outline:none}
+select.fn-sel:focus{border-color:var(--accent)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@media(max-width:860px){.hero{padding:16px 20px}.panel{padding:18px 20px}.nav{padding:0 12px}.sel-layout{grid-template-columns:1fr}.stat-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-row">
+    <div>
+      <div class="hero-eyebrow">Microchip Technology · DS60001320 · Table 2</div>
+      <div class="hero-title">PIC32MZ2048EFM064</div>
+      <div class="hero-sub">64-Pin TQFP / QFN · 2 MB Flash · 512 KB SRAM · Crypto+RNG · 252 MHz · Complete Verified Pin Map</div>
+      <div class="hero-chips">
+        <span class="chip a">64-Pin TQFP/QFN</span>
+        <span class="chip g">2 MB Dual-Panel Flash</span>
+        <span class="chip g">512 KB SRAM</span>
+        <span class="chip p">Crypto + RNG (EFM)</span>
+        <span class="chip o">CAN×2 · UART×6 · SPI×6 · I²C×5</span>
+        <span class="chip a">Ethernet RMII</span>
+        <span class="chip r">USB 2.0 Hi-Speed OTG</span>
+        <span class="chip p">34 PPS Remappable Pins</span>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-v">64</div><div class="stat-l">Total Pins</div></div>
+      <div class="stat"><div class="stat-v">46</div><div class="stat-l">I/O Pins</div></div>
+      <div class="stat"><div class="stat-v">34</div><div class="stat-l">PPS Pins</div></div>
+      <div class="stat"><div class="stat-v">24</div><div class="stat-l">ADC Ch.</div></div>
+      <div class="stat"><div class="stat-v">18</div><div class="stat-l">SFR DMA</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav" id="mainNav">
+  <div class="nav-tab active" data-panel="pinmap">📌 Pin Map</div>
+  <div class="nav-tab" data-panel="chip">🔲 Chip Diagram</div>
+  <div class="nav-tab" data-panel="pps">🔀 PPS Remap</div>
+  <div class="nav-tab" data-panel="memory">💾 Memory</div>
+  <div class="nav-tab" data-panel="selector">⚙️ Pin Selector</div>
+</div>
+
+<!-- ══════════════ PINMAP ══════════════ -->
+<div id="panel-pinmap" class="panel active">
+  <div class="sh"><h2>📌 Complete Pin Reference — 64-Pin Package</h2>
+    <p>Source: DS60001320F Table 2 — verified against PIC32MZ2048EFM064. EFM = EFH + Hardware Crypto/RNG Engine.</p>
+  </div>
+  <div class="filter-bar" id="filterBar">
+    <span class="fl">Filter:</span>
+    <button class="fbtn on" data-f="ALL">All</button>
+    <button class="fbtn" data-f="CAN">CAN</button>
+    <button class="fbtn" data-f="UART">UART</button>
+    <button class="fbtn" data-f="SPI">SPI</button>
+    <button class="fbtn" data-f="I2C">I²C</button>
+    <button class="fbtn" data-f="ETH">Ethernet</button>
+    <button class="fbtn" data-f="USB">USB</button>
+    <button class="fbtn" data-f="ADC">ADC</button>
+    <button class="fbtn" data-f="PPS">PPS</button>
+    <button class="fbtn" data-f="COMP">Comparator</button>
+    <button class="fbtn" data-f="EXT">Ext IRQ</button>
+    <button class="fbtn" data-f="OSC">OSC</button>
+    <button class="fbtn" data-f="JTAG">JTAG</button>
+    <button class="fbtn" data-f="ICSP">ICSP</button>
+    <button class="fbtn" data-f="PWR">Power</button>
+    <input class="search-inp" id="pinSearch" placeholder="🔍 Search pin, port, function…">
+  </div>
+  <div class="tw">
+    <table id="pintable">
+      <thead><tr>
+        <th data-sort="0">Pin #</th>
+        <th data-sort="1">Port</th>
+        <th>Full Datasheet Name (DS60001320F Table 2)</th>
+        <th>PPS Tag</th>
+        <th>Peripheral Functions</th>
+        <th>ADC Ch.</th>
+        <th>Ext IRQ</th>
+        <th>5V Tol.</th>
+        <th>Notes</th>
+      </tr></thead>
+      <tbody id="pintbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ CHIP ══════════════ -->
+<div id="panel-chip" class="panel">
+  <div class="sh"><h2>🔲 64-Pin Package Diagram</h2>
+    <p>TQFP/QFN top view — colour-coded by primary peripheral function. Pins numbered counter-clockwise from Pin 1 (top-left).</p>
+  </div>
+  <div class="chip-wrap">
+    <svg id="chipSvg" viewBox="0 0 520 520" width="520" height="520" style="max-width:100%"></svg>
+    <div class="leg-grid" id="chipLeg"></div>
+  </div>
+</div>
+
+<!-- ══════════════ PPS ══════════════ -->
+<div id="panel-pps" class="panel">
+  <div class="sh"><h2>🔀 Peripheral Pin Select (PPS) Reference</h2>
+    <p>PIC32MZ2048EFM064 has 34 remappable pins. CAN has NO fixed pins — entirely PPS assigned.</p>
+  </div>
+  <div class="info">
+    <strong>PPS Summary for 64-pin EFM:</strong> 34 RPx pins cover CAN TX/RX, UART TX/RX, SPI MOSI/MISO/SS, OC, IC, INT1–4, U_CTS/RTS. I²C, SPI Clock (SCKx), INT0 are fixed. Unlock with SYSKEY before writing RPxR or peripheral input registers.
+  </div>
+  <div class="pps-grid" id="ppsContainer"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+    <div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--orange);margin-bottom:7px">▶ Output PPS — Assign Signal to Pin</div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:var(--mono);font-size:0.66rem;color:var(--txt2);line-height:1.9">
+        <span style="color:var(--txt3)">// Unlock PPS</span><br>
+        SYSKEY = 0xAA996655;<br>
+        SYSKEY = 0x556699AA;<br>
+        CFGCONbits.IOLOCK = 0;<br><br>
+        <span style="color:var(--txt3)">// C1TX → RPD1 (Pin 49)</span><br>
+        RPD1R = 0x0F;<br><br>
+        <span style="color:var(--txt3)">// UART1 TX → RPD2 (Pin 50)</span><br>
+        RPD2R = 0x01;<br><br>
+        <span style="color:var(--txt3)">// Re-lock</span><br>
+        CFGCONbits.IOLOCK = 1;<br>
+        SYSKEY = 0x00000000;
+      </div>
+    </div>
+    <div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--accent);margin-bottom:7px">◀ Input PPS — Assign Pin to Peripheral</div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:var(--mono);font-size:0.66rem;color:var(--txt2);line-height:1.9">
+        <span style="color:var(--txt3)">// C1RX ← RPG7 (Pin 5)</span><br>
+        C1RXR = 0x06; <span style="color:var(--txt3)">// RPG7 code</span><br><br>
+        <span style="color:var(--txt3)">// UART1 RX ← RPG9 (Pin 10)</span><br>
+        U1RXR = 0x01; <span style="color:var(--txt3)">// RPG9 code</span><br><br>
+        <span style="color:var(--txt3)">// SPI1 MISO ← RPB2 (Pin 14)</span><br>
+        SDI1R = 0x04; <span style="color:var(--txt3)">// RPB2 code</span><br><br>
+        <span style="color:var(--txt3)">// INT1 ← RPD0 (Pin 46)</span><br>
+        INT1R = 0x03; <span style="color:var(--txt3)">// RPD0 code</span>
+      </div>
+    </div>
+  </div>
+  <div class="warn">⚠ Fixed (non-remappable): I²C SDA/SCL pins (RG7=SDA4, RG8=SCL4, RF4=SDA5, RF5=SCL5, RD9=SDA1, RD10=SCL1, RD2=SDA3, RD3=SCL3). SPI clock pins: SCK2=RG6(4), SCK3=RB14(29), SCK4=RD10(44), SCK1=RD1(49). INT0=RD0(46). MCLR=Pin9. OSC1/OSC2=Pins 31/32.</div>
+
+  <div class="sh" style="margin-top:16px"><h2>Output RPxR Register Codes</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>Signal</th><th>Code</th><th>Signal</th><th>Code</th><th>Signal</th><th>Code</th><th>Signal</th><th>Code</th></tr></thead>
+    <tbody>
+      <tr><td>No Connect</td><td style="font-family:var(--mono);color:var(--txt3)">0x00</td>
+          <td><span class="tag tUART">U1TX</span></td><td style="font-family:var(--mono);color:var(--green)">0x01</td>
+          <td><span class="tag tUART">U2TX</span></td><td style="font-family:var(--mono);color:var(--green)">0x02</td>
+          <td><span class="tag tUART">U3TX</span></td><td style="font-family:var(--mono);color:var(--green)">0x03</td></tr>
+      <tr><td><span class="tag tUART">U4TX</span></td><td style="font-family:var(--mono);color:var(--green)">0x04</td>
+          <td><span class="tag tUART">U5TX</span></td><td style="font-family:var(--mono);color:var(--green)">0x05</td>
+          <td><span class="tag tUART">U6TX</span></td><td style="font-family:var(--mono);color:var(--green)">0x06</td>
+          <td><span class="tag tSPI">SS1</span></td><td style="font-family:var(--mono);color:var(--purple)">0x09</td></tr>
+      <tr><td><span class="tag tSPI">SDO1</span></td><td style="font-family:var(--mono);color:var(--purple)">0x08</td>
+          <td><span class="tag tSPI">SDO2</span></td><td style="font-family:var(--mono);color:var(--purple)">0x0B</td>
+          <td><span class="tag tSPI">SDO3</span></td><td style="font-family:var(--mono);color:var(--purple)">0x07</td>
+          <td><span class="tag tSPI">SDO4</span></td><td style="font-family:var(--mono);color:var(--purple)">0x0A</td></tr>
+      <tr><td><span class="tag tCAN">C1TX</span></td><td style="font-family:var(--mono);color:var(--red)">0x0F</td>
+          <td><span class="tag tCAN">C2TX</span></td><td style="font-family:var(--mono);color:var(--red)">0x10</td>
+          <td><span class="tag tEXT">OC1</span></td><td style="font-family:var(--mono);color:var(--green)">0x0C</td>
+          <td><span class="tag tEXT">OC2</span></td><td style="font-family:var(--mono);color:var(--green)">0x0D</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ══════════════ MEMORY ══════════════ -->
+<div id="panel-memory" class="panel">
+  <div class="sh"><h2>💾 Memory Architecture — PIC32MZ2048EFM064</h2>
+    <p>All addresses are virtual (KSEG0/KSEG1). Use KVA_TO_PA() for DMA/NVM physical addresses.</p>
+  </div>
+  <div class="mem-grid">
+    <div class="mcard f"><div class="mcard-title">⚡ Program Flash</div>
+      <div class="mcard-sz f">2 MB</div>
+      <div class="mcard-desc">Dual-panel live update. NVM self-write capable.<br>16 KB erasable pages (128 rows).<br>128 row × 512 bytes = 65536 bytes/page.<br>Use last page for config: 0x9D1F0000.</div>
+      <div class="mcard-addr">KSEG0: 0x9D000000–0x9D1FFFFF<br>Phys:  0x1D000000–0x1D1FFFFF</div>
+    </div>
+    <div class="mcard d"><div class="mcard-title">🗂 Data SRAM</div>
+      <div class="mcard-sz d">512 KB</div>
+      <div class="mcard-desc">Single-cycle at 200 MHz. Stack + heap + DMA buffers.<br>DMA: <code style="font-family:var(--mono);color:var(--accent)">__attribute__((coherent))</code><br>Uncached alias for DMA at KSEG1.</div>
+      <div class="mcard-addr">KSEG1: 0xA0000000–0xA007FFFF<br>Phys:  0x00000000–0x0007FFFF</div>
+    </div>
+    <div class="mcard b"><div class="mcard-title">🔒 Boot Flash</div>
+      <div class="mcard-sz b">160 KB</div>
+      <div class="mcard-desc">Config bits + bootloader. DEVCFG3 (FMIIEN=0 for RMII). Device serial: DEVSN0/1.</div>
+      <div class="mcard-addr">KSEG1: 0xBFC00000–0xBFC27FFF<br>Config: 0xBFC0FF40–0xBFC0FFEF<br>DEVSN0: 0xBFC54020</div>
+    </div>
+    <div class="mcard c"><div class="mcard-title">⚡ L1 Cache</div>
+      <div class="mcard-sz c">20 KB</div>
+      <div class="mcard-desc">16 KB I-Cache (4-way) + 4 KB D-Cache (2-way).<br>Enable: CHECON.PREFEN = 3.<br>Flash wait states: CHECON.PFMWS = 2 @ 200 MHz.</div>
+      <div class="mcard-addr">CHECON: 0xBF800000<br>Set PFMWS for Flash wait states</div>
+    </div>
+  </div>
+  <div class="sh"><h2>Key SFR Addresses</h2></div>
+  <div class="tw"><table>
+    <thead><tr><th>Register</th><th>Address</th><th>Description</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">C1CON</td><td style="font-family:var(--mono)">0xBF88B000</td><td>CAN1 Control</td><td>CAN fully PPS on 064</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">C2CON</td><td style="font-family:var(--mono)">0xBF88D000</td><td>CAN2 Control</td><td></td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">ETHCON1</td><td style="font-family:var(--mono)">0xBF882000</td><td>Ethernet MAC</td><td>RMII: DEVCFG3.FMIIEN=0</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">U1MODE</td><td style="font-family:var(--mono)">0xBF822000</td><td>UART1 Mode</td><td>RS485 DE via GPIO</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">SPI2CON</td><td style="font-family:var(--mono)">0xBF821400</td><td>SPI2 Control</td><td>SCK2=RG6 (fixed, Pin 4)</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">I2C4CON</td><td style="font-family:var(--mono)">0xBF820600</td><td>I2C4 Control</td><td>SCL4=RG8(6),SDA4=RG7(5)</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">NVMCON</td><td style="font-family:var(--mono)">0xBF800600</td><td>NVM Control</td><td>NVMOP=4 erase, 3=row write</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">NVMSRCADDR</td><td style="font-family:var(--mono)">0xBF800640</td><td>Row program src</td><td>Physical SRAM address</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">DEVSN0</td><td style="font-family:var(--mono)">0xBFC54020</td><td>Device Serial #0</td><td>Use for unique MAC/ID</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">RSWRST</td><td style="font-family:var(--mono)">0xBF80F570</td><td>Software Reset</td><td>Unlock SYSKEY first</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">CHECON</td><td style="font-family:var(--mono)">0xBF800000</td><td>Cache/Prefetch</td><td>PREFEN=3 to enable</td></tr>
+      <tr><td style="font-family:var(--mono);color:var(--accent)">DEVCFG3</td><td style="font-family:var(--mono)">0xBFC0FF40</td><td>Config: ETH mode</td><td>FMIIEN=0 (RMII), FETHIO=1</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ══════════════ SELECTOR ══════════════ -->
+<div id="panel-selector" class="panel">
+  <div class="sh"><h2>⚙️ Interactive Pin Assignment + Excel Export</h2>
+    <p>Check pins, assign peripheral functions — export as .xlsx (Excel) or .csv for your schematic tool.</p>
+  </div>
+  <div class="sel-layout">
+    <div>
+      <div class="tw" style="max-height:72vh;overflow-y:auto">
+        <table id="seltable">
+          <thead><tr><th>✓</th><th>Pin #</th><th>Port</th><th>Primary Name</th><th>PPS</th><th>Assign Function</th></tr></thead>
+          <tbody id="seltbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sel-side">
+      <div class="sel-title">🎯 Your Assignments</div>
+      <div style="font-size:0.64rem;color:var(--txt3);margin-bottom:8px;line-height:1.5;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.1);border-radius:4px;padding:6px 8px">
+        Check a pin left → pick a function → appears here → export to Excel
+      </div>
+      <div id="selOutput"><div class="sel-empty">No pins selected yet.</div></div>
+      <button class="xbtn xl" id="xlsxBtn">📊 Export to Excel (.xlsx)</button>
+      <button class="xbtn csv" id="csvBtn">📄 Export to CSV</button>
+      <button class="xbtn clr" id="clrBtn">✕ Clear All</button>
+      <div style="margin-top:12px;font-size:0.6rem;color:var(--txt3);line-height:1.6;border-top:1px solid var(--border);padding-top:8px">
+        Excel export includes: Pin#, Port, Full Name, Function, PPS Tag, ADC Ch., 5V tolerant, Notes
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SheetJS for Excel export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+// PIN DATA — DS60001320F Table 2 (64-pin TQFP/QFN)
+// Format: [pin, port, fullName, ppsTag, categories[], adcCh, 5vTol, notes]
+// ═══════════════════════════════════════════════════════
+var PINS = [
+  [1,'RE5','AN17/ETXEN/RPE5/PMD5/RE5','RPE5',['ETH','ADC','GPIO','PPS'],'AN17',true,'RMII ETXEN; PMP PMD5'],
+  [2,'RE6','AN16/ETXD0/PMD6/RE6','—',['ETH','ADC','GPIO'],'AN16',true,'RMII ETXD0; PMP PMD6'],
+  [3,'RE7','AN15/ETXD1/PMD7/RE7','—',['ETH','ADC','GPIO'],'AN15',true,'RMII ETXD1; PMP PMD7'],
+  [4,'RG6','AN14/C1IND/RPG6/SCK2/PMA5/RG6','RPG6',['CAN','ADC','SPI','PPS','GPIO','COMP'],'AN14',false,'CAN Comp In; SCK2 FIXED; PMP PMA5'],
+  [5,'RG7','AN13/C1INC/RPG7/SDA4/PMA4/RG7','RPG7',['CAN','ADC','I2C','PPS','GPIO','COMP'],'AN13',false,'CAN Comp In; SDA4 FIXED; PMP PMA4'],
+  [6,'RG8','AN12/C2IND/RPG8/SCL4/PMA3/RG8','RPG8',['CAN','ADC','I2C','PPS','GPIO','COMP'],'AN12',false,'CAN Comp In; SCL4 FIXED; PMP PMA3'],
+  [7,'VSS','VSS','—',['PWR'],'—',false,'Ground — must connect always'],
+  [8,'VDD','VDD','—',['PWR'],'—',false,'3.3V supply'],
+  [9,'—','MCLR','—',['PWR'],'—',false,'Master Clear Reset — active low'],
+  [10,'RG9','AN11/C2INC/RPG9/PMA2/RG9','RPG9',['CAN','ADC','PPS','GPIO','COMP'],'AN11',false,'CAN Comp In; PMP PMA2'],
+  [11,'RB5','AN45/C1INA/RPB5/RB5','RPB5',['CAN','ADC','PPS','GPIO','COMP'],'AN45',true,'CAN Comp In A; 5V tol'],
+  [12,'RB4','AN4/C1INB/RB4','—',['ADC','GPIO','COMP'],'AN4',true,'CAN Comp In B; analog only no PPS'],
+  [13,'RB3','AN3/C2INA/RPB3/RB3','RPB3',['ADC','GPIO','COMP','PPS'],'AN3',true,'CAN Comp In A; 5V tol'],
+  [14,'RB2','AN2/C2INB/RPB2/RB2','RPB2',['ADC','GPIO','COMP','PPS'],'AN2',true,'CAN Comp In B; 5V tol'],
+  [15,'RB1','PGEC1/VREF-/CVREF-/AN1/RPB1/RB1','RPB1',['ICSP','ADC','PPS','GPIO'],'AN1',true,'ICSP Ch1 CLK; VREF-'],
+  [16,'RB0','PGED1/VREF+/CVREF+/AN0/RPB0/PMA6/RB0','RPB0',['ICSP','ADC','PPS','GPIO'],'AN0',true,'ICSP Ch1 DAT; VREF+; PMP PMA6'],
+  [17,'RB6','PGEC2/AN46/RPB6/RB6','RPB6',['ICSP','ADC','PPS','GPIO'],'AN46',true,'ICSP Ch2 CLK'],
+  [18,'RB7','PGED2/AN47/RPB7/RB7','RPB7',['ICSP','ADC','PPS','GPIO'],'AN47',true,'ICSP Ch2 DAT'],
+  [19,'AVDD','AVDD','—',['PWR'],'—',false,'Analog VDD — must connect'],
+  [20,'AVSS','AVSS','—',['PWR'],'—',false,'Analog GND — must connect'],
+  [21,'RB8','AN48/RPB8/PMA10/RB8','RPB8',['ADC','PPS','GPIO'],'AN48',true,'PMP PMA10'],
+  [22,'RB9','AN49/RPB9/PMA7/RB9','RPB9',['ADC','PPS','GPIO'],'AN49',true,'PMP PMA7'],
+  [23,'RB10','TMS/CVREFOUT/AN5/RPB10/PMA13/RB10','RPB10',['JTAG','ADC','PPS','GPIO'],'AN5',true,'JTAG TMS; CVREFOUT; PMP PMA13'],
+  [24,'RB11','TDO/AN6/PMA12/RB11','—',['JTAG','ADC','GPIO'],'AN6',true,'JTAG TDO; PMP PMA12'],
+  [25,'VSS','VSS','—',['PWR'],'—',false,'Ground'],
+  [26,'VDD','VDD','—',['PWR'],'—',false,'3.3V supply'],
+  [27,'RB12','TCK/AN7/PMA11/RB12','—',['JTAG','ADC','GPIO'],'AN7',true,'JTAG TCK; PMP PMA11'],
+  [28,'RB13','TDI/AN8/RB13','—',['JTAG','ADC','GPIO'],'AN8',true,'JTAG TDI'],
+  [29,'RB14','AN9/RPB14/SCK3/PMA1/RB14','RPB14',['ADC','SPI','PPS','GPIO'],'AN9',true,'SCK3 FIXED; PMP PMA1'],
+  [30,'RB15','AN10/EMDC/AEMDC/RPB15/OCFB/PMA0/RB15','RPB15',['ADC','ETH','PPS','GPIO'],'AN10',true,'EMDC (Ethernet Mgmt); OCFB; PMP PMA0'],
+  [31,'RC12','OSC1/CLKI/RC12','—',['OSC','GPIO'],'—',false,'Main oscillator input / CLKI'],
+  [32,'RC15','OSC2/CLKO/RC15','—',['OSC','GPIO'],'—',false,'Main oscillator output / CLKO'],
+  [33,'—','VBUS','—',['USB','PWR'],'—',false,'USB VBUS sense input'],
+  [34,'—','VUSB3V3','—',['USB','PWR'],'—',false,'USB 3.3V internal supply'],
+  [35,'VSS','VSS','—',['PWR'],'—',false,'Ground'],
+  [36,'—','D-','—',['USB'],'—',false,'USB D− (differential data minus)'],
+  [37,'—','D+','—',['USB'],'—',false,'USB D+ (differential data plus)'],
+  [38,'RF3','RPF3/USBID/RF3','RPF3',['USB','PPS','GPIO'],'—',true,'USB OTG ID pin; PPS capable'],
+  [39,'VDD','VDD','—',['PWR'],'—',false,'3.3V supply'],
+  [40,'VSS','VSS','—',['PWR'],'—',false,'Ground'],
+  [41,'RF4','RPF4/SDA5/PMA9/RF4','RPF4',['I2C','PPS','GPIO'],'—',true,'SDA5 FIXED; PPS for other funcs; PMP PMA9'],
+  [42,'RF5','RPF5/SCL5/PMA8/RF5','RPF5',['I2C','PPS','GPIO'],'—',true,'SCL5 FIXED; PPS for other funcs; PMP PMA8'],
+  [43,'RD9','AERXD0/ETXD2/RPD9/SDA1/PMCS2/PMA15/RD9','RPD9',['ETH','I2C','PPS','GPIO'],'—',true,'RMII ETXD2 (RGMII); SDA1 FIXED; PMP CS2'],
+  [44,'RD10','ECOL/RPD10/SCL1/SCK4/RD10','RPD10',['ETH','I2C','SPI','PPS','GPIO'],'—',true,'ETH Collision; SCL1 FIXED; SCK4 FIXED'],
+  [45,'RD11','AERXCLK/AEREFCLK/ECRS/RPD11/PMCS1/PMA14/RD11','RPD11',['ETH','PPS','GPIO'],'—',true,'RMII ECRS; PMP CS1; PMA14'],
+  [46,'RD0','AERXD1/ETXD3/RPD0/RTCC/INT0/RD0','RPD0',['ETH','EXT','PPS','GPIO'],'—',true,'INT0 FIXED; RTCC output; RMII ETXD3'],
+  [47,'RC13','SOSCI/RPC13/RC13','—',['OSC','GPIO'],'—',false,'Secondary OSC input (32.768 kHz)'],
+  [48,'RC14','SOSCO/RPC14/T1CK/RC14','—',['OSC','GPIO'],'—',false,'Secondary OSC out; Timer1 ext clock'],
+  [49,'RD1','EMDIO/AEMDIO/RPD1/SCK1/RD1','RPD1',['ETH','SPI','PPS','GPIO'],'—',true,'EMDIO Ethernet Mgmt; SCK1 FIXED'],
+  [50,'RD2','ETXERR/AETXEN/RPD2/SDA3/RD2','RPD2',['ETH','I2C','PPS','GPIO'],'—',true,'RMII ETXERR/AETXEN; SDA3 FIXED'],
+  [51,'RD3','AERXERR/ETXCLK/RPD3/SCL3/RD3','RPD3',['ETH','I2C','PPS','GPIO'],'—',true,'RMII AERXERR/ETXCLK; SCL3 FIXED'],
+  [52,'RD4','SQICS0/RPD4/PMWR/RD4','RPD4',['PPS','GPIO'],'—',true,'SQI CS0; PMP PMWR; general PPS'],
+  [53,'RD5','SQICS1/RPD5/PMRD/RD5','RPD5',['PPS','GPIO'],'—',true,'SQI CS1; PMP PMRD; general PPS'],
+  [54,'VDD','VDD','—',['PWR'],'—',false,'3.3V supply'],
+  [55,'VSS','VSS','—',['PWR'],'—',false,'Ground'],
+  [56,'RF0','ERXD3/AETXD1/RPF0/RF0','RPF0',['ETH','PPS','GPIO'],'—',true,'RMII ERXD3 / AETXD1 alternate'],
+  [57,'RF1','TRCLK/SQICLK/ERXD2/AETXD0/RPF1/RF1','RPF1',['ETH','PPS','GPIO'],'—',true,'Trace CLK; SQICLK; RMII ERXD2'],
+  [58,'RE0','TRD0/SQID0/ERXD1/PMD0/RE0','—',['ETH','GPIO'],'—',true,'Trace D0; SQID0; RMII ERXD1; PMD0'],
+  [59,'VSS','VSS','—',['PWR'],'—',false,'Ground'],
+  [60,'VDD','VDD','—',['PWR'],'—',false,'3.3V supply'],
+  [61,'RE1','TRD1/SQID1/ERXD0/PMD1/RE1','—',['ETH','GPIO'],'—',true,'Trace D1; SQID1; RMII ERXD0; PMD1'],
+  [62,'RE2','TRD2/SQID2/ERXDV/ECRSDV/AECRSDV/PMD2/RE2','—',['ETH','GPIO'],'—',true,'Trace D2; ERXDV / ECRSDV — Carrier sense'],
+  [63,'RE3','TRD3/SQID3/ERXCLK/EREFCLK/RPE3/PMD3/RE3','RPE3',['ETH','PPS','GPIO'],'—',true,'Trace D3; ERXCLK / EREFCLK RMII reference clock'],
+  [64,'RE4','AN18/ERXERR/PMD4/RE4','—',['ETH','ADC','GPIO'],'AN18',true,'RMII ERXERR; PMD4; AN18']
+];
+
+// Peripheral functions for selector dropdown
+var FN_OPTIONS = {
+  'CAN':  ['C1TX','C1RX','C2TX','C2RX'],
+  'UART': ['U1TX','U1RX','U2TX','U2RX','U3TX','U3RX','U4TX','U4RX','U5TX','U5RX','U6TX','U6RX'],
+  'SPI':  ['SCK1','SDO1','SDI1','SS1','SCK2','SDO2','SDI2','SS2','SCK3','SDO3','SDI3','SS3','SCK4','SDO4','SDI4','SS4'],
+  'I2C':  ['SCL1','SDA1','SCL3','SDA3','SCL4','SDA4','SCL5','SDA5'],
+  'ETH':  ['EREFCLK','ERXD0','ERXD1','ERXD2','ERXD3','ECRSDV','ERXERR','ETXD0','ETXD1','ETXD2','ETXD3','ETXEN','EMDC','EMDIO'],
+  'USB':  ['D+','D-','VBUS','USBID'],
+  'ADC':  ['AN0','AN1','AN2','AN3','AN4','AN5','AN6','AN7','AN8','AN9','AN10','AN11','AN12','AN13','AN14','AN15','AN16','AN17','AN18'],
+  'PWR':  ['VDD','VSS','AVDD','AVSS','VBUS','MCLR'],
+  'OSC':  ['OSC1','OSC2','SOSCI','SOSCO','T1CK'],
+  'JTAG': ['TCK','TDI','TDO','TMS'],
+  'ICSP': ['PGEC1','PGED1','PGEC2','PGED2'],
+  'GPIO': ['Digital I/O only']
+};
+
+// Color map for chip diagram
+var COL = {
+  ETH:'#0ea5e9',CAN:'#ef4444',UART:'#f97316',SPI:'#a855f7',
+  I2C:'#06b6d4',USB:'#14b8a6',ADC:'#84cc16',OSC:'#ec4899',
+  JTAG:'#f59e0b',ICSP:'#fb923c',PWR:'#374151',GPIO:'#3b82f6',
+  PPS:'#818cf8'
+};
+
+function pinColor(p){
+  var c=p[4];
+  if(c.includes('PWR')) return COL.PWR;
+  if(c.includes('USB')) return COL.USB;
+  if(c.includes('ETH')) return COL.ETH;
+  if(c.includes('CAN')) return COL.CAN;
+  if(c.includes('ICSP')) return COL.ICSP;
+  if(c.includes('JTAG')) return COL.JTAG;
+  if(c.includes('OSC')) return COL.OSC;
+  if(c.includes('I2C')) return COL.I2C;
+  if(c.includes('SPI')) return COL.SPI;
+  if(c.includes('UART')) return COL.UART;
+  if(c.includes('ADC')) return COL.ADC;
+  if(c.includes('PPS')) return COL.PPS;
+  return COL.GPIO;
+}
+
+function tagHtml(cat){
+  var map={CAN:'tCAN',UART:'tUART',SPI:'tSPI',I2C:'tI2C',ETH:'tETH',
+    USB:'tUSB',ADC:'tADC',GPIO:'tGPIO',PPS:'tPPS',EXT:'tEXT',
+    OSC:'tOSC',JTAG:'tJTAG',ICSP:'tICSP',PWR:'tPWR',COMP:'tCOMP'};
+  return cat.map(function(c){
+    return '<span class="tag '+(map[c]||'tGPIO')+'">'+c+'</span>';
+  }).join('');
+}
+
+// ═══════════════ PIN TABLE ═══════════════
+var curFilter='ALL', sortCol=-1, sortAsc=true;
+
+function renderTable(){
+  var q=(document.getElementById('pinSearch').value||'').toLowerCase();
+  var tbody=document.getElementById('pintbody');
+  tbody.innerHTML='';
+  var rows=PINS.slice();
+  if(sortCol>=0){
+    rows.sort(function(a,b){
+      var av=sortCol===0?a[0]:a[1], bv=sortCol===0?b[0]:b[1];
+      if(typeof av==='number') return sortAsc?av-bv:bv-av;
+      return sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));
+    });
+  }
+  rows.forEach(function(p){
+    var cats=p[4];
+    if(curFilter!=='ALL'&&!cats.includes(curFilter)) return;
+    var full=p[2].toLowerCase(), port=(p[1]||'').toLowerCase();
+    if(q&&!(String(p[0]).includes(q)||port.includes(q)||full.includes(q))) return;
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td class="pn">'+p[0]+'</td>'+
+      '<td class="pt">'+(p[1]!=='—'&&p[1]!=='VSS'&&p[1]!=='VDD'&&p[1]!=='AVDD'&&p[1]!=='AVSS'?p[1]:'<span style="color:var(--txt3)">'+p[1]+'</span>')+'</td>'+
+      '<td class="pf" style="font-size:0.62rem">'+p[2]+'</td>'+
+      '<td class="pt">'+(p[3]!=='—'?'<span class="tag tPPS">'+p[3]+'</span>':'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td>'+tagHtml(cats)+'</td>'+
+      '<td class="pt">'+(p[5]!=='—'?'<span style="color:#bef264">'+p[5]+'</span>':'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td class="pt">'+(cats.includes('EXT')?'<span class="tag tEXT">Yes</span>':'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td>'+(p[6]?'<span class="tag t5V">5V</span>':'<span style="color:var(--txt3)">3.3V</span>')+'</td>'+
+      '<td class="pf" style="font-size:0.6rem;color:var(--txt3)">'+p[7]+'</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function setFilter(f){
+  curFilter=f;
+  document.querySelectorAll('.fbtn').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-f')===f);
+  });
+  renderTable();
+}
+
+// ═══════════════ CHIP SVG ═══════════════
+function buildChip(){
+  var svg=document.getElementById('chipSvg');
+  var W=520,H=520,CX=260,CY=260,CW=180,CH=180;
+  var PW=18,PH=36,GAP=4;
+  var SIDE=16; // pins per side
+
+  // Die
+  var html='<rect x="'+(CX-CW/2)+'" y="'+(CY-CH/2)+'" width="'+CW+'" height="'+CH+'" rx="6" fill="#0f1520" stroke="#1e3048" stroke-width="1.5"/>';
+  html+='<text x="'+CX+'" y="'+(CY-28)+'" text-anchor="middle" font-family="Syne,sans-serif" font-size="12" font-weight="800" fill="#00d4ff">PIC32MZ</text>';
+  html+='<text x="'+CX+'" y="'+(CY-12)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#94a3b8">2048EFM064</text>';
+  html+='<text x="'+CX+'" y="'+(CY+8)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#475569">64-Pin TQFP/QFN</div></text>';
+  html+='<text x="'+CX+'" y="'+(CY+24)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="#475569">Crypto + RNG</text>';
+  // Pin 1 dot
+  html+='<circle cx="'+(CX-CW/2+8)+'" cy="'+(CY-CH/2+8)+'" r="4" fill="#00d4ff" opacity="0.6"/>';
+  html+='<text x="'+(CX-CW/2+16)+'" y="'+(CY-CH/2+13)+'" font-family="JetBrains Mono,monospace" font-size="7" fill="#00d4ff">Pin 1</text>';
+
+  var totalStart=26+SIDE; // layout offset
+  var startX=CX-CW/2-(PW+4);
+  var startY=CY-CH/2;
+  var pitch=(CH+PH+(SIDE-1)*GAP)/SIDE;
+
+  // Helper
+  function drawPin(pin,x,y,rot,label){
+    var p=PINS[pin-1];
+    var col=p?pinColor(p):'#374151';
+    var g='<g transform="rotate('+rot+','+x+','+y+')">';
+    g+='<rect x="'+(x-PW/2)+'" y="'+(y-PH/2)+'" width="'+PW+'" height="'+PH+'" rx="2" fill="'+col+'" opacity="0.85"/>';
+    g+='<text x="'+x+'" y="'+(y+1)+'" text-anchor="middle" dominant-baseline="middle" font-family="JetBrains Mono,monospace" font-size="7" font-weight="700" fill="#000">'+pin+'</text>';
+    g+='</g>';
+    return g;
+  }
+
+  // Left side: pins 1-16 (bottom to top)
+  var lx=CX-CW/2-PH/2-4;
+  var ly_start=CY+CH/2-PH/2;
+  var ly_end=CY-CH/2+PH/2;
+  var vstep=(ly_start-ly_end)/(SIDE-1);
+  for(var i=0;i<SIDE;i++){
+    var pnum=SIDE-i; // pins 16 down to 1
+    var py=ly_end+i*vstep;
+    html+=drawPin(pnum,lx,py,0,'');
+  }
+
+  // Bottom side: pins 17-32 (left to right)
+  var by=CY+CH/2+PH/2+4;
+  var bx_start=CX-CW/2+PH/2;
+  var bx_end=CX+CW/2-PH/2;
+  var hstep=(bx_end-bx_start)/(SIDE-1);
+  for(var i=0;i<SIDE;i++){
+    var pnum=SIDE+i+1; // 17-32
+    var px=bx_start+i*hstep;
+    html+=drawPin(pnum,px,by,0,'');
+  }
+
+  // Right side: pins 33-48 (bottom to top on right)
+  var rx=CX+CW/2+PH/2+4;
+  for(var i=0;i<SIDE;i++){
+    var pnum=33+i;
+    var py=CY-CH/2+PH/2+i*vstep;
+    html+=drawPin(pnum,rx,py,0,'');
+  }
+
+  // Top side: pins 49-64 (right to left)
+  var ty=CY-CH/2-PH/2-4;
+  for(var i=0;i<SIDE;i++){
+    var pnum=64-i; // 64 down to 49
+    var px=CX+CW/2-PH/2-i*hstep;
+    html+=drawPin(pnum,px,ty,0,'');
+  }
+
+  svg.innerHTML=html;
+
+  // Legend
+  var legItems=[
+    {c:COL.ETH,n:'Ethernet'},
+    {c:COL.CAN,n:'CAN'},
+    {c:COL.UART,n:'UART'},
+    {c:COL.SPI,n:'SPI'},
+    {c:COL.I2C,n:'I²C'},
+    {c:COL.USB,n:'USB'},
+    {c:COL.ADC,n:'ADC'},
+    {c:COL.OSC,n:'Oscillator'},
+    {c:COL.JTAG,n:'JTAG'},
+    {c:COL.ICSP,n:'ICSP'},
+    {c:COL.PWR,n:'Power'},
+    {c:COL.PPS,n:'PPS GPIO'},
+    {c:COL.GPIO,n:'GPIO'}
+  ];
+  var legHtml='';
+  legItems.forEach(function(li){
+    legHtml+='<div class="leg-item"><div class="leg-dot" style="background:'+li.c+'"></div>'+li.n+'</div>';
+  });
+  document.getElementById('chipLeg').innerHTML=legHtml;
+}
+
+// ═══════════════ PPS ═══════════════
+function buildPPS(){
+  var data=[
+    {cls:'can',title:'🔴 CAN Bus (PPS — no fixed pins)',items:[
+      {sig:'C1TX Output',pins:'Pin 4(RPG6), 5(RPG7), 10(RPG9), 13(RPB3), 49(RPD1), 50(RPD2), 52(RPD4), 53(RPD5)'},
+      {sig:'C1RX Input',pins:'Pin 5(RPG7), 6(RPG8), 10(RPG9), 11(RPB5), 13(RPB3), 43(RPD9), 46(RPD0)'},
+      {sig:'C2TX Output',pins:'Pin 14(RPB2), 16(RPB0), 21(RPB8), 22(RPB9), 41(RPF4), 42(RPF5), 56(RPF0)'},
+      {sig:'C2RX Input',pins:'Pin 14(RPB2), 15(RPB1), 16(RPB0), 17(RPB6), 18(RPB7), 22(RPB9), 41(RPF4)'}
+    ]},
+    {cls:'uart',title:'🟠 UART × 6 (TX/RX fully PPS)',items:[
+      {sig:'U1TX/U1RX',pins:'Any RPx pin — e.g. TX→RPD2(50), RX←RPG9(10)'},
+      {sig:'U2TX/U2RX',pins:'Any RPx pin — e.g. TX→RPD1(49), RX←RPD0(46)'},
+      {sig:'U3–U6 TX/RX',pins:'Any available RPx — see output register table for codes'},
+      {sig:'U_CTS/RTS',pins:'Any RPx — CTS input, RTS output remappable'}
+    ]},
+    {cls:'spi',title:'🟣 SPI × 6 (MOSI/MISO/SS = PPS, CLK = fixed)',items:[
+      {sig:'SCK2 (FIXED)',pins:'Pin 4 — RG6 only'},
+      {sig:'SCK3 (FIXED)',pins:'Pin 29 — RB14 only'},
+      {sig:'SCK4 (FIXED)',pins:'Pin 44 — RD10 only'},
+      {sig:'SCK1 (FIXED)',pins:'Pin 49 — RD1 only'},
+      {sig:'SDO1/SDI1/SS1',pins:'Any RPx — e.g. SDO→RPD2(50), SDI←RPD0(46), SS→RPB5(11)'},
+      {sig:'SDO2/SDI2/SS2',pins:'Any RPx — flexible assignment'}
+    ]},
+    {cls:'i2c',title:'🔵 I²C × 5 (ALL FIXED — not remappable)',items:[
+      {sig:'SCL4/SDA4 (FIXED)',pins:'Pin 6(SCL4=RG8) / Pin 5(SDA4=RG7)'},
+      {sig:'SCL5/SDA5 (FIXED)',pins:'Pin 42(SCL5=RF5) / Pin 41(SDA5=RF4)'},
+      {sig:'SCL1/SDA1 (FIXED)',pins:'Pin 44(SCL1=RD10) / Pin 43(SDA1=RD9)'},
+      {sig:'SCL3/SDA3 (FIXED)',pins:'Pin 51(SCL3=RD3) / Pin 50(SDA3=RD2)'},
+      {sig:'I2C5',pins:'Not available on 64-pin package (no RA14/RA15)'}
+    ]},
+    {cls:'ext',title:'🟢 External Interrupts / OC / IC',items:[
+      {sig:'INT0 (FIXED)',pins:'Pin 46 — RD0 only'},
+      {sig:'INT1–INT4 (PPS)',pins:'Any RPx input — e.g. INT1←RPB5(11), INT2←RPD9(43)'},
+      {sig:'OC1–OC9 Output',pins:'Any RPx output'},
+      {sig:'IC1–IC9 Input',pins:'Any RPx input'},
+      {sig:'T2CK–T9CK',pins:'Eight of nine timers are PPS remappable'}
+    ]},
+    {cls:'eth',title:'🔵 Ethernet RMII (mostly fixed on 064)',items:[
+      {sig:'EREFCLK (FIXED)',pins:'Pin 63 — EREFCLK/ERXCLK → RE3 (also RPE3 for other functions)'},
+      {sig:'ERXD0 (FIXED)',pins:'Pin 61 — RE1'},
+      {sig:'ERXD1 (FIXED)',pins:'Pin 58 — RE0'},
+      {sig:'ERXD2 (FIXED)',pins:'Pin 57 — RF1'},
+      {sig:'ERXD3 (FIXED)',pins:'Pin 56 — RF0'},
+      {sig:'ECRSDV (FIXED)',pins:'Pin 62 — RE2'},
+      {sig:'ERXERR (FIXED)',pins:'Pin 64 — RE4'},
+      {sig:'ETXEN (FIXED)',pins:'Pin 1 — RE5'},
+      {sig:'ETXD0 (FIXED)',pins:'Pin 2 — RE6'},
+      {sig:'ETXD1 (FIXED)',pins:'Pin 3 — RE7'},
+      {sig:'EMDC (FIXED)',pins:'Pin 30 — RB15'},
+      {sig:'EMDIO (FIXED)',pins:'Pin 49 — RD1'}
+    ]}
+  ];
+  var html='';
+  data.forEach(function(grp){
+    html+='<div class="pcard '+grp.cls+'"><div class="pcard-title">'+grp.title+'</div>';
+    grp.items.forEach(function(item){
+      html+='<div class="pcard-item"><div class="pcard-sig">'+item.sig+'</div><div class="pcard-pins">'+item.pins+'</div></div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('ppsContainer').innerHTML=html;
+}
+
+// ═══════════════ SELECTOR ═══════════════
+var selections={};
+
+function buildSelTable(){
+  var tbody=document.getElementById('seltbody');
+  tbody.innerHTML='';
+  PINS.forEach(function(p){
+    var isPwr=p[4].includes('PWR')&&!p[4].includes('GPIO');
+    var row=document.createElement('tr');
+    var fnOpts='<option value="">— unassigned —</option>';
+    Object.keys(FN_OPTIONS).forEach(function(grp){
+      fnOpts+='<optgroup label="'+grp+'">';
+      FN_OPTIONS[grp].forEach(function(fn){
+        fnOpts+='<option value="'+fn+'"'+(selections[p[0]]===fn?' selected':'')+'>'+fn+'</option>';
+      });
+      fnOpts+='</optgroup>';
+    });
+    row.innerHTML=
+      '<td><input type="checkbox" data-pin="'+p[0]+'" '+(selections[p[0]]?'checked':'')+' '+(isPwr?'disabled':'')+' style="accent-color:var(--accent)"></td>'+
+      '<td class="pn">'+p[0]+'</td>'+
+      '<td class="pt">'+(p[1]!=='—'?p[1]:'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td class="pf" style="font-size:0.62rem">'+p[2].split('/')[0]+(p[2].split('/').length>1?'/…':'')+'</td>'+
+      '<td class="pt">'+(p[3]!=='—'?'<span class="tag tPPS">'+p[3]+'</span>':'<span style="color:var(--txt3)">—</span>')+'</td>'+
+      '<td><select class="fn-sel" data-pin="'+p[0]+'">'+(isPwr?'<option>Power — fixed</option>':fnOpts)+'</select></td>';
+    tbody.appendChild(row);
+  });
+  // wire events
+  document.querySelectorAll('#seltbody input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      var pin=parseInt(this.getAttribute('data-pin'));
+      if(!this.checked) { delete selections[pin]; updateSidebar(); return; }
+      var sel=document.querySelector('select.fn-sel[data-pin="'+pin+'"]');
+      if(sel&&sel.value) selections[pin]=sel.value;
+      else selections[pin]='GPIO';
+      updateSidebar();
+    });
+  });
+  document.querySelectorAll('#seltbody select.fn-sel').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var pin=parseInt(this.getAttribute('data-pin'));
+      var cb=document.querySelector('input[data-pin="'+pin+'"]');
+      if(this.value&&this.value!=='— unassigned —'){
+        selections[pin]=this.value;
+        if(cb) cb.checked=true;
+      } else {
+        delete selections[pin];
+        if(cb) cb.checked=false;
+      }
+      updateSidebar();
+    });
+  });
+}
+
+function updateSidebar(){
+  var out=document.getElementById('selOutput');
+  var keys=Object.keys(selections).map(Number).sort(function(a,b){return a-b;});
+  if(!keys.length){ out.innerHTML='<div class="sel-empty">No pins selected yet.</div>'; return; }
+  var grps={};
+  keys.forEach(function(pin){
+    var fn=selections[pin];
+    var grp=fn.replace(/\d+/g,'').replace(/TX|RX|DO|DI|CLK|CS|EN|D0|D1|D2|D3|ERR/g,'').trim()||'Other';
+    if(!grps[fn]) grps[fn]=[];
+    grps[fn].push(pin);
+  });
+  var html='';
+  keys.forEach(function(pin){
+    var p=PINS[pin-1], fn=selections[pin];
+    html+='<div class="sel-row"><span class="sel-sig">P'+pin+' '+p[1]+' → '+fn+'</span><span class="sel-pin">'+fn+'</span></div>';
+  });
+  out.innerHTML=html;
+}
+
+function clearAll(){
+  selections={};
+  buildSelTable();
+  updateSidebar();
+}
+
+function exportXLSX(){
+  if(!window.XLSX){ alert('SheetJS not loaded. Check your internet connection.'); return; }
+  var rows=[['Pin#','Port','Full Pin Name','PPS Tag','Assigned Function','ADC Channel','5V Tolerant','Categories','Notes']];
+  var keys=Object.keys(selections).map(Number).sort(function(a,b){return a-b;});
+  if(!keys.length){ alert('No pins selected yet. Check some pins first.'); return; }
+  keys.forEach(function(pin){
+    var p=PINS[pin-1];
+    rows.push([
+      p[0], p[1], p[2], p[3]!=='—'?p[3]:'',
+      selections[pin], p[5]!=='—'?p[5]:'', p[6]?'Yes':'No',
+      p[4].join(', '), p[7]
+    ]);
+  });
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  // Column widths
+  ws['!cols']=[{wch:6},{wch:8},{wch:60},{wch:10},{wch:18},{wch:10},{wch:10},{wch:30},{wch:40}];
+  // Header style
+  var hdrStyle={font:{bold:true},fill:{patternType:'solid',fgColor:{rgb:'001E3048'}},
+    alignment:{horizontal:'center'}};
+  ['A1','B1','C1','D1','E1','F1','G1','H1','I1'].forEach(function(cell){
+    if(ws[cell]){ ws[cell].s=hdrStyle; }
+  });
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,'PinAssignment',ws);
+  // Add summary sheet
+  var sumRows=[['PIC32MZ2048EFM064 — Pin Assignment Export'],['Generated:',new Date().toLocaleString()],['Total Selected:',keys.length],['Device:','PIC32MZ2048EFM064 64-pin TQFP/QFN'],['Source:','DS60001320F Table 2'],['']];
+  var ws2=XLSX.utils.aoa_to_sheet(sumRows);
+  ws2['!cols']=[{wch:20},{wch:40}];
+  XLSX.utils.book_append_sheet(wb,'Summary',ws2);
+  XLSX.writeFile(wb,'PIC32MZ2048EFM064_PinAssignment.xlsx');
+}
+
+function exportCSV(){
+  var keys=Object.keys(selections).map(Number).sort(function(a,b){return a-b;});
+  if(!keys.length){ alert('No pins selected yet.'); return; }
+  var lines=['Pin#,Port,Full Pin Name,PPS Tag,Assigned Function,ADC Channel,5V Tolerant,Categories,Notes'];
+  keys.forEach(function(pin){
+    var p=PINS[pin-1];
+    function esc(v){return'"'+String(v).replace(/"/g,'""')+'"';}
+    lines.push([p[0],p[1],esc(p[2]),p[3],selections[pin],p[5],p[6]?'Yes':'No',esc(p[4].join(', ')),esc(p[7])].join(','));
+  });
+  var blob=new Blob([lines.join('\r\n')],{type:'text/csv'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='PIC32MZ2048EFM064_PinAssignment.csv';
+  a.click();
+}
+
+// ═══════════════ SORT ═══════════════
+function sortTable(col){
+  if(sortCol===col) sortAsc=!sortAsc;
+  else { sortCol=col; sortAsc=true; }
+  renderTable();
+}
+
+// ═══════════════ BOOT ═══════════════
+document.addEventListener('DOMContentLoaded',function(){
+  // NAV
+  document.querySelectorAll('.nav-tab[data-panel]').forEach(function(tab){
+    tab.addEventListener('click',function(){
+      var panel=this.getAttribute('data-panel');
+      document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+      this.classList.add('active');
+      document.getElementById('panel-'+panel).classList.add('active');
+    });
+  });
+  // FILTER
+  document.querySelectorAll('.fbtn[data-f]').forEach(function(b){
+    b.addEventListener('click',function(){ setFilter(this.getAttribute('data-f')); });
+  });
+  // SORT headers
+  document.querySelectorAll('#pintable thead th[data-sort]').forEach(function(th){
+    th.addEventListener('click',function(){ sortTable(parseInt(this.getAttribute('data-sort'))); });
+  });
+  // SEARCH
+  document.getElementById('pinSearch').addEventListener('input',renderTable);
+  // EXPORT
+  document.getElementById('xlsxBtn').addEventListener('click',exportXLSX);
+  document.getElementById('csvBtn').addEventListener('click',exportCSV);
+  document.getElementById('clrBtn').addEventListener('click',clearAll);
+
+  renderTable();
+  buildChip();
+  buildPPS();
+  buildSelTable();
+});
+})();
+</script>
+</body>
+</html>
