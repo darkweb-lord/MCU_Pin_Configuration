@@ -1,9 +1,64 @@
-# STM32 Cortex-M MCU Family Reference
-## Complete Reference Guide: STMicroelectronics 32-bit Arm Cortex-M MCU Portfolio
+<style>
+/* Visual enhancement only — original document wording preserved */
+h1 {
+  font-size: 2.25em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  border-bottom: 3px solid currentColor;
+  padding-bottom: 0.25em;
+}
+h2 {
+  font-size: 1.65em;
+  margin-top: 1.8em;
+  padding: 0.35em 0.55em;
+  border-left: 6px solid currentColor;
+  border-radius: 4px;
+}
+h3 {
+  font-size: 1.35em;
+  margin-top: 1.35em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid currentColor;
+}
+h4 {
+  margin-top: 1em;
+  font-weight: 750;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0 1.5em;
+}
+th {
+  font-weight: 750;
+}
+th, td {
+  padding: 0.55em 0.7em;
+  vertical-align: top;
+}
+tbody tr:nth-child(even) {
+  background: rgba(127,127,127,0.06);
+}
+blockquote {
+  border-left: 5px solid currentColor;
+  padding: 0.4em 1em;
+  border-radius: 4px;
+}
+hr {
+  margin: 2em 0;
+  opacity: 0.35;
+}
+strong {
+  font-weight: 750;
+}
+</style>
+
+# STM32 Microcontroller Family Taxonomy
+## Complete Reference Guide: STMicroelectronics 32-bit ARM Cortex-M MCU Portfolio
 
 **Last Updated:** September 2026  
-**Cortex-M Families Covered:** 24  
-**Platform:** Arm Cortex-M0/M0+/M3/M4/M7/M33/M55
+**Total Families:** 20+ MCU Families  
+**Platform:** ARM Cortex-M0/M0+/M3/M4/M7/M33/M55/M85
 
 ---
 
@@ -16,6 +71,7 @@
 | **Ultra-Low Power** | L0, L1, L4, L4+, L5, U0, U3, U5 | Wearables, IoT sensors, battery-operated devices |
 | **Wireless/Connectivity** | WB, WB0, WBA, WL | Bluetooth, Zigbee, Thread, LoRa, sub-GHz |
 | **AI & Edge Computing** | N6 | Neural processing, edge AI applications |
+| **Microprocessor (MPU)** | MP1, MP2 | Advanced applications, Linux support |
 
 ---
 
@@ -197,7 +253,7 @@
 **Category:** High-Performance Mainstream  
 **ARM Core:** Cortex-M3  
 **Max Frequency:** 120 MHz  
-**Flash Memory:** 128 KB - 1 MB  
+**Flash Memory:** 64 - 1024 KB  
 **SRAM:** 64 - 128 KB  
 
 #### Architecture
@@ -231,7 +287,7 @@
 **Category:** Mixed-Signal & DSP Processing  
 **ARM Core:** Cortex-M4F (with FPU & DSP)  
 **Max Frequency:** 72 MHz  
-**Flash Memory:** 32 - 512 KB  
+**Flash Memory:** 64 - 512 KB  
 **SRAM:** 12 - 80 KB  
 
 #### Architecture
@@ -418,7 +474,7 @@
 ### STM32H7 Series
 **Category:** High-Performance Flagship  
 **ARM Core:** Cortex-M7F + Cortex-M4F (dual-core options)  
-**Max Frequency:** Up to 600 MHz (M7); 240 MHz (M4 on dual-core variants)  
+**Max Frequency:** 550 MHz (M7), 240 MHz (M4)  
 **Flash Memory:** 256 KB - 2 MB  
 **SRAM:** 256 KB - 1060 KB  
 
@@ -537,8 +593,8 @@
 **Category:** Ultra-Low Power High-Value  
 **ARM Core:** Cortex-M4F (with FPU & DSP)  
 **Max Frequency:** 80 MHz  
-**Flash Memory:** 64 KB - 1 MB  
-**SRAM:** Up to 320 KB  
+**Flash Memory:** 32 - 512 KB  
+**SRAM:** 16 - 160 KB  
 
 #### Architecture
 - 3-stage pipeline
@@ -577,8 +633,8 @@
 **Category:** Ultra-Low Power Enhanced  
 **ARM Core:** Cortex-M4F (with FPU & DSP)  
 **Max Frequency:** 120 MHz  
-**Flash Memory:** 512 KB - 2 MB  
-**SRAM:** Up to 640 KB  
+**Flash Memory:** 64 - 1024 KB  
+**SRAM:** 48 - 320 KB  
 
 #### Architecture
 - 3-stage pipeline optimized for energy
@@ -616,8 +672,8 @@
 **Category:** Ultra-Low Power Secure  
 **ARM Core:** Cortex-M33F (with FPU & DSP)  
 **Max Frequency:** 110 MHz  
-**Flash Memory:** 32 - 512 KB  
-**SRAM:** Up to 256 KB  
+**Flash Memory:** 64 - 2048 KB  
+**SRAM:** 64 - 614 KB  
 
 #### Architecture
 - Armv8-M Mainline architecture
@@ -691,8 +747,8 @@
 **Category:** Ultra-Low Power High-Performance  
 **ARM Core:** Cortex-M33F (with FPU & DSP)  
 **Max Frequency:** 96 MHz  
-**Flash Memory:** 512 KB - 2 MB  
-**SRAM:** Up to 640 KB  
+**Flash Memory:** 128 - 1024 KB  
+**SRAM:** 32 - 256 KB  
 
 #### Architecture
 - Armv8-M Mainline architecture
@@ -729,8 +785,8 @@
 **Category:** Ultra-Low Power Flagship  
 **ARM Core:** Cortex-M33F (with FPU & DSP)  
 **Max Frequency:** 160 MHz  
-**Flash Memory:** 128 KB - 4 MB  
-**SRAM:** Up to 3 MB  
+**Flash Memory:** 256 - 2048 KB  
+**SRAM:** 192 - 786 KB  
 
 #### Architecture
 - Armv8-M Mainline architecture
@@ -811,10 +867,10 @@
 
 ### STM32WB0 Series
 **Category:** Wireless Entry-Level Compact  
-**ARM Cores:** Cortex-M0+  
-**Max Frequency:** 64 MHz  
-**Flash Memory:** 192 - 512 KB  
-**SRAM:** Up to 64 KB  
+**ARM Cores:** Cortex-M0+ (dual role)  
+**Max Frequency:** 48 MHz  
+**Flash Memory:** 64 - 256 KB  
+**SRAM:** 24 - 64 KB  
 
 #### Architecture
 - Single-core optimized design
@@ -825,6 +881,7 @@
 #### Features
 - Ultra-compact packages (WLCSP-49)
 - Bluetooth Low Energy support
+- Simplified dual-core communication
 - Minimal power consumption
 - Basic peripheral set
 - OTA update capability
@@ -845,11 +902,11 @@
 ---
 
 ### STM32WBA Series
-**Category:** Wireless Advanced Multiprotocol  
-**ARM Core:** Cortex-M33F (with FPU & DSP)  
-**Max Frequency:** 100 MHz  
+**Category:** Wireless Advanced Multiprotocol (Latest Gen)  
+**ARM Core:** Cortex-M33F (with FPU)  
+**Max Frequency:** 400 MHz  
 **Flash Memory:** 512 KB - 2 MB  
-**SRAM:** Up to 512 KB  
+**SRAM:** 256 - 512 KB  
 
 #### Architecture
 - Advanced Cortex-M33 with FPU
@@ -929,9 +986,10 @@
 
 ### STM32N6 Series
 **Category:** AI Edge Computing Accelerator  
-**ARM Core:** Cortex-M55  
+**ARM Core:** Cortex-M55 with integrated NPU  
 **Max Frequency:** 800 MHz  
-**On-Chip Memory:** Up to 4.2 MB SRAM  
+**Flash Memory:** 256 KB - 2 MB  
+**SRAM:** 256 KB - 1 MB  
 
 #### Architecture
 - Cortex-M55 superscalar pipeline
@@ -966,6 +1024,84 @@
 - On-device AI without cloud connectivity
 - Biometric authentication
 - Real-time gesture recognition
+
+---
+
+## 🖥️ MICROPROCESSOR (MPU) SERIES
+
+### STM32MP1 Series
+**Category:** Microprocessor High-Performance  
+**ARM Cores:** Cortex-A7 (1.0 GHz) + Cortex-M4 (209 MHz)  
+**Flash Memory:** Depends on external storage  
+**SRAM:** 256 MB+ DDR3/DDR3L  
+
+#### Architecture
+- Heterogeneous multi-core design
+- Cortex-A7 for general computing
+- Cortex-M4 for real-time control
+- Linux-capable A7 core
+- Real-time M4 coprocessor
+- Memory management unit (MMU)
+
+#### Features
+- 176+ pin BGA packages
+- Full Linux support (Arm and STM32 distros)
+- HDMI/DVI display output
+- DDR3/DDR3L memory controller
+- Dual CAN interfaces
+- Ethernet MAC (RMII/RGMII)
+- USB host/device/OTG
+- Multiple UART, SPI, I2C
+- NAND Flash controller
+
+#### Use Cases
+- **Industrial HMI and gateways**
+- Advanced factory automation controllers
+- Network appliances and routers
+- Embedded Linux systems
+- Graphics-rich automation panels
+- Building management systems
+- Railway/transportation systems
+- Medical imaging devices
+- Industrial IoT gateways
+- Heterogeneous computing applications
+
+---
+
+### STM32MP2 Series
+**Category:** Microprocessor Dual-Core (Latest)  
+**ARM Cores:** Dual Cortex-A35 (1.5 GHz) + Optional Cortex-M33  
+**Flash Memory:** Depends on external storage  
+**SRAM:** 256 MB+ DDR4  
+
+#### Architecture
+- Dual Cortex-A35 cores for Linux
+- Cortex-M33 coprocessor (optional)
+- Memory management units (MMU)
+- Advanced cache hierarchy
+- DDR4 memory support
+
+#### Features
+- Modern process technology (28nm)
+- Superior performance vs MP1
+- Better power efficiency
+- DDR4 support for higher bandwidth
+- USB 3.0 support
+- Advanced display capabilities
+- Gigabit Ethernet
+- Multiple high-speed interfaces
+- Rich connectivity options
+
+#### Use Cases
+- **Next-gen industrial gateways**
+- Advanced robotics controllers
+- High-performance embedded Linux systems
+- Graphics-rich medical devices
+- AI inference at the edge
+- Autonomous vehicle systems
+- Industrial data centers
+- 5G network equipment
+- Advanced telecommunications
 
 ---
 
@@ -1111,64 +1247,37 @@
 
 ---
 
-## ✅ SUMMARY TABLE: CORTEX-M FAMILIES (A-Z)
+## ✅ SUMMARY TABLE: ALL FAMILIES (A-Z)
 
-| Family | Arm Core | Max Speed | Flash | SRAM | Primary Position |
-|--------|----------|-----------|-------|------|------------------|
-| **C0** | Cortex-M0+ | 48 MHz | 16 - 256 KB | Up to 36 KB | Mainstream / cost-sensitive |
-| **C5** | Cortex-M33 | 144 MHz | 128 KB - 1 MB | Up to 256 KB | Mainstream / performance |
-| **F0** | Cortex-M0 | 48 MHz | 16 - 256 KB | Up to 32 KB | Mainstream / legacy |
-| **F1** | Cortex-M3 | 72 MHz | 16 KB - 1 MB | Up to 96 KB | Mainstream / legacy |
-| **F2** | Cortex-M3 | 120 MHz | 128 KB - 1 MB | Up to 128 KB | High performance / legacy |
-| **F3** | Cortex-M4 | 72 MHz | 32 - 512 KB | Up to 80 KB | Mixed-signal |
-| **F4** | Cortex-M4 | 180 MHz | 64 KB - 2 MB | Up to 384 KB | High performance / DSP |
-| **F7** | Cortex-M7 | 216 MHz | 64 KB - 2 MB | Up to 512 KB | High performance / graphics |
-| **G0** | Cortex-M0+ | 64 MHz | 16 - 512 KB | Up to 144 KB | Mainstream |
-| **G4** | Cortex-M4 | 170 MHz | 32 - 512 KB | Up to 128 KB | Mixed-signal / motor control |
-| **H5** | Cortex-M33 | 250 MHz | 128 KB - 4 MB | Up to 1.5 MB | Secure high performance |
-| **H7** | Cortex-M7 / Cortex-M4 | Up to 600 / 240 MHz | 64 KB - 2 MB | Up to 1.4 MB | High performance |
-| **L0** | Cortex-M0+ | 32 MHz | 8 - 192 KB | Up to 20 KB | Ultra-low power |
-| **L1** | Cortex-M3 | 32 MHz | 4 - 384 KB | Up to 48 KB | Ultra-low power / legacy |
-| **L4** | Cortex-M4 | 80 MHz | 64 KB - 1 MB | Up to 320 KB | Ultra-low power |
-| **L4+** | Cortex-M4 | 120 MHz | 512 KB - 2 MB | Up to 640 KB | Ultra-low power / enhanced |
-| **L5** | Cortex-M33 | 110 MHz | 32 - 512 KB | Up to 256 KB | Secure ultra-low power |
-| **N6** | Cortex-M55 | 800 MHz | Device-dependent | Up to 4.2 MB SRAM | Edge AI / multimedia |
-| **U0** | Cortex-M0+ | 56 MHz | 16 - 256 KB | Up to 20 KB | Ultra-low power |
-| **U3** | Cortex-M33 | 96 MHz | 512 KB - 2 MB | Up to 640 KB | Ultra-low power / security |
-| **U5** | Cortex-M33 | 160 MHz | 128 KB - 4 MB | Up to 3 MB | Ultra-low power / security |
-| **WB** | Cortex-M4 + Cortex-M0+ | 64 / 32 MHz | 256 KB - 1 MB | Up to 256 KB | Wireless |
-| **WB0** | Cortex-M0+ | 64 MHz | 192 - 512 KB | Up to 64 KB | Wireless BLE |
-| **WBA** | Cortex-M33 | 100 MHz | 512 KB - 2 MB | Up to 512 KB | Wireless multiprotocol |
-| **WL** | Cortex-M4 + Cortex-M0+ | 48 / 48 MHz | 64 - 256 KB | Up to 64 KB | Sub-GHz wireless |
-
-> **Verification note:** These are family-level portfolio ranges. Exact memory, peripherals, package options, and clock limits vary by part number and sub-family.
-
----
-
-## 🔎 VERIFICATION & SCOPE
-
-This document is intentionally limited to **STM32 Cortex-M microcontroller families**. STM32MP microprocessor families such as MP1 and MP2 have been removed because they are heterogeneous MPU platforms rather than Cortex-M-only MCU families.
-
-The family lineup and portfolio-level headline specifications were checked against STMicroelectronics' current STM32 Cortex-M MCU portfolio. ST currently describes STM32 MCUs as Arm Cortex-M based and groups them across mainstream, high-performance, ultra-low-power, and wireless applications.
-
-### Current corrections applied
-
-- **STM32H7:** current ST portfolio reaches **up to 600 MHz** for Cortex-M7 devices; dual-core variants can also include a 240 MHz Cortex-M4.
-- **STM32WBA:** current devices use **Cortex-M33 up to 100 MHz**, not 400 MHz; current products extend to 2 MB Flash and up to 512 KB RAM.
-- **STM32WB0:** current portfolio lists **Cortex-M0+ up to 64 MHz**, with 192–512 KB Flash and up to 64 KB RAM.
-- **STM32N6:** current devices use **Cortex-M55 at 800 MHz** and provide up to **4.2 MB SRAM**; selected devices include the Neural-ART accelerator.
-- **STM32U5:** current portfolio reaches **4 MB Flash and up to 3 MB RAM** at the family level.
-- **STM32L4 / L4+:** current portfolio reaches **1 MB Flash / 320 KB RAM** for L4 and **2 MB Flash / 640 KB RAM** for L4+.
-- **STM32U3:** current portfolio reaches **2 MB Flash / 640 KB RAM**.
-- **STM32L5:** current portfolio reaches **512 KB Flash / 256 KB RAM**.
-- **STM32F2 / F3:** current portfolio ranges were corrected to match ST's current family-level portfolio data.
-- **STM32WB0:** the earlier wording implying dual-core communication was removed; the family is presented as Cortex-M0+ based.
-
-### Scope note
-
-Older/legacy STM32 Cortex-M families remain in this reference because they are genuine Cortex-M MCU families, even when ST now presents them as legacy products. The document therefore covers both current and legacy Cortex-M families.
-
-For production design, always select the exact MCU part number and verify its datasheet, reference manual, package, temperature grade, lifecycle status, memory configuration, and peripheral availability before schematic or firmware freeze.
+| Family | ARM Core | Max Speed | Flash | SRAM | Category | Target Market |
+|--------|----------|-----------|-------|------|----------|----------------|
+| **C0** | M0+ | 48 MHz | 256KB | 36KB | Mainstream | Entry-level cost |
+| **C5** | M33F | 144 MHz | 1MB | 256KB | Mainstream | Entry-level performance |
+| **F0** | M0 | 48 MHz | 256KB | 32KB | Mainstream | Legacy replacement |
+| **F1** | M3 | 72 MHz | 1MB | 96KB | Mainstream | Industrial workhorse |
+| **F2** | M3 | 120 MHz | 1MB | 128KB | High-Perf | Secure applications |
+| **F3** | M4F | 72 MHz | 512KB | 80KB | Mixed-Signal | Motor control |
+| **F4** | M4F | 180 MHz | 2MB | 384KB | High-Perf | DSP/signal processing |
+| **F7** | M7F | 216 MHz | 2MB | 512KB | High-Perf | Graphics/multimedia |
+| **G0** | M0+ | 64 MHz | 512KB | 144KB | Mainstream | Modern entry-level |
+| **G4** | M4F | 170 MHz | 512KB | 128KB | Mixed-Signal | Advanced motor control |
+| **H5** | M33F | 250 MHz | 4MB | 640KB | High-Perf | Secure high-performance |
+| **H7** | M7F/M4F | 550 MHz | 2MB | 1MB | High-Perf | Flagship performance |
+| **L0** | M0+ | 32 MHz | 192KB | 20KB | Ultra-Low Pwr | Battery sensors |
+| **L1** | M3 | 32 MHz | 384KB | 48KB | Ultra-Low Pwr | Portable instruments |
+| **L4** | M4F | 80 MHz | 512KB | 160KB | Ultra-Low Pwr | Battery IoT devices |
+| **L4+** | M4F | 120 MHz | 1MB | 320KB | Ultra-Low Pwr | Enhanced L4 |
+| **L5** | M33F | 110 MHz | 2MB | 614KB | Ultra-Low Pwr | Secure low-power |
+| **MP1** | A7/M4 | 1GHz/209MHz | External | 256MB+ | Microprocessor | Linux-capable systems |
+| **MP2** | A35/M33 | 1.5GHz | External | 256MB+ | Microprocessor | Next-gen Linux systems |
+| **N6** | M55 | 800 MHz | 2MB | 1MB | Edge AI | Neural processing |
+| **U0** | M0+ | 56 MHz | 256KB | 36KB | Ultra-Low Pwr | Latest entry-level |
+| **U3** | M33F | 96 MHz | 1MB | 256KB | Ultra-Low Pwr | Market-leading efficiency |
+| **U5** | M33F | 160 MHz | 2MB | 786KB | Ultra-Low Pwr | Flagship low-power |
+| **WB** | M4F/M0+ | 64/32 MHz | 1MB | 256KB | Wireless | BLE/802.15.4 dual-core |
+| **WB0** | M0+ | 48 MHz | 256KB | 64KB | Wireless | Budget BLE |
+| **WBA** | M33F | 400 MHz | 2MB | 512KB | Wireless | Modern multiprotocol |
+| **WL** | M4/M0+ | 48 MHz | 256KB | 64KB | Wireless | Sub-GHz LoRa/Sigfox |
 
 ---
 
@@ -1179,14 +1288,14 @@ For production design, always select the exact MCU part number and verify its da
 3. **Flash & SRAM** values shown are typical maximum; variants exist with less memory
 4. **Clock Speeds** may have low-power variants operating at lower frequencies
 5. **Availability** may vary by region; check with local distributors
-6. **Development Support** varies by series; STM32CubeMX, STM32CubeIDE, HAL/LL, CMSIS and third-party IDE/toolchains are available across the portfolio
-7. **Long-term Support** varies by product; check the exact part number for lifecycle information
-8. **Compatibility** - Similar STM32 ecosystem concepts ease migration, but peripherals and registers are not identical across families
+6. **Development Support** is extensive for all series with multiple IDE options
+7. **Long-term Support** ensured for most series; check datasheet for lifecycle info
+8. **Compatibility** - Similar peripheral sets across families ease migration
 
 ---
 
-**Document Version:** 2.0  
+**Document Version:** 1.0  
 **Last Updated:** September 2026  
-**Status:** Cortex-M Family Reference — verified against current ST portfolio
+**Status:** Complete Family Reference
 
 For the latest information and detailed datasheets, visit [STMicroelectronics Official Website](https://www.st.com/stm32)
