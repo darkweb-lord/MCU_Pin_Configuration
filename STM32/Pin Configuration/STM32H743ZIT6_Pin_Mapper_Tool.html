@@ -72,7 +72,13 @@ h2.sec{font-family:var(--cond);font-size:2rem;font-weight:700;letter-spacing:.01
 .topbar{background:var(--ink);color:#c9d6e6;font-size:.76rem;letter-spacing:.04em}
 .topbar .in{max-width:1680px;margin:0 auto;padding:7px 28px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .topbar b{color:#fff;font-weight:600}
-.topbar .r{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:#8ba1bb}
+.topbar .r{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:#8ba1bb;display:flex;gap:10px;flex-wrap:wrap}
+.topbar .r a{color:#9fb6d1;text-decoration:none;border-bottom:1px dotted rgba(159,182,209,.45);transition:.15s}
+.topbar .r a:hover{color:#fff;border-bottom-color:#fff}
+.topbar .r a::after{content:" ↗";font-size:.62rem;opacity:.65}
+footer a{color:#cfe0f0;text-decoration:none;border-bottom:1px dotted rgba(207,224,240,.35)}
+footer a:hover{color:#fff;border-bottom-color:#fff}
+footer a::after{content:" ↗";font-size:.68rem;opacity:.6}
 
 /* MASTHEAD + DEVICE TABS */
 .mast{background:var(--panel);border-bottom:1px solid var(--line)}
@@ -81,6 +87,19 @@ h2.sec{font-family:var(--cond);font-size:2rem;font-weight:700;letter-spacing:.01
 .brand .mark{width:40px;height:40px;background:var(--acc);display:grid;place-items:center;color:#fff;font-family:var(--cond);font-weight:700;font-size:1.3rem;letter-spacing:.02em}
 .brand .nm{font-family:var(--cond);font-weight:700;font-size:1.22rem;letter-spacing:.06em;line-height:1.1}
 .brand .nm span{display:block;font-family:var(--sans);font-size:.68rem;font-weight:400;letter-spacing:.16em;color:var(--t3);text-transform:uppercase}
+.split{position:relative;display:flex}
+.splitmain,.splitcaret{border:1px solid var(--acc);background:var(--acc);color:#fff;font-family:var(--cond);
+  font-size:.92rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.18s}
+.splitmain{padding:8px 16px;border-right:1px solid rgba(255,255,255,.35)}
+.splitcaret{padding:8px 9px;font-size:.8rem}
+.splitmain:hover,.splitcaret:hover{background:var(--ink);border-color:var(--ink)}
+.splitmenu{position:absolute;top:calc(100% + 4px);right:0;min-width:238px;background:var(--panel);
+  border:1px solid var(--line);box-shadow:0 12px 34px rgba(16,35,60,.22);z-index:420;display:none}
+.splitmenu.open{display:block}
+.splitmenu button{display:block;width:100%;text-align:left;padding:9px 14px;border:0;background:none;
+  font-family:var(--sans);font-size:.84rem;color:var(--t2);cursor:pointer}
+.splitmenu button:hover{background:var(--panel2);color:var(--acc)}
+.splitmenu .sep{height:1px;background:var(--line);margin:4px 0}
 .themebtn{display:flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid var(--line);background:var(--panel2);
   color:var(--t2);font-family:var(--cond);font-size:.92rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.18s}
 .themebtn:hover{border-color:var(--acc);color:var(--acc)}
@@ -110,6 +129,7 @@ h2.sec{font-family:var(--cond);font-size:2rem;font-weight:700;letter-spacing:.01
 .count .v{font-family:var(--cond);font-size:2.05rem;font-weight:700;line-height:1;color:#fff}
 .count .v i{font-style:normal;color:var(--acc);font-size:1.3rem}
 .count .l{font-size:.64rem;letter-spacing:.17em;text-transform:uppercase;color:#9bb0c8;margin-top:5px}
+.count .s{font-family:var(--mono);font-size:.68rem;color:#ff9aa6;margin-top:6px;line-height:1.45}
 
 /* SECTION NAV */
 .snav{position:sticky;top:env(safe-area-inset-top,0px);z-index:300;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(16,35,60,.04)}
@@ -272,6 +292,19 @@ tr.conflict td{background:rgba(var(--accr),.12)}
 .warn strong{color:var(--t1);font-weight:600}
 .warn.err{border-left-color:var(--acc)}
 
+.chkbadge{display:inline-block;vertical-align:middle;margin-left:10px;padding:3px 10px;font-family:var(--mono);
+  font-size:.68rem;letter-spacing:.04em;border:1px solid var(--ok);color:var(--ok);background:rgba(23,121,74,.08)}
+.chkbadge.bad{border-color:var(--acc);color:var(--acc);background:rgba(var(--accr),.1)}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.pbtn{padding:8px 13px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;text-align:left;
+  font-family:inherit;font-size:.8rem;color:var(--t1);transition:.15s;line-height:1.3}
+.pbtn:hover{border-color:var(--acc);color:var(--acc)}
+.pbtn b{font-weight:600;display:block}
+.pbtn span{font-family:var(--mono);font-size:.66rem;color:var(--t3)}
+.pbtn:hover span{color:var(--acc)}
+.pbtn[disabled]{opacity:.4;cursor:not-allowed}
+.pbtn.done{border-color:var(--ok);box-shadow:inset 2px 0 0 var(--ok)}
+
 /* BUTTONS */
 .btn{padding:9px 18px;border:1px solid var(--line);background:var(--panel);color:var(--t1);font-family:var(--cond);
   font-weight:600;font-size:.92rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.18s}
@@ -307,6 +340,27 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
 .toast.err{border-left-color:var(--acc)}
 
 @media(max-width:900px){.spec{grid-template-columns:repeat(2,1fr)}}
+/* PRINT */
+#printArea{display:none}
+.pr-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #10233c;padding-bottom:8px;margin-bottom:14px}
+.pr-head h1{font-family:var(--cond);font-size:1.7rem;line-height:1.1}
+.pr-head .m{font-family:var(--mono);font-size:.72rem;text-align:right;line-height:1.6}
+.pr-k{display:flex;flex-wrap:wrap;gap:0 22px;font-family:var(--mono);font-size:.72rem;margin-bottom:12px}
+.pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+#printArea table{width:100%;border-collapse:collapse;font-size:.7rem}
+#printArea th{background:#eef2f7;border:1px solid #c9d3e0;padding:4px 6px;text-align:left;font-family:var(--cond);letter-spacing:.06em;text-transform:uppercase}
+#printArea td{border:1px solid #d7dee8;padding:3px 6px;font-family:var(--mono);font-size:.66rem}
+#printArea h3{font-family:var(--cond);font-size:1rem;letter-spacing:.08em;text-transform:uppercase;margin:12px 0 6px}
+#printArea .pr-note{font-size:.68rem;border-left:3px solid #c8102e;padding:4px 8px;margin-bottom:4px;background:#f7f8fa}
+#printArea svg{max-width:100%;height:auto}
+.pr-foot{margin-top:14px;border-top:1px solid #c9d3e0;padding-top:6px;font-size:.62rem;color:#5a6b80}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff!important;color:#000!important}
+  .topbar,.mast,.hero,.snav,.wrap,footer,#toasts,#tip{display:none!important}
+  #printArea{display:block!important;color:#000}
+  #printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 @media(max-width:760px){
   .hero h1{font-size:2.2rem}
   .panel{padding:24px 16px 56px}
@@ -325,7 +379,7 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
 <div class="topbar"><div class="in">
   <span><b>STM32H7</b> High-performance line · single-core</span>
   <span>Pin &amp; alternate-function configuration</span>
-  <span class="r">DS12110 · DS12117 · DS12556 · RM0433</span>
+  <span class="r" id="docLinks"></span>
 </div></div>
 
 <header class="mast"><div class="in">
@@ -334,6 +388,20 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
     <div class="nm">PIN MAPPER<span>MCU configuration utility</span></div>
   </div>
   <div class="devtabs" id="devTabs" role="tablist" aria-label="Device"></div>
+  <div class="split" id="saveSplit">
+    <button class="splitmain" id="btnSave" type="button" title="Save the current configuration as a .json file">Save</button>
+    <button class="splitcaret" id="btnSaveMenu" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More save and reset options">▾</button>
+    <div class="splitmenu" id="saveMenu" role="menu">
+      <button role="menuitem" data-act="save">Save configuration (.json)</button>
+      <button role="menuitem" data-act="load">Load configuration…</button>
+      <button role="menuitem" data-act="csv">Save as CSV</button>
+      <button role="menuitem" data-act="hdr">Save as C header</button>
+      <div class="sep"></div>
+      <button role="menuitem" data-act="reset">Reset assignments</button>
+      <button role="menuitem" data-act="resetall">Reset everything</button>
+    </div>
+  </div>
+  <input type="file" id="cfgFile" accept=".json,application/json" style="display:none">
   <button class="themebtn" id="themeBtn" type="button" aria-label="Colour theme" title="Colour theme">
     <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#ic-auto"></use></svg>
     <span id="themeTxt">Auto</span>
@@ -434,7 +502,15 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
       <button class="ctl" id="zIn">+</button>
     </div>
     <input type="text" id="dgSearch" class="search" style="max-width:260px;padding:6px 10px;font-size:.78rem" placeholder="Highlight pin or function…">
-    <button class="ctl" id="dgSvg">Download SVG</button>
+    <div class="ctl-g">
+      <select id="dgFmt" class="ctl" aria-label="Diagram file format">
+        <optgroup label="Standard"><option value="png">PNG image</option><option value="jpeg">JPEG image</option></optgroup>
+        <optgroup label="Uncompressed"><option value="bmp">BMP bitmap</option></optgroup>
+        <optgroup label="Vector"><option value="svg" selected>SVG vector</option></optgroup>
+        <optgroup label="Document"><option value="pdf">PDF document</option></optgroup>
+      </select>
+      <button class="ctl" id="dgSvg">Download</button>
+    </div>
   </div>
   <div class="dgwrap">
     <div class="dgbox" id="dgBox"></div>
@@ -448,8 +524,12 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
 
 <!-- SELECTION -->
 <section class="panel" id="panel-select">
-  <div class="shead"><span class="eyebrow">Step 3</span><h2 class="sec">Pin selection &amp; assignment</h2>
+  <div class="shead"><span class="eyebrow">Step 3</span><h2 class="sec">Pin selection &amp; assignment <span class="chkbadge" id="chkBadge">no issues</span></h2>
     <p class="sub">Tick a pin, then choose GPIO, an alternate function (with its AF number) or an additional/analog function. The optional label becomes the name in the C header.</p></div>
+  <div class="card" id="presetCard">
+    <div class="ch">Preset pin groups <span style="float:right;font-family:var(--sans);font-size:.72rem;letter-spacing:0;text-transform:none;color:var(--t3)">one click lays down a whole interface on its usual pins</span></div>
+    <div class="cb"><div class="presets" id="presetBar"></div></div>
+  </div>
   <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center">
     <input type="text" id="selSearch" class="search" style="max-width:300px" placeholder="Filter pins or functions…">
     <button class="btn" id="btnClear">Clear all</button>
@@ -479,6 +559,7 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
     <button class="exp-btn" id="btnCsv"><div class="t">CSV file</div><div class="d">.csv — spreadsheet import, with AF numbers</div></button>
     <button class="exp-btn" id="btnJson"><div class="t">JSON file</div><div class="d">.json — structured data for scripts and tools</div></button>
     <button class="exp-btn" id="btnH"><div class="t">C header</div><div class="d">.h — STM32 HAL defines: port, pin, AF macro, mode</div></button>
+    <button class="exp-btn" id="btnPrint"><div class="t">Print summary</div><div class="d">one-page sheet with the diagram, assignments and checks</div></button>
   </div>
   <div class="shead" style="margin-top:34px"><span class="eyebrow">Check</span><h2 class="sec">Preview</h2></div>
   <div class="ptabs">
@@ -496,18 +577,13 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
   <div class="in">
     <div><h4>About this tool</h4><p>An offline pin configuration utility for the single-core STM32H7 high-performance line. Pin, ball and alternate-function data is taken from the ST datasheets and cross-checked against ST's published STM32 pin database.</p></div>
     <div><h4>Devices</h4><ul id="footDev"></ul></div>
-    <div><h4>Documents</h4><ul>
-      <li>DS12110 — STM32H742xI/G, STM32H743xI/G</li>
-      <li>DS12117 — STM32H753xI</li>
-      <li>DS12556 — STM32H750xB</li>
-      <li>RM0433 — reference manual</li>
-      <li>ES0392 / ES0396 — errata sheets</li>
-    </ul></div>
+    <div><h4>Documents on st.com</h4><ul id="footDocs"></ul></div>
     <div><h4>Use</h4><p>Always confirm a final pin assignment against the device datasheet and reference manual before release. Analog-switch pins, oscillator pins and debug pins need particular care.</p></div>
   </div>
   <div class="bar">Pin data © STMicroelectronics, reproduced for engineering reference. Tool generated for internal design use.</div>
 </footer>
 
+<section id="printArea" aria-hidden="true"></section>
 <div id="tip"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
@@ -757,6 +833,7 @@ function setDevice(id, quiet){
   $("ovTitle").textContent = DEV.line;
   $("ovSub").textContent = DEV.note + " Datasheet " + DEV.doc + ", reference manual RM0433.";
   buildPkgGrid();
+  if($("presetBar")) buildPresetBar();
   buildSpec();
   buildVerify();
   buildPeriphTable();
@@ -787,15 +864,28 @@ function setPackage(id, quiet){
   renderSidebar();
   if(!quiet) toast(PK.id + " loaded" + (before ? (dropped ? " · " + dropped + " assignment(s) removed" : " · assignments kept") : ""));
 }
+var COMM = ["UART","SPI","I2C","CAN","USB","ETH","SDMMC","SAI","QSPI"];
 function buildCounts(){
-  var io = PINS.filter(function(o){ return kindOf(o) === "io"; }).length;
-  var adc = PINS.filter(function(o){ return addList(o).some(function(t){ return /^ADC/.test(t); }); }).length;
-  var af = 0; PINS.forEach(function(o){ af += afList(o).length; });
-  var rows = [[PINS.length, PK.bga ? "Package balls" : "Package pins"],
-              [io, "Assignable I/O"], [adc, "ADC input pins"], [af, "Alternate functions"],
-              [DEV.mhz.replace(" MHz",""), "MHz max CPU"]];
+  var ios = PINS.filter(function(o){ return kindOf(o) === "io"; });
+  var supply = PINS.filter(function(o){ return o.r.t === "S"; }).length;
+  var comm = ios.filter(function(o){
+    var g = groupsOf(o);
+    return COMM.some(function(c){ return g.indexOf(c) !== -1; });
+  }).length;
+  var adcPins = PINS.filter(function(o){ return addList(o).some(function(t){ return /^ADC/.test(t); }); });
+  var chan = {};
+  adcPins.forEach(function(o){ addList(o).forEach(function(t){ if(/^ADC/.test(t)) chan[t] = 1; }); });
+  var af = 0, afPins = 0;
+  PINS.forEach(function(o){ var n = afList(o).length; af += n; if(n) afPins++; });
+  var rows = [
+    [PINS.length, PK.bga ? "Package balls" : "Package pins", supply + " supply · " + (PINS.length - supply - ios.length) + " other fixed"],
+    [ios.length, "Assignable I/O", comm + " on comm. peripherals"],
+    [adcPins.length, "ADC input pins", Object.keys(chan).length + " ADC channels"],
+    [af, "Alternate functions", "across " + afPins + " pins"],
+    [DEV.mhz.replace(" MHz",""), "MHz max CPU", "Cortex-M7 · 1027 DMIPS"]
+  ];
   $("counts").innerHTML = rows.map(function(r){
-    return '<div class="count"><div class="v">'+r[0]+'</div><div class="l">'+r[1]+'</div></div>';
+    return '<div class="count"><div class="v">'+r[0]+'</div><div class="l">'+r[1]+'</div><div class="s">'+r[2]+'</div></div>';
   }).join("");
 }
 function buildSpec(){
@@ -1223,10 +1313,17 @@ function renderSidebar(){
   $("expCount").textContent = keys.length;
   var bad = findConflicts(), badFns = Object.keys(bad), badKeys = [];
   badFns.forEach(function(fn){ badKeys = badKeys.concat(bad[fn]); });
-  var msgs = [];
+  var msgs = [], issues = busIssues();
   if(badFns.length) msgs.push('<div class="warn err"><strong>Duplicate assignment:</strong> '+badFns.map(function(fn){ return esc(fn)+" on "+bad[fn].join(", "); }).join(" · ")+'. Each peripheral signal can be routed to one pin only.</div>');
+  issues.filter(function(i){ return i.lvl === "err"; }).forEach(function(i){
+    msgs.push('<div class="warn err"><strong>'+esc(i.n)+' is incomplete:</strong> '+esc(i.m)+'.</div>'); });
+  issues.filter(function(i){ return i.lvl === "warn"; }).forEach(function(i){
+    msgs.push('<div class="warn"><strong>'+esc(i.n)+':</strong> '+esc(i.m)+'.</div>'); });
   warnings().forEach(function(m){ msgs.push('<div class="warn">'+m+'</div>'); });
   $("selMsgs").innerHTML = msgs.join("");
+  var nIssue = badFns.length + issues.filter(function(i){ return i.lvl === "err"; }).length;
+  $("chkBadge").textContent = nIssue ? nIssue + " issue" + (nIssue > 1 ? "s" : "") : "no issues";
+  $("chkBadge").className = "chkbadge" + (nIssue ? " bad" : "");
   var trs = $("selBody").querySelectorAll("tr[data-k]");
   for(var i=0;i<trs.length;i++) trs[i].classList.toggle("conflict", badKeys.indexOf(trs[i].getAttribute("data-k")) !== -1);
   $("selList").innerHTML = keys.length ? keys.map(function(k){
@@ -1234,7 +1331,9 @@ function renderSidebar(){
     return '<div class="srow'+(badKeys.indexOf(k) !== -1 ? ' bad' : '')+'"><span class="lb">'+esc(o.pos)+' · '+esc(k)+'</span>'+
            '<span class="fn">'+esc(f ? f.label : sel[k].v)+'</span></div>';
   }).join("") : '<div class="side-empty">No pins selected yet.</div>';
-  ["btnCsv","btnJson","btnH"].forEach(function(id){ $(id).disabled = !keys.length; });
+  ["btnCsv","btnJson","btnH","btnPrint"].forEach(function(id){ $(id).disabled = !keys.length; });
+  if($("presetBar").children.length) buildPresetBar();
+  autosave();
   renderPreview();
 }
 
@@ -1326,25 +1425,413 @@ function exportFmt(fmt){
   if(fmt === "json") download(fileBase()+".json", buildJson(), "application/json");
   if(fmt === "h") download(DEV.name.toLowerCase()+"_pinmap.h", buildHeader(), "text/x-c");
 }
-function exportSvg(){
-  var svg = $("dgBox").querySelector("svg");
-  if(!svg){ toast("No diagram to export", true); return; }
-  var c = svg.cloneNode(true);
-  var dk = isDark();
-  var css = "text{font-family:monospace}.pad{stroke:"+(dk?"#8fa2ba":"#5a6b80")+"}.pad.asg{stroke:"+(dk?"#ff4d5e":"#c8102e")+";stroke-width:2}"+
-    ".plab{font-size:8px;fill:"+(dk?"#b3c3d6":"#44566e")+"}.plab.asg{fill:"+(dk?"#ff4d5e":"#c8102e")+";font-weight:700}"+
-    ".body{fill:"+(dk?"#1d3350":"#10233c")+";stroke:"+(dk?"#36557a":"#1c3557")+"}"+
-    ".bodytx{fill:#fff;text-anchor:middle}.bodysub{fill:#9fb6d1;text-anchor:middle}"+
-    ".axis{fill:"+(dk?"#7e92aa":"#7a8aa0")+";text-anchor:middle;dominant-baseline:middle}";
-  var st = document.createElementNS(SVGNS,"style"); st.textContent = css;
-  c.insertBefore(st, c.firstChild);
-  c.querySelectorAll("[fill^='var'],[stroke^='var']").forEach(function(e){
-    if((e.getAttribute("fill")||"").indexOf("var") === 0) e.setAttribute("fill", dk ? "#0d1a2b" : "#f8fafc");
-    if((e.getAttribute("stroke")||"").indexOf("var") === 0) e.setAttribute("stroke", dk ? "#22344c" : "#d7dee8");
+
+/* ======================= DOCUMENT LINKS (st.com) ======================= */
+var ST = {
+  series:"https://www.st.com/en/microcontrollers-microprocessors/stm32h7-series/documentation.html",
+  ds12110:"https://www.st.com/resource/en/datasheet/stm32h743zi.pdf",
+  h742:"https://www.st.com/en/microcontrollers-microprocessors/stm32h742xg.html",
+  h743:"https://www.st.com/en/microcontrollers-microprocessors/stm32h743zi.html",
+  h750:"https://www.st.com/en/microcontrollers-microprocessors/stm32h750vb.html",
+  h753:"https://www.st.com/en/microcontrollers-microprocessors/stm32h753zi.html"
+};
+function lk(href, txt, title){
+  return '<a href="'+href+'" target="_blank" rel="noopener noreferrer"'+(title?' title="'+esc(title)+'"':'')+'>'+esc(txt)+'</a>';
+}
+function buildDocLinks(){
+  $("docLinks").innerHTML = [
+    lk(ST.ds12110, "DS12110", "STM32H742/H743 datasheet on st.com"),
+    lk(ST.h753, "DS12117", "STM32H753 datasheet on st.com"),
+    lk(ST.h750, "DS12556", "STM32H750 datasheet on st.com"),
+    lk(ST.series, "RM0433", "STM32H7 reference manuals and errata on st.com")
+  ].join("");
+  $("footDocs").innerHTML = [
+    '<li>'+lk(ST.ds12110,"DS12110")+' — STM32H742xI/G, STM32H743xI/G datasheet</li>',
+    '<li>'+lk(ST.h753,"DS12117")+' — STM32H753xI datasheet</li>',
+    '<li>'+lk(ST.h750,"DS12556")+' — STM32H750xB datasheet</li>',
+    '<li>'+lk(ST.series,"RM0433")+' — reference manual</li>',
+    '<li>'+lk(ST.series,"ES0392")+' — device errata</li>'
+  ].join("");
+}
+
+/* ======================= 2. BUS-LEVEL CHECKS ======================= */
+function assignedSignals(){
+  var s = {};
+  selectedKeys().forEach(function(k){
+    var f = fnOf(k);
+    if(f && f.grp !== "GPIO") s[f.fn] = k;
   });
-  c.querySelectorAll("[style*='rgba(var']").forEach(function(e){ e.style.fill = dk ? "rgba(255,77,94,.42)" : "rgba(200,16,46,.42)"; });
-  download(DEV.name+"_"+PK.id.replace("+","p")+"_diagram.svg",
-    '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(c), "image/svg+xml");
+  return s;
+}
+function busRules(){
+  var r = [], i;
+  for(i=1;i<=4;i++) r.push({n:"I2C"+i, all:["I2C"+i+"_SCL","I2C"+i+"_SDA"]});
+  for(i=1;i<=6;i++) r.push({n:"SPI"+i, all:["SPI"+i+"_SCK"], any:["SPI"+i+"_MOSI","SPI"+i+"_MISO"]});
+  for(i=1;i<=3;i++) r.push({n:"I2S"+i, all:["I2S"+i+"_CK","I2S"+i+"_WS"], any:["I2S"+i+"_SDO","I2S"+i+"_SDI"]});
+  ["USART1","USART2","USART3","USART6","UART4","UART5","UART7","UART8","LPUART1"].forEach(function(u){
+    r.push({n:u, soft:["" + u + "_TX", u + "_RX"], msg:"only one direction is assigned — fine for a one-way link, otherwise add the other pin"});
+  });
+  for(i=1;i<=2;i++) r.push({n:"FDCAN"+i, all:["FDCAN"+i+"_TX","FDCAN"+i+"_RX"]});
+  for(i=1;i<=2;i++) r.push({n:"SDMMC"+i, all:["SDMMC"+i+"_CK","SDMMC"+i+"_CMD","SDMMC"+i+"_D0"]});
+  r.push({n:"OTG_FS", all:["OTG_FS_DM","OTG_FS_DP"]});
+  r.push({n:"OTG_HS ULPI", trig:/^OTG_HS_ULPI_/, all:["OTG_HS_ULPI_CK","OTG_HS_ULPI_DIR","OTG_HS_ULPI_NXT","OTG_HS_ULPI_STP",
+    "OTG_HS_ULPI_D0","OTG_HS_ULPI_D1","OTG_HS_ULPI_D2","OTG_HS_ULPI_D3","OTG_HS_ULPI_D4","OTG_HS_ULPI_D5","OTG_HS_ULPI_D6","OTG_HS_ULPI_D7"]});
+  r.push({n:"QUADSPI bank 1", trig:/^QUADSPI_(CLK|BK1)/, all:["QUADSPI_CLK","QUADSPI_BK1_NCS","QUADSPI_BK1_IO0","QUADSPI_BK1_IO1","QUADSPI_BK1_IO2","QUADSPI_BK1_IO3"]});
+  r.push({n:"Ethernet RMII", trig:/^ETH_RMII_/, all:["ETH_RMII_REF_CLK","ETH_RMII_CRS_DV","ETH_RMII_RXD0","ETH_RMII_RXD1","ETH_RMII_TX_EN","ETH_RMII_TXD0","ETH_RMII_TXD1"],
+    soft:["ETH_MDC","ETH_MDIO"], msg:"MDC/MDIO are missing — most PHYs need the management interface"});
+  r.push({n:"Ethernet MII", trig:/^ETH_MII_/, all:["ETH_MII_TX_CLK","ETH_MII_TX_EN","ETH_MII_TXD0","ETH_MII_TXD1","ETH_MII_TXD2","ETH_MII_TXD3",
+    "ETH_MII_RX_CLK","ETH_MII_RX_DV","ETH_MII_RXD0","ETH_MII_RXD1","ETH_MII_RXD2","ETH_MII_RXD3"]});
+  r.push({n:"DCMI", trig:/^DCMI_/, all:["DCMI_PIXCLK","DCMI_HSYNC","DCMI_VSYNC","DCMI_D0","DCMI_D1","DCMI_D2","DCMI_D3","DCMI_D4","DCMI_D5","DCMI_D6","DCMI_D7"]});
+  r.push({n:"LCD-TFT", trig:/^LCD_/, all:["LCD_CLK","LCD_HSYNC","LCD_VSYNC","LCD_DE"],
+    soft:["LCD_R0","LCD_G0","LCD_B0"], msg:"no R/G/B data lines are assigned yet"});
+  r.push({n:"SWD debug", trig:/^(JTMS-SWDIO|JTCK-SWCLK)$/, all:["JTMS-SWDIO","JTCK-SWCLK"]});
+  r.push({n:"HSE crystal", trig:/^OSC_(IN|OUT)$/, all:["OSC_IN","OSC_OUT"]});
+  r.push({n:"LSE crystal", trig:/^OSC32_(IN|OUT)$/, all:["OSC32_IN","OSC32_OUT"]});
+  return r;
+}
+var BUSRULES = null;
+function busIssues(){
+  if(!BUSRULES) BUSRULES = busRules();
+  var got = assignedSignals(), out = [];
+  BUSRULES.forEach(function(r){
+    var names = (r.all||[]).concat(r.any||[]).concat(r.soft||[]);
+    var touched = Object.keys(got).some(function(s){
+      return r.trig ? r.trig.test(s) : names.indexOf(s) !== -1;
+    });
+    if(!touched) return;
+    var missAll = (r.all||[]).filter(function(s){ return !got[s]; });
+    if(missAll.length) out.push({lvl:"err", n:r.n, m:"missing " + missAll.join(", ")});
+    if(r.any && !r.any.some(function(s){ return got[s]; }))
+      out.push({lvl:"err", n:r.n, m:"needs at least one of " + r.any.join(" or ")});
+    if(r.soft){
+      var haveSome = r.soft.some(function(s){ return got[s]; });
+      var missSoft = r.soft.filter(function(s){ return !got[s]; });
+      if(missSoft.length && (haveSome || !r.all || !missAll.length))
+        out.push({lvl:"warn", n:r.n, m:(r.msg || ("consider also " + missSoft.join(", ")))});
+    }
+  });
+  return out;
+}
+
+/* ======================= 3. PRESETS ======================= */
+var PRESETS = [
+  {id:"swd",   t:"SWD debug",         d:"2 pins",  s:[["JTMS-SWDIO",["PA13"]],["JTCK-SWCLK",["PA14"]]]},
+  {id:"swo",   t:"SWD + SWO trace",   d:"3 pins",  s:[["JTMS-SWDIO",["PA13"]],["JTCK-SWCLK",["PA14"]],["TRACESWO",["PB3"]]]},
+  {id:"hse",   t:"HSE + LSE crystals",d:"4 pins",  s:[["OSC_IN",["PH0"]],["OSC_OUT",["PH1"]],["OSC32_IN",["PC14"]],["OSC32_OUT",["PC15"]]]},
+  {id:"u1",    t:"USART1",            d:"2 pins",  s:[["USART1_TX",["PA9","PB6"]],["USART1_RX",["PA10","PB7"]]]},
+  {id:"u3",    t:"USART3",            d:"2 pins",  s:[["USART3_TX",["PD8","PB10"]],["USART3_RX",["PD9","PB11"]]]},
+  {id:"i2c1",  t:"I2C1",              d:"2 pins",  s:[["I2C1_SCL",["PB8","PB6"]],["I2C1_SDA",["PB9","PB7"]]]},
+  {id:"spi1",  t:"SPI1 + NSS",        d:"4 pins",  s:[["SPI1_SCK",["PA5"]],["SPI1_MISO",["PA6"]],["SPI1_MOSI",["PA7"]],["SPI1_NSS",["PA4"]]]},
+  {id:"can1",  t:"FDCAN1",            d:"2 pins",  s:[["FDCAN1_TX",["PD1","PA12"]],["FDCAN1_RX",["PD0","PA11"]]]},
+  {id:"sd1",   t:"SDMMC1 4-bit",      d:"6 pins",  s:[["SDMMC1_CK",["PC12"]],["SDMMC1_CMD",["PD2"]],["SDMMC1_D0",["PC8"]],["SDMMC1_D1",["PC9"]],["SDMMC1_D2",["PC10"]],["SDMMC1_D3",["PC11"]]]},
+  {id:"usbfs", t:"USB OTG FS",        d:"2 pins",  s:[["OTG_FS_DM",["PA11"]],["OTG_FS_DP",["PA12"]]]},
+  {id:"usbhs", t:"USB OTG HS ULPI",   d:"12 pins", s:[["OTG_HS_ULPI_CK",["PA5"]],["OTG_HS_ULPI_DIR",["PC2","PI11"]],["OTG_HS_ULPI_NXT",["PC3","PH4"]],
+                 ["OTG_HS_ULPI_STP",["PC0"]],["OTG_HS_ULPI_D0",["PA3"]],["OTG_HS_ULPI_D1",["PB0"]],["OTG_HS_ULPI_D2",["PB1"]],["OTG_HS_ULPI_D3",["PB10"]],
+                 ["OTG_HS_ULPI_D4",["PB11"]],["OTG_HS_ULPI_D5",["PB12"]],["OTG_HS_ULPI_D6",["PB13"]],["OTG_HS_ULPI_D7",["PB5"]]]},
+  {id:"rmii",  t:"Ethernet RMII",     d:"9 pins",  s:[["ETH_RMII_REF_CLK",["PA1"]],["ETH_RMII_CRS_DV",["PA7"]],["ETH_RMII_RXD0",["PC4"]],["ETH_RMII_RXD1",["PC5"]],
+                 ["ETH_RMII_TX_EN",["PG11","PB11"]],["ETH_RMII_TXD0",["PG13","PB12"]],["ETH_RMII_TXD1",["PG14","PB13"]],["ETH_MDC",["PC1"]],["ETH_MDIO",["PA2"]]]},
+  {id:"qspi",  t:"QUADSPI bank 1",    d:"6 pins",  s:[["QUADSPI_CLK",["PB2"]],["QUADSPI_BK1_NCS",["PB6","PG6"]],["QUADSPI_BK1_IO0",["PD11","PC9"]],
+                 ["QUADSPI_BK1_IO1",["PD12","PC10"]],["QUADSPI_BK1_IO2",["PE2","PF7"]],["QUADSPI_BK1_IO3",["PD13","PF6"]]]},
+  {id:"lcd",   t:"LCD-TFT sync",      d:"4 pins",  need:"LCD", s:[["LCD_CLK",["PE14","PG7"]],["LCD_HSYNC",["PI10","PI12"]],["LCD_VSYNC",["PI9","PI13"]],["LCD_DE",["PK7","PF10"]]]},
+  {id:"dcmi",  t:"DCMI 8-bit",        d:"11 pins", s:[["DCMI_PIXCLK",["PA6"]],["DCMI_HSYNC",["PA4","PH8"]],["DCMI_VSYNC",["PB7","PI5"]],
+                 ["DCMI_D0",["PC6","PH9"]],["DCMI_D1",["PC7","PH10"]],["DCMI_D2",["PC8","PH11"]],["DCMI_D3",["PC9","PH12"]],
+                 ["DCMI_D4",["PC11","PH14"]],["DCMI_D5",["PD3","PI4"]],["DCMI_D6",["PB8","PI6"]],["DCMI_D7",["PB9","PI7"]]]}
+];
+function presetAvailable(p){
+  if(p.need === "LCD" && DEV.noLcd) return false;
+  return p.s.every(function(x){ return !!pinForSignal(x[0], x[1], true); });
+}
+/* find a pin offering `sig`; prefer the listed keys, then any free pin */
+function pinForSignal(sig, pref, probe){
+  var i, o, f;
+  for(i=0;i<(pref||[]).length;i++){
+    o = pinByKey(pref[i]);
+    if(o && funcsOf(o).some(function(x){ return x.fn === sig; })) {
+      if(probe || !sel[pref[i]] || fnOf(pref[i]) && fnOf(pref[i]).fn === sig) return o;
+    }
+  }
+  for(i=0;i<PINS.length;i++){
+    o = PINS[i];
+    if(kindOf(o) === "fixed") continue;
+    if(!funcsOf(o).some(function(x){ return x.fn === sig; })) continue;
+    if(probe) return o;
+    if(!sel[o.r.k]) return o;
+  }
+  return null;
+}
+function applyPreset(id){
+  var p = null;
+  PRESETS.forEach(function(x){ if(x.id === id) p = x; });
+  if(!p) return;
+  var done = 0, busy = [], none = [];
+  p.s.forEach(function(x){
+    var sig = x[0], o = pinForSignal(sig, x[1]);
+    if(!o){
+      var any = pinForSignal(sig, x[1], true);
+      if(any) busy.push(sig); else none.push(sig);
+      return;
+    }
+    var f = null;
+    funcsOf(o).forEach(function(c){ if(!f && c.fn === sig) f = c; });
+    if(!f){ none.push(sig); return; }
+    sel[o.r.k] = {v:f.v, label:(sel[o.r.k] && sel[o.r.k].label) || ""};
+    done++;
+  });
+  renderSelTable(); renderSidebar(); renderDiagram(); buildPresetBar();
+  var msg = p.t + ": " + done + " pin(s) assigned";
+  if(busy.length) msg += " · " + busy.length + " signal(s) had no free pin (" + busy.slice(0,3).join(", ") + ")";
+  if(none.length) msg += " · not on this package: " + none.slice(0,3).join(", ");
+  toast(msg, (busy.length + none.length) > 0);
+}
+function presetApplied(p){
+  var got = assignedSignals();
+  return p.s.every(function(x){ return !!got[x[0]]; });
+}
+function buildPresetBar(){
+  $("presetBar").innerHTML = PRESETS.map(function(p){
+    var ok = presetAvailable(p);
+    return '<button class="pbtn'+(ok && presetApplied(p) ? " done" : "")+'" data-preset="'+p.id+'"'+(ok?"":" disabled")+'>'+
+      '<b>'+esc(p.t)+'</b><span>'+(ok ? p.d : (p.need === "LCD" ? "not on " + DEV.name : "not on this package"))+'</span></button>';
+  }).join("");
+  var b = $("presetBar").querySelectorAll(".pbtn");
+  for(var i=0;i<b.length;i++) b[i].addEventListener("click", function(){
+    if(!this.disabled) applyPreset(this.getAttribute("data-preset"));
+  });
+}
+
+/* ======================= 1. SAVE / LOAD / RESET ======================= */
+var CFGKEY = "h7pm.cfg";
+function cfgObject(){
+  return {v:1, tool:"STM32H7 Pin Mapper", device:DEV.id, pkg:PK.id, saved:new Date().toISOString(), sel:sel};
+}
+function autosave(){
+  try{ localStorage.setItem(CFGKEY, JSON.stringify(cfgObject())); }catch(e){}
+}
+function restoreCfg(){
+  var raw = null;
+  try{ raw = localStorage.getItem(CFGKEY); }catch(e){}
+  if(!raw) return false;
+  try{ return applyCfg(JSON.parse(raw), true); }catch(e){ return false; }
+}
+function applyCfg(c, quiet){
+  if(!c || typeof c !== "object" || !c.sel) throw new Error("not a pin-mapper file");
+  var dev = null, pk = null;
+  DEVS.forEach(function(d){ if(d.id === c.device) dev = d; });
+  PKS.forEach(function(p){ if(p.id === c.pkg) pk = p; });
+  if(!dev || !pk || dev.pkgs.indexOf(pk.i) === -1) throw new Error("unknown device or package");
+  sel = {};
+  Object.keys(c.sel).forEach(function(k){
+    var e = c.sel[k];
+    if(e && typeof e.v === "string") sel[k] = {v:e.v, label:typeof e.label === "string" ? e.label.slice(0,32) : ""};
+  });
+  PK = pk;
+  setDevice(dev.id, true);
+  setPackage(pk.id, true);
+  var kept = selectedKeys().length, asked = Object.keys(c.sel).length;
+  if(!quiet) toast("Configuration loaded — " + kept + " of " + asked + " assignment(s) applied", kept < asked);
+  return true;
+}
+function saveCfg(){
+  download(fileBase() + ".json", JSON.stringify(cfgObject(), null, 2), "application/json");
+}
+function resetAssignments(){
+  if(!Object.keys(sel).length){ toast("Nothing to reset", true); return; }
+  sel = {}; renderSelTable(); renderSidebar(); renderDiagram(); buildPresetBar(); autosave();
+  toast("All assignments cleared");
+}
+function resetAll(){
+  sel = {};
+  try{ localStorage.removeItem(CFGKEY); }catch(e){}
+  filter = "ALL"; dgQuery = ""; curPin = null; zoom = 1;
+  $("pinSearch").value = ""; $("selSearch").value = ""; $("dgSearch").value = ""; $("zRst").textContent = "100%";
+  PK = PKS[2];
+  setDevice("H743");
+  toast("Reset to STM32H743 LQFP144 with no assignments");
+}
+
+/* ======================= 5. DIAGRAM EXPORT FORMATS ======================= */
+function themedSvg(){
+  var svg = $("dgBox").querySelector("svg");
+  if(!svg) return null;
+  var dk = isDark(), c = svg.cloneNode(true);
+  var css = "text{font-family:'Roboto Mono',monospace}" +
+    ".pad{stroke:"+(dk?"#8fa2ba":"#5a6b80")+";stroke-width:1}" +
+    ".pad.asg{stroke:"+(dk?"#ff4d5e":"#c8102e")+";stroke-width:2}" +
+    ".pad.hl{stroke:"+(dk?"#ff4d5e":"#c8102e")+";stroke-width:2.2}" +
+    ".pad.dim,.plab.dim{opacity:.25}" +
+    ".plab{fill:"+(dk?"#b3c3d6":"#44566e")+"}" +
+    ".plab.asg{fill:"+(dk?"#ff4d5e":"#c8102e")+";font-weight:700}" +
+    ".body{fill:"+(dk?"#1d3350":"#10233c")+";stroke:"+(dk?"#36557a":"#1c3557")+"}" +
+    ".bodytx{fill:#fff;text-anchor:middle;font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em}" +
+    ".bodysub{fill:#9fb6d1;text-anchor:middle}" +
+    ".axis{fill:"+(dk?"#7e92aa":"#7a8aa0")+";text-anchor:middle;dominant-baseline:middle}";
+  var st = document.createElementNS(SVGNS, "style");
+  st.textContent = css;
+  c.insertBefore(st, c.firstChild);
+  var all = c.querySelectorAll("*");
+  for(var i=0;i<all.length;i++){
+    var e = all[i], f = e.getAttribute("fill"), s = e.getAttribute("stroke");
+    if(f && f.indexOf("var(") === 0) e.setAttribute("fill", dk ? "#0d1a2b" : "#f8fafc");
+    if(s && s.indexOf("var(") === 0) e.setAttribute("stroke", dk ? "#22344c" : "#d7dee8");
+    if(e.style && e.style.fill && e.style.fill.indexOf("var(") !== -1)
+      e.style.fill = dk ? "rgba(255,77,94,.42)" : "rgba(200,16,46,.42)";
+  }
+  var vb = (c.getAttribute("viewBox") || "0 0 800 800").split(/\s+/);
+  var w = Math.round(parseFloat(vb[2])), h = Math.round(parseFloat(vb[3]));
+  c.setAttribute("width", w); c.setAttribute("height", h);
+  var bg = el("rect", {x:0, y:0, width:w, height:h, fill: dk ? "#0a1424" : "#ffffff"});
+  c.insertBefore(bg, st.nextSibling);
+  return {svg:c, w:w, h:h, dark:dk};
+}
+function svgText(){
+  var r = themedSvg();
+  if(!r) return null;
+  r.text = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(r.svg);
+  return r;
+}
+function rasterise(scale, bg, cb){
+  var r = svgText();
+  if(!r){ toast("No diagram to export", true); return; }
+  var img = new Image();
+  img.onload = function(){
+    var cv = document.createElement("canvas");
+    cv.width = Math.round(r.w * scale); cv.height = Math.round(r.h * scale);
+    var x = cv.getContext("2d");
+    x.fillStyle = bg || (r.dark ? "#0a1424" : "#ffffff");
+    x.fillRect(0, 0, cv.width, cv.height);
+    x.drawImage(img, 0, 0, cv.width, cv.height);
+    cb(cv);
+  };
+  img.onerror = function(){ toast("Could not render the diagram to an image", true); };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(r.text);
+}
+function bmpBlob(cv){
+  var x = cv.getContext("2d"), d = x.getImageData(0, 0, cv.width, cv.height).data;
+  var w = cv.width, h = cv.height, row = Math.floor((24 * w + 31) / 32) * 4, pix = row * h, size = 54 + pix;
+  var buf = new ArrayBuffer(size), v = new DataView(buf), u = new Uint8Array(buf);
+  u[0] = 0x42; u[1] = 0x4D;
+  v.setUint32(2, size, true); v.setUint32(10, 54, true);
+  v.setUint32(14, 40, true); v.setInt32(18, w, true); v.setInt32(22, h, true);
+  v.setUint16(26, 1, true); v.setUint16(28, 24, true); v.setUint32(34, pix, true);
+  v.setInt32(38, 2835, true); v.setInt32(42, 2835, true);
+  for(var y=0;y<h;y++){
+    var off = 54 + (h - 1 - y) * row;
+    for(var px=0;px<w;px++){
+      var i = (y * w + px) * 4, j = off + px * 3;
+      u[j] = d[i+2]; u[j+1] = d[i+1]; u[j+2] = d[i];
+    }
+  }
+  return new Blob([buf], {type:"image/bmp"});
+}
+/* minimal single-page PDF carrying the diagram as an embedded JPEG */
+function pdfBlob(jpegBytes, iw, ih){
+  var land = iw > ih, PW = land ? 842 : 595, PH = land ? 595 : 842, M = 28;
+  var sc = Math.min((PW - 2*M) / iw, (PH - 2*M) / ih);
+  var dw = iw * sc, dh = ih * sc, dx = (PW - dw) / 2, dy = (PH - dh) / 2;
+  var enc = new TextEncoder(), parts = [], len = 0, offs = [];
+  function put(x){ var b = typeof x === "string" ? enc.encode(x) : x; parts.push(b); len += b.length; }
+  var title = DEV.name + " " + PK.id + " " + (PK.bga ? "ballout" : "pinout") + " — " + partNumber(DEV, PK);
+  var content = "q " + dw.toFixed(2) + " 0 0 " + dh.toFixed(2) + " " + dx.toFixed(2) + " " + dy.toFixed(2) + " cm /Im0 Do Q\n";
+  var objs = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PW + " " + PH + "] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>",
+    null, null,
+    "<< /Title (" + title.replace(/[()\\]/g, " ") + ") /Producer (STM32H7 Pin Mapper) >>"
+  ];
+  put("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+  for(var n=1;n<=6;n++){
+    offs[n] = len;
+    if(n === 4){
+      put("4 0 obj\n<< /Length " + content.length + " >>\nstream\n" + content + "endstream\nendobj\n");
+    } else if(n === 5){
+      put("5 0 obj\n<< /Type /XObject /Subtype /Image /Width " + iw + " /Height " + ih +
+          " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpegBytes.length + " >>\nstream\n");
+      put(jpegBytes);
+      put("\nendstream\nendobj\n");
+    } else {
+      put(n + " 0 obj\n" + objs[n-1] + "\nendobj\n");
+    }
+  }
+  var xref = len;
+  var x = "xref\n0 7\n0000000000 65535 f \n";
+  for(var k=1;k<=6;k++) x += ("0000000000" + offs[k]).slice(-10) + " 00000 n \n";
+  x += "trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n" + xref + "\n%%EOF\n";
+  put(x);
+  return new Blob(parts, {type:"application/pdf"});
+}
+function blobDownload(name, blob){
+  try{
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    toast(name + " exported");
+  }catch(e){ toast("Download blocked here", true); }
+}
+function diagramName(ext){ return DEV.name + "_" + PK.id.replace("+","p") + "_" + (PK.bga ? "ballout" : "pinout") + "." + ext; }
+function exportDiagram(){
+  var fmt = $("dgFmt").value;
+  if(fmt === "svg"){
+    var r = svgText();
+    if(!r){ toast("No diagram to export", true); return; }
+    blobDownload(diagramName("svg"), new Blob([r.text], {type:"image/svg+xml"}));
+    return;
+  }
+  var scale = 2;
+  if(fmt === "png") rasterise(scale, null, function(cv){
+    cv.toBlob(function(b){ blobDownload(diagramName("png"), b); }, "image/png");
+  });
+  if(fmt === "jpeg") rasterise(scale, "#ffffff", function(cv){
+    cv.toBlob(function(b){ blobDownload(diagramName("jpg"), b); }, "image/jpeg", 0.92);
+  });
+  if(fmt === "bmp") rasterise(1.5, "#ffffff", function(cv){
+    blobDownload(diagramName("bmp"), bmpBlob(cv));
+  });
+  if(fmt === "pdf") rasterise(scale, "#ffffff", function(cv){
+    cv.toBlob(function(b){
+      var fr = new FileReader();
+      fr.onload = function(){
+        blobDownload(diagramName("pdf"), pdfBlob(new Uint8Array(fr.result), cv.width, cv.height));
+      };
+      fr.readAsArrayBuffer(b);
+    }, "image/jpeg", 0.9);
+  });
+}
+
+/* ======================= 4. PRINTABLE SUMMARY ======================= */
+function printSummary(){
+  var keys = selectedKeys();
+  var r = themedSvg();
+  var bad = findConflicts(), badFns = Object.keys(bad), issues = busIssues(), warns = warnings();
+  var rows = keys.map(function(k){
+    var x = record(k);
+    return '<tr><td>'+esc(x.position)+'</td><td>'+esc(x.pin)+'</td><td>'+esc(x.function === "GPIO" ? x.mode : x.function)+'</td>'+
+      '<td>'+(x.af === null ? "—" : "AF"+x.af)+'</td><td>'+esc(x.halMode || "—")+'</td><td>'+esc(x.label || "—")+'</td></tr>';
+  }).join("");
+  var checks = [];
+  badFns.forEach(function(fn){ checks.push("Duplicate: " + fn + " on " + bad[fn].join(", ")); });
+  issues.forEach(function(i){ checks.push((i.lvl === "err" ? "Incomplete: " : "Check: ") + i.n + " — " + i.m); });
+  warns.forEach(function(w){ checks.push(w.replace(/<[^>]+>/g, "")); });
+  var ios = PINS.filter(function(o){ return kindOf(o) === "io"; }).length;
+  $("printArea").innerHTML =
+    '<div class="pr-head"><div><h1>'+esc(DEV.name)+' — '+esc(PK.id)+' pin assignment</h1>'+
+      '<div style="font-size:.76rem">'+esc(DEV.line)+' · datasheet '+esc(DEV.doc)+' · reference manual RM0433</div></div>'+
+      '<div class="m">'+esc(partNumber(DEV, PK))+'<br>'+new Date().toLocaleString()+'<br>'+keys.length+' of '+ios+' I/O assigned</div></div>'+
+    '<div class="pr-k"><span><b>Flash</b> '+esc(DEV.flash)+'</span><span><b>RAM</b> '+esc(DEV.ram)+'</span>'+
+      '<span><b>Max CPU</b> '+esc(DEV.mhz)+'</span><span><b>Package</b> '+esc(PK.id)+' · '+esc(PK.dim)+'</span>'+
+      '<span><b>'+(PK.bga?"Balls":"Pins")+'</b> '+PINS.length+'</span></div>'+
+    '<div class="pr-grid"><div>'+(r ? new XMLSerializer().serializeToString(r.svg) : "")+'</div>'+
+    '<div><h3>Assignments</h3>'+
+      (keys.length ? '<table><thead><tr><th>Pin</th><th>Port</th><th>Function</th><th>AF</th><th>HAL mode</th><th>Label</th></tr></thead><tbody>'+rows+'</tbody></table>'
+                   : '<p style="font-size:.74rem">No pins assigned.</p>')+
+      '<h3>Design checks</h3>'+
+      (checks.length ? checks.map(function(c){ return '<div class="pr-note">'+esc(c)+'</div>'; }).join("")
+                     : '<div class="pr-note" style="border-left-color:#17794a">No duplicate signals or incomplete interfaces found.</div>')+
+    '</div></div>'+
+    '<div class="pr-foot">Pin, ball and alternate-function data from STMicroelectronics datasheet '+esc(DEV.doc)+
+      ', cross-checked against ST\'s published STM32 pin database. Confirm against the datasheet before release.</div>';
+  window.print();
 }
 
 /* ======================= BOOT ======================= */
@@ -1368,10 +1855,39 @@ document.addEventListener("DOMContentLoaded", function(){
   $("selSearch").addEventListener("input", function(){ renderSelTable(); renderSidebar(); });
   $("selBody").addEventListener("change", onSelChange);
   $("selBody").addEventListener("input", function(e){ if(e.target.classList.contains("lbl")) onSelChange(e); });
-  $("btnClear").addEventListener("click", function(){
-    if(!Object.keys(sel).length){ toast("Nothing to clear", true); return; }
-    sel = {}; renderSelTable(); renderSidebar(); renderDiagram(); toast("All assignments cleared");
+  $("btnClear").addEventListener("click", resetAssignments);
+  /* save / load / reset split button */
+  $("btnSave").addEventListener("click", saveCfg);
+  $("btnSaveMenu").addEventListener("click", function(e){
+    e.stopPropagation();
+    var m = $("saveMenu"), on = m.classList.toggle("open");
+    this.setAttribute("aria-expanded", on ? "true" : "false");
   });
+  document.addEventListener("click", function(){ $("saveMenu").classList.remove("open"); $("btnSaveMenu").setAttribute("aria-expanded","false"); });
+  $("saveMenu").addEventListener("click", function(e){
+    var a = e.target.getAttribute && e.target.getAttribute("data-act");
+    if(!a) return;
+    this.classList.remove("open");
+    if(a === "save") saveCfg();
+    if(a === "load") $("cfgFile").click();
+    if(a === "csv") exportFmt("csv");
+    if(a === "hdr") exportFmt("h");
+    if(a === "reset") resetAssignments();
+    if(a === "resetall") resetAll();
+  });
+  $("cfgFile").addEventListener("change", function(){
+    var f = this.files && this.files[0];
+    if(!f) return;
+    var fr = new FileReader();
+    fr.onload = function(){
+      try{ applyCfg(JSON.parse(fr.result)); }
+      catch(err){ toast("Could not load that file: " + err.message, true); }
+    };
+    fr.onerror = function(){ toast("Could not read that file", true); };
+    fr.readAsText(f);
+    this.value = "";
+  });
+  $("btnPrint").addEventListener("click", printSummary);
   $("btnCsv").addEventListener("click", function(){ exportFmt("csv"); });
   $("btnJson").addEventListener("click", function(){ exportFmt("json"); });
   $("btnH").addEventListener("click", function(){ exportFmt("h"); });
@@ -1413,7 +1929,8 @@ document.addEventListener("DOMContentLoaded", function(){
   $("zOut").addEventListener("click", function(){ zoom = Math.max(0.4, zoom - 0.2); $("zRst").textContent = Math.round(zoom*100)+"%"; renderDiagram(); });
   $("zRst").addEventListener("click", function(){ zoom = 1; this.textContent = "100%"; renderDiagram(); });
   $("dgSearch").addEventListener("input", function(){ dgQuery = this.value.trim().toLowerCase(); renderDiagram(); });
-  $("dgSvg").addEventListener("click", exportSvg);
+  $("dgSvg").addEventListener("click", exportDiagram);
+  $("dgFmt").addEventListener("click", function(e){ e.stopPropagation(); });
   var saved = null;
   try{ saved = localStorage.getItem("h7pm.theme"); }catch(e){}
   applyTheme(THEMES.indexOf(saved) !== -1 ? saved : "auto", true);
@@ -1423,8 +1940,11 @@ document.addEventListener("DOMContentLoaded", function(){
   if(window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){
     if(theme === "auto") renderDiagram();
   });
+  buildDocLinks();
   buildDevTabs();
-  setDevice("H743", true);
+  if(!restoreCfg()) setDevice("H743", true);
+  buildPresetBar();
+  renderSidebar();
 });
 </script>
 </body>
