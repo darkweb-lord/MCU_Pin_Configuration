@@ -81,6 +81,10 @@ h2.sec{font-family:var(--cond);font-size:2rem;font-weight:700;letter-spacing:.01
 .brand .mark{width:40px;height:40px;background:var(--acc);display:grid;place-items:center;color:#fff;font-family:var(--cond);font-weight:700;font-size:1.3rem;letter-spacing:.02em}
 .brand .nm{font-family:var(--cond);font-weight:700;font-size:1.22rem;letter-spacing:.06em;line-height:1.1}
 .brand .nm span{display:block;font-family:var(--sans);font-size:.68rem;font-weight:400;letter-spacing:.16em;color:var(--t3);text-transform:uppercase}
+.themebtn{display:flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--t2);font-family:var(--cond);font-size:.92rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.18s}
+.themebtn:hover{border-color:var(--acc);color:var(--acc)}
+.themebtn svg{flex:none}
 .devtabs{display:flex;margin-left:auto;border:1px solid var(--line);background:var(--panel2);flex-wrap:wrap}
 .devtab{padding:9px 20px;background:none;border:0;border-right:1px solid var(--line);font-family:var(--cond);font-size:1.02rem;font-weight:600;letter-spacing:.06em;
   color:var(--t2);cursor:pointer;transition:.18s;position:relative}
@@ -308,7 +312,10 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
   .panel{padding:24px 16px 56px}
   .topbar .in,.mast .in,.snav .in,.hero .in,footer .in{padding-left:16px;padding-right:16px}
   .snav .pkgnow{display:none}
-  .devtabs{margin-left:0;width:100%}
+  .brand{flex:1 1 auto}
+  .themebtn{order:2;margin-left:auto;padding:7px 11px}
+  .devtabs{order:3;margin-left:0;width:100%}
+  .mast .in{gap:12px}
   .devtab{flex:1}
 }
 </style>
@@ -327,7 +334,23 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
     <div class="nm">PIN MAPPER<span>MCU configuration utility</span></div>
   </div>
   <div class="devtabs" id="devTabs" role="tablist" aria-label="Device"></div>
+  <button class="themebtn" id="themeBtn" type="button" aria-label="Colour theme" title="Colour theme">
+    <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#ic-auto"></use></svg>
+    <span id="themeTxt">Auto</span>
+  </button>
 </div></header>
+
+<svg style="display:none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <g id="ic-sun" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+    <circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/>
+  </g>
+  <g id="ic-moon" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 14.2A8.2 8.2 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2z"/>
+  </g>
+  <g id="ic-auto" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8.4"/><path d="M12 3.6a8.4 8.4 0 0 1 0 16.8z" fill="currentColor" stroke="none"/>
+  </g>
+</svg>
 
 <section class="hero"><div class="in">
   <span class="eyebrow" id="heroEyebrow">High-performance Arm Cortex-M7</span>
@@ -579,6 +602,25 @@ var colorMode = "type", dgGroup = "ADC", showLabels = true, zoom = 1, dgQuery = 
 var sel = {};
 
 function $(id){ return document.getElementById(id); }
+/* ---- colour theme: auto (follow the system) / light / dark ---- */
+var THEMES = ["auto","light","dark"], theme = "auto";
+function isDark(){
+  if(theme === "dark") return true;
+  if(theme === "light") return false;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function applyTheme(mode, quiet){
+  theme = mode;
+  if(mode === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", mode);
+  var ic = {auto:"#ic-auto", light:"#ic-sun", dark:"#ic-moon"}[mode];
+  var u = $("themeBtn").querySelector("use");
+  u.setAttribute("href", ic); u.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href", ic);
+  $("themeTxt").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+  $("themeBtn").title = "Colour theme: " + mode + " — click to change";
+  try{ localStorage.setItem("h7pm.theme", mode); }catch(e){}
+  if(!quiet){ renderDiagram(); toast("Theme: " + mode + (mode === "auto" ? " (following your system)" : "")); }
+}
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function rowByKey(k){ for(var i=0;i<R.length;i++) if(R[i].k===k) return R[i]; return null; }
 function toast(msg, isErr){
@@ -918,7 +960,7 @@ function padClass(o){
 function labFill(o){
   if(sel[o.r.k] && pinByKey(o.r.k)) return null;
   if(colorMode !== "group") return null;
-  return groupsOf(o).indexOf(dgGroup) !== -1 ? "hsl("+HUE[dgGroup]+" 72% 30%)" : null;
+  return groupsOf(o).indexOf(dgGroup) !== -1 ? "hsl("+HUE[dgGroup]+" 72% "+(isDark() ? "70%" : "30%")+")" : null;
 }
 function labClass(o){
   var c = "plab", s = sel[o.r.k] && pinByKey(o.r.k);
@@ -1288,17 +1330,19 @@ function exportSvg(){
   var svg = $("dgBox").querySelector("svg");
   if(!svg){ toast("No diagram to export", true); return; }
   var c = svg.cloneNode(true);
-  var css = "text{font-family:monospace}.pad{fill:#f8fafc;stroke:#5a6b80}.pad.asg{stroke:#c8102e;stroke-width:2}"+
-    ".plab{font-size:8px;fill:#44566e}.plab.asg{fill:#c8102e;font-weight:700}.body{fill:#10233c}"+
+  var dk = isDark();
+  var css = "text{font-family:monospace}.pad{stroke:"+(dk?"#8fa2ba":"#5a6b80")+"}.pad.asg{stroke:"+(dk?"#ff4d5e":"#c8102e")+";stroke-width:2}"+
+    ".plab{font-size:8px;fill:"+(dk?"#b3c3d6":"#44566e")+"}.plab.asg{fill:"+(dk?"#ff4d5e":"#c8102e")+";font-weight:700}"+
+    ".body{fill:"+(dk?"#1d3350":"#10233c")+";stroke:"+(dk?"#36557a":"#1c3557")+"}"+
     ".bodytx{fill:#fff;text-anchor:middle}.bodysub{fill:#9fb6d1;text-anchor:middle}"+
-    ".axis{fill:#7a8aa0;text-anchor:middle;dominant-baseline:middle}";
+    ".axis{fill:"+(dk?"#7e92aa":"#7a8aa0")+";text-anchor:middle;dominant-baseline:middle}";
   var st = document.createElementNS(SVGNS,"style"); st.textContent = css;
   c.insertBefore(st, c.firstChild);
-  c.querySelectorAll("circle[fill^='hsl'],circle[fill^='rgba'],circle[fill^='var']").forEach(function(e){ e.setAttribute("fill","#eef2f7"); });
   c.querySelectorAll("[fill^='var'],[stroke^='var']").forEach(function(e){
-    if((e.getAttribute("fill")||"").indexOf("var") === 0) e.setAttribute("fill","#f8fafc");
-    if((e.getAttribute("stroke")||"").indexOf("var") === 0) e.setAttribute("stroke","#d7dee8");
+    if((e.getAttribute("fill")||"").indexOf("var") === 0) e.setAttribute("fill", dk ? "#0d1a2b" : "#f8fafc");
+    if((e.getAttribute("stroke")||"").indexOf("var") === 0) e.setAttribute("stroke", dk ? "#22344c" : "#d7dee8");
   });
+  c.querySelectorAll("[style*='rgba(var']").forEach(function(e){ e.style.fill = dk ? "rgba(255,77,94,.42)" : "rgba(200,16,46,.42)"; });
   download(DEV.name+"_"+PK.id.replace("+","p")+"_diagram.svg",
     '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(c), "image/svg+xml");
 }
@@ -1370,6 +1414,15 @@ document.addEventListener("DOMContentLoaded", function(){
   $("zRst").addEventListener("click", function(){ zoom = 1; this.textContent = "100%"; renderDiagram(); });
   $("dgSearch").addEventListener("input", function(){ dgQuery = this.value.trim().toLowerCase(); renderDiagram(); });
   $("dgSvg").addEventListener("click", exportSvg);
+  var saved = null;
+  try{ saved = localStorage.getItem("h7pm.theme"); }catch(e){}
+  applyTheme(THEMES.indexOf(saved) !== -1 ? saved : "auto", true);
+  $("themeBtn").addEventListener("click", function(){
+    applyTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]);
+  });
+  if(window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){
+    if(theme === "auto") renderDiagram();
+  });
   buildDevTabs();
   setDevice("H743", true);
 });
