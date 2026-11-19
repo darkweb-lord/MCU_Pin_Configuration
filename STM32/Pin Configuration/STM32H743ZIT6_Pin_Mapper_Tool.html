@@ -67,6 +67,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .eyebrow{font-family:var(--cond);font-size:.82rem;font-weight:600;letter-spacing:.22em;color:var(--acc);text-transform:uppercase;margin-bottom:8px;display:block}
 h2.sec{font-family:var(--cond);font-size:2rem;font-weight:700;letter-spacing:.01em;line-height:1.1;color:var(--t1)}
 .sub{color:var(--t2);font-size:.92rem;font-weight:300;max-width:70ch;margin-top:6px}
+.sub a{color:var(--acc);text-decoration:none;border-bottom:1px dotted currentColor}
+.sub a:hover{border-bottom-style:solid}
+.sub a::after{content:" ↗";font-size:.7rem;opacity:.7}
 
 /* TOP BAR */
 .topbar{background:var(--ink);color:#c9d6e6;font-size:.76rem;letter-spacing:.04em}
@@ -274,7 +277,10 @@ tbody tr:hover{background:var(--panel2)}
 .srow:hover{border-color:var(--acc)}
 .srow.bad{border-color:var(--acc);background:rgba(var(--accr),.07)}
 .srow .lb{font-family:var(--mono);font-weight:700;color:var(--t1);white-space:nowrap}
-.srow .fn{font-family:var(--mono);font-size:.68rem;background:var(--ink);color:#fff;padding:1px 7px;text-align:right;word-break:break-all}
+.srow .fn{font-family:var(--mono);font-size:.68rem;background:var(--ink);color:#fff;padding:1px 7px;text-align:right;word-break:break-all;margin-left:auto}
+.srow .unsel{flex:none;width:20px;height:20px;line-height:1;border:1px solid var(--line);background:var(--panel2);
+  color:var(--t3);font-size:.72rem;cursor:pointer;transition:.15s}
+.srow .unsel:hover{border-color:var(--acc);background:var(--acc);color:#fff}
 .side-empty{text-align:center;color:var(--t3);padding:28px 10px;font-size:.82rem;font-weight:300}
 .chk{accent-color:var(--acc);width:16px;height:16px;cursor:pointer}
 select.fs,input.lbl{background:var(--panel);border:1px solid var(--line);color:var(--t1);padding:5px 8px;font-family:var(--mono);font-size:.73rem;width:100%}
@@ -303,7 +309,12 @@ tr.conflict td{background:rgba(var(--accr),.12)}
 .pbtn span{font-family:var(--mono);font-size:.66rem;color:var(--t3)}
 .pbtn:hover span{color:var(--acc)}
 .pbtn[disabled]{opacity:.4;cursor:not-allowed}
-.pbtn.done{border-color:var(--ok);box-shadow:inset 2px 0 0 var(--ok)}
+.pbtn.done{border-color:var(--ok);box-shadow:inset 2px 0 0 var(--ok);background:rgba(23,121,74,.07)}
+.pbtn.done:hover{border-color:var(--acc)}
+.pbtn.done:hover span::after{content:" ✕";color:var(--acc)}
+.pbtn.part{border-color:var(--warn);box-shadow:inset 2px 0 0 var(--warn)}
+.pbtn .mk{font-style:normal;color:var(--ok);margin-right:5px}
+.pbtn .mk.pt{color:var(--warn)}
 
 /* BUTTONS */
 .btn{padding:9px 18px;border:1px solid var(--line);background:var(--panel);color:var(--t1);font-family:var(--cond);
@@ -346,7 +357,13 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
 .pr-head h1{font-family:var(--cond);font-size:1.7rem;line-height:1.1}
 .pr-head .m{font-family:var(--mono);font-size:.72rem;text-align:right;line-height:1.6}
 .pr-k{display:flex;flex-wrap:wrap;gap:0 22px;font-family:var(--mono);font-size:.72rem;margin-bottom:12px}
-.pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.pr-chip{text-align:center;margin:4px 0 10px;break-inside:avoid}
+.pr-chip svg{width:100%;max-width:168mm;height:auto;max-height:165mm}
+#printArea h3 small{font-family:var(--mono);font-size:.68rem;font-weight:400;color:#5a6b80;margin-left:8px;letter-spacing:0}
+.pr-asg{break-inside:auto}
+.pr-fix td:nth-child(3){font-size:.6rem}
+#printArea thead{display:table-header-group}
+#printArea tr{break-inside:avoid}
 #printArea table{width:100%;border-collapse:collapse;font-size:.7rem}
 #printArea th{background:#eef2f7;border:1px solid #c9d3e0;padding:4px 6px;text-align:left;font-family:var(--cond);letter-spacing:.06em;text-transform:uppercase}
 #printArea td{border:1px solid #d7dee8;padding:3px 6px;font-family:var(--mono);font-size:.66rem}
@@ -545,7 +562,10 @@ footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-si
     <aside class="side">
       <div class="sh2">Selected pins<span id="selBadge">0</span></div>
       <div class="side-list" id="selList"><div class="side-empty">No pins selected yet.</div></div>
-      <div class="sidefoot"><button class="btn acc full" id="btnSideExport">Go to export</button></div>
+      <div class="sidefoot">
+        <button class="btn full" id="btnUnselAll" style="display:none;margin-bottom:8px">Unselect all pins</button>
+        <button class="btn acc full" id="btnSideExport">Go to export</button>
+      </div>
     </aside>
   </div>
 </section>
@@ -616,22 +636,22 @@ var PKS = [
 var PKCODE = {"LQFP100":"T6","TFBGA100":"H6","LQFP144":"T6","UFBGA169":"I6","LQFP176":"T6","UFBGA176+25":"K6","LQFP208":"T6","TFBGA240+25":"H6"};
 
 var DEVS = [
-  {id:"H742", name:"STM32H742", line:"STM32H742xI/G", doc:"DS12110",
+  {id:"H742", name:"STM32H742", line:"STM32H742xI/G", doc:"DS12110", docKey:"ds12110",
    flash:"1 MB or 2 MB", ram:"692 KB", sram:"AXI 384 KB · SRAM1 32 KB · SRAM2 16 KB · SRAM4 64 KB",
    mhz:"480 MHz", pkgs:[0,1,2,3,4,5,6,7], noLcd:true, crypto:false,
    note:"Same pinout as the STM32H743, without the LCD-TFT controller and the JPEG codec. Memory sizes are smaller: no SRAM3, and a reduced AXI SRAM.",
    suffix:{I:"I",G:"G"}},
-  {id:"H743", name:"STM32H743", line:"STM32H743xI/G", doc:"DS12110",
+  {id:"H743", name:"STM32H743", line:"STM32H743xI/G", doc:"DS12110", docKey:"ds12110",
    flash:"1 MB or 2 MB", ram:"1 MB", sram:"AXI 512 KB · SRAM1/2 128 KB each · SRAM3 32 KB · SRAM4 64 KB",
    mhz:"480 MHz", pkgs:[0,1,2,3,4,5,6,7], noLcd:false, crypto:false,
    note:"The reference device of the single-core high-performance line, with LCD-TFT, Chrom-ART and a hardware JPEG codec.",
    suffix:{I:"I",G:"G"}},
-  {id:"H750", name:"STM32H750", line:"STM32H750xB", doc:"DS12556",
+  {id:"H750", name:"STM32H750", line:"STM32H750xB", doc:"DS12556", docKey:"ds12556",
    flash:"128 KB", ram:"1 MB", sram:"AXI 512 KB · SRAM1/2 128 KB each · SRAM3 32 KB · SRAM4 64 KB",
    mhz:"480 MHz", pkgs:[0,2,4,5,7], noLcd:false, crypto:true,
    note:"Value line: the same silicon and pinout with 128 KB of flash, intended to run code from external QUADSPI or FMC memory. Offered in five packages only.",
    suffix:{B:"B"}},
-  {id:"H753", name:"STM32H753", line:"STM32H753xI", doc:"DS12117",
+  {id:"H753", name:"STM32H753", line:"STM32H753xI", doc:"DS12117", docKey:"ds12117",
    flash:"2 MB", ram:"1 MB", sram:"AXI 512 KB · SRAM1/2 128 KB each · SRAM3 32 KB · SRAM4 64 KB",
    mhz:"480 MHz", pkgs:[0,1,2,3,4,5,6,7], noLcd:false, crypto:true,
    note:"Identical pinout and alternate functions to the STM32H743, with added cryptographic hardware (AES, HASH, HMAC) and secure firmware install.",
@@ -831,7 +851,8 @@ function setDevice(id, quiet){
   $("heroTitle").innerHTML = DEV.name + ' <em>' + DEV.line.replace(DEV.name,"") + '</em>';
   $("heroLead").textContent = DEV.note;
   $("ovTitle").textContent = DEV.line;
-  $("ovSub").textContent = DEV.note + " Datasheet " + DEV.doc + ", reference manual RM0433.";
+  $("ovSub").innerHTML = esc(DEV.note) + ' Datasheet ' + lk(ST[DEV.docKey], DEV.doc) +
+    ', reference manual ' + lk(ST.rm0433, "RM0433") + ', errata ' + lk(ST.es0392, "ES0392") + '.';
   buildPkgGrid();
   if($("presetBar")) buildPresetBar();
   buildSpec();
@@ -1329,8 +1350,17 @@ function renderSidebar(){
   $("selList").innerHTML = keys.length ? keys.map(function(k){
     var o = pinByKey(k), f = fnOf(k);
     return '<div class="srow'+(badKeys.indexOf(k) !== -1 ? ' bad' : '')+'"><span class="lb">'+esc(o.pos)+' · '+esc(k)+'</span>'+
-           '<span class="fn">'+esc(f ? f.label : sel[k].v)+'</span></div>';
+           '<span class="fn">'+esc(f ? f.label : sel[k].v)+'</span>'+
+           '<button class="unsel" data-un="'+esc(k)+'" title="Unassign '+esc(k)+'" aria-label="Unassign '+esc(k)+'">✕</button></div>';
   }).join("") : '<div class="side-empty">No pins selected yet.</div>';
+  var ub = $("selList").querySelectorAll(".unsel");
+  for(var u=0;u<ub.length;u++) ub[u].addEventListener("click", function(){
+    var k = this.getAttribute("data-un");
+    delete sel[k];
+    renderSelTable(); renderSidebar(); renderDiagram(); buildPresetBar();
+    toast(k + " unassigned");
+  });
+  $("btnUnselAll").style.display = keys.length ? "" : "none";
   ["btnCsv","btnJson","btnH","btnPrint"].forEach(function(id){ $(id).disabled = !keys.length; });
   if($("presetBar").children.length) buildPresetBar();
   autosave();
@@ -1430,6 +1460,10 @@ function exportFmt(fmt){
 var ST = {
   series:"https://www.st.com/en/microcontrollers-microprocessors/stm32h7-series/documentation.html",
   ds12110:"https://www.st.com/resource/en/datasheet/stm32h743zi.pdf",
+  ds12117:"https://www.st.com/resource/en/datasheet/stm32h753zi.pdf",
+  ds12556:"https://www.st.com/resource/en/datasheet/stm32h750vb.pdf",
+  rm0433:"https://www.st.com/resource/en/reference_manual/rm0433-stm32h742-stm32h743753-and-stm32h750-value-line-advanced-armbased-32bit-mcus-stmicroelectronics.pdf",
+  es0392:"https://www.st.com/resource/en/errata_sheet/es0392-stm32h742xig-stm32h743xig-stm32h750xb-stm32h753xi-device-errata-stmicroelectronics.pdf",
   h742:"https://www.st.com/en/microcontrollers-microprocessors/stm32h742xg.html",
   h743:"https://www.st.com/en/microcontrollers-microprocessors/stm32h743zi.html",
   h750:"https://www.st.com/en/microcontrollers-microprocessors/stm32h750vb.html",
@@ -1440,17 +1474,19 @@ function lk(href, txt, title){
 }
 function buildDocLinks(){
   $("docLinks").innerHTML = [
-    lk(ST.ds12110, "DS12110", "STM32H742/H743 datasheet on st.com"),
-    lk(ST.h753, "DS12117", "STM32H753 datasheet on st.com"),
-    lk(ST.h750, "DS12556", "STM32H750 datasheet on st.com"),
-    lk(ST.series, "RM0433", "STM32H7 reference manuals and errata on st.com")
+    lk(ST.ds12110, "DS12110", "STM32H742xI/G, STM32H743xI/G datasheet (PDF, st.com)"),
+    lk(ST.ds12117, "DS12117", "STM32H753xI datasheet (PDF, st.com)"),
+    lk(ST.ds12556, "DS12556", "STM32H750xB datasheet (PDF, st.com)"),
+    lk(ST.rm0433,  "RM0433",  "STM32H742, H743/753 and H750 value line reference manual (PDF, st.com)"),
+    lk(ST.es0392,  "ES0392",  "Device errata sheet (PDF, st.com)")
   ].join("");
   $("footDocs").innerHTML = [
     '<li>'+lk(ST.ds12110,"DS12110")+' — STM32H742xI/G, STM32H743xI/G datasheet</li>',
-    '<li>'+lk(ST.h753,"DS12117")+' — STM32H753xI datasheet</li>',
-    '<li>'+lk(ST.h750,"DS12556")+' — STM32H750xB datasheet</li>',
-    '<li>'+lk(ST.series,"RM0433")+' — reference manual</li>',
-    '<li>'+lk(ST.series,"ES0392")+' — device errata</li>'
+    '<li>'+lk(ST.ds12117,"DS12117")+' — STM32H753xI datasheet</li>',
+    '<li>'+lk(ST.ds12556,"DS12556")+' — STM32H750xB datasheet</li>',
+    '<li>'+lk(ST.rm0433,"RM0433")+' — STM32H742, STM32H743/753 and STM32H750 value line reference manual</li>',
+    '<li>'+lk(ST.es0392,"ES0392")+' — STM32H742xI/G, H743xI/G, H750xB, H753xI device errata</li>',
+    '<li>'+lk(ST.series,"All STM32H7 documents")+' — datasheets, manuals, application notes</li>'
   ].join("");
 }
 
@@ -1559,6 +1595,21 @@ function pinForSignal(sig, pref, probe){
   }
   return null;
 }
+function removePreset(p){
+  var got = assignedSignals(), n = 0;
+  p.s.forEach(function(x){
+    var k = got[x[0]];
+    if(k && sel[k]){ delete sel[k]; n++; }
+  });
+  renderSelTable(); renderSidebar(); renderDiagram(); buildPresetBar();
+  toast(p.t + ": " + n + " pin(s) released");
+}
+function togglePreset(id){
+  var p = null;
+  PRESETS.forEach(function(x){ if(x.id === id) p = x; });
+  if(!p) return;
+  if(presetApplied(p)) removePreset(p); else applyPreset(id);
+}
 function applyPreset(id){
   var p = null;
   PRESETS.forEach(function(x){ if(x.id === id) p = x; });
@@ -1587,15 +1638,22 @@ function presetApplied(p){
   var got = assignedSignals();
   return p.s.every(function(x){ return !!got[x[0]]; });
 }
+function presetPartly(p){
+  var got = assignedSignals();
+  return p.s.some(function(x){ return !!got[x[0]]; });
+}
 function buildPresetBar(){
   $("presetBar").innerHTML = PRESETS.map(function(p){
-    var ok = presetAvailable(p);
-    return '<button class="pbtn'+(ok && presetApplied(p) ? " done" : "")+'" data-preset="'+p.id+'"'+(ok?"":" disabled")+'>'+
-      '<b>'+esc(p.t)+'</b><span>'+(ok ? p.d : (p.need === "LCD" ? "not on " + DEV.name : "not on this package"))+'</span></button>';
+    var ok = presetAvailable(p), on = ok && presetApplied(p), part = ok && !on && presetPartly(p);
+    var note = ok ? (on ? "assigned — click to release" : (part ? "partly assigned" : p.d))
+                  : (p.need === "LCD" ? "not on " + DEV.name : "not on this package");
+    return '<button class="pbtn'+(on ? " done" : (part ? " part" : ""))+'" data-preset="'+p.id+'"'+(ok?"":" disabled")+
+      ' title="'+esc(p.s.map(function(x){ return x[0]; }).join(", "))+'">'+
+      '<b>'+(on ? '<i class="mk">✓</i>' : (part ? '<i class="mk pt">◑</i>' : ''))+esc(p.t)+'</b><span>'+esc(note)+'</span></button>';
   }).join("");
   var b = $("presetBar").querySelectorAll(".pbtn");
   for(var i=0;i<b.length;i++) b[i].addEventListener("click", function(){
-    if(!this.disabled) applyPreset(this.getAttribute("data-preset"));
+    if(!this.disabled) togglePreset(this.getAttribute("data-preset"));
   });
 }
 
@@ -1805,10 +1863,43 @@ function printSummary(){
   var r = themedSvg();
   var bad = findConflicts(), badFns = Object.keys(bad), issues = busIssues(), warns = warnings();
   var rows = keys.map(function(k){
-    var x = record(k);
+    var x = record(k), o2 = pinByKey(k);
     return '<tr><td>'+esc(x.position)+'</td><td>'+esc(x.pin)+'</td><td>'+esc(x.function === "GPIO" ? x.mode : x.function)+'</td>'+
-      '<td>'+(x.af === null ? "—" : "AF"+x.af)+'</td><td>'+esc(x.halMode || "—")+'</td><td>'+esc(x.label || "—")+'</td></tr>';
+      '<td>'+(x.af === null ? "—" : "AF"+x.af)+'</td><td>'+esc(o2.r.io || "—")+'</td></tr>';
   }).join("");
+  /* fixed pins — power, ground, reset, boot and the rest, grouped by name */
+  var fx = {}, order = [];
+  PINS.forEach(function(p2){
+    if(kindOf(p2) !== "fixed") return;
+    var n = p2.r.n;
+    if(!fx[n]){ fx[n] = []; order.push(n); }
+    fx[n].push(p2.pos);
+  });
+  order.sort(function(a,b){
+    var rank = function(x){
+      if(/^VDD|^VDDA|^VBAT|^VDDLDO|^VDD33|^VDD50|^VCAP/.test(x)) return 0;
+      if(/^VSS|^VREF/.test(x)) return 1;
+      if(x === "NRST" || x === "BOOT0" || x === "PDR_ON") return 2;
+      return 3;
+    };
+    return rank(a) - rank(b) || a.localeCompare(b);
+  });
+  var fixRows = order.map(function(n){
+    var role = n === "NRST" ? "Reset input/output (weak pull-up)" :
+               n === "BOOT0" ? "Boot mode select / VPP" :
+               n === "PDR_ON" ? "Power-down reset enable" :
+               n === "NC" ? "Leave floating" :
+               /^VCAP/.test(n) ? "Core regulator capacitor" :
+               /^VBAT/.test(n) ? "Backup supply" :
+               /^VREF/.test(n) ? "ADC/DAC voltage reference" :
+               /^VDDA|^VSSA/.test(n) ? "Analog supply" :
+               /^VDD33USB|^VDD50USB/.test(n) ? "USB supply" :
+               /^VDDLDO/.test(n) ? "Internal regulator supply" :
+               /^VDD/.test(n) ? "Digital supply" :
+               /^VSS/.test(n) ? "Ground" : "Fixed function";
+    return '<tr><td>'+esc(n)+'</td><td>'+fx[n].length+'</td><td style="white-space:normal">'+esc(fx[n].join(", "))+'</td><td style="white-space:normal">'+role+'</td></tr>';
+  }).join("");
+  var nFixed = PINS.filter(function(p2){ return kindOf(p2) === "fixed"; }).length;
   var checks = [];
   badFns.forEach(function(fn){ checks.push("Duplicate: " + fn + " on " + bad[fn].join(", ")); });
   issues.forEach(function(i){ checks.push((i.lvl === "err" ? "Incomplete: " : "Check: ") + i.n + " — " + i.m); });
@@ -1821,14 +1912,15 @@ function printSummary(){
     '<div class="pr-k"><span><b>Flash</b> '+esc(DEV.flash)+'</span><span><b>RAM</b> '+esc(DEV.ram)+'</span>'+
       '<span><b>Max CPU</b> '+esc(DEV.mhz)+'</span><span><b>Package</b> '+esc(PK.id)+' · '+esc(PK.dim)+'</span>'+
       '<span><b>'+(PK.bga?"Balls":"Pins")+'</b> '+PINS.length+'</span></div>'+
-    '<div class="pr-grid"><div>'+(r ? new XMLSerializer().serializeToString(r.svg) : "")+'</div>'+
-    '<div><h3>Assignments</h3>'+
-      (keys.length ? '<table><thead><tr><th>Pin</th><th>Port</th><th>Function</th><th>AF</th><th>HAL mode</th><th>Label</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    '<div class="pr-chip">'+(r ? new XMLSerializer().serializeToString(r.svg) : "")+'</div>'+
+    '<h3>Assigned pins <small>'+keys.length+'</small></h3>'+
+      (keys.length ? '<table class="pr-asg"><thead><tr><th>Pin</th><th>Port</th><th>Function</th><th>AF</th><th>I/O structure</th></tr></thead><tbody>'+rows+'</tbody></table>'
                    : '<p style="font-size:.74rem">No pins assigned.</p>')+
-      '<h3>Design checks</h3>'+
+    '<h3>Fixed pins <small>'+nFixed+'</small></h3>'+
+      '<table class="pr-fix"><thead><tr><th>Name</th><th>Qty</th><th>'+(PK.bga?"Balls":"Pins")+'</th><th>Role</th></tr></thead><tbody>'+fixRows+'</tbody></table>'+
+    '<h3>Design checks</h3>'+
       (checks.length ? checks.map(function(c){ return '<div class="pr-note">'+esc(c)+'</div>'; }).join("")
                      : '<div class="pr-note" style="border-left-color:#17794a">No duplicate signals or incomplete interfaces found.</div>')+
-    '</div></div>'+
     '<div class="pr-foot">Pin, ball and alternate-function data from STMicroelectronics datasheet '+esc(DEV.doc)+
       ', cross-checked against ST\'s published STM32 pin database. Confirm against the datasheet before release.</div>';
   window.print();
@@ -1856,6 +1948,7 @@ document.addEventListener("DOMContentLoaded", function(){
   $("selBody").addEventListener("change", onSelChange);
   $("selBody").addEventListener("input", function(e){ if(e.target.classList.contains("lbl")) onSelChange(e); });
   $("btnClear").addEventListener("click", resetAssignments);
+  $("btnUnselAll").addEventListener("click", resetAssignments);
   /* save / load / reset split button */
   $("btnSave").addEventListener("click", saveCfg);
   $("btnSaveMenu").addEventListener("click", function(e){
