@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STM32H7 Pin Configuration Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  color-scheme:light;
+  --ink:#10233c;          /* corporate navy */
+  --ink2:#1c3557;
+  --acc:#c8102e;          /* industrial red accent */
+  --accr:200,16,46;
+  --steel:#5a6b80;
+  --line:#d7dee8;
+  --line2:#e8edf3;
+  --bg:#f4f6f9;
+  --panel:#ffffff;
+  --panel2:#f8fafc;
+  --head:#eef2f7;
+  --t1:#10233c;--t2:#44566e;--t3:#7a8aa0;
+  --ok:#17794a;--warn:#9a5b00;
+  --onacc:#ffffff;
+  --chip:#10233c;--chipbd:#1c3557;
+  --mono:'Roboto Mono',ui-monospace,Menlo,Consolas,monospace;
+  --sans:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --cond:'Barlow Condensed','Barlow',sans-serif;
+  --tagL:32%;--tagS:60%;--tagA:.14;--tagB:.45;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ink:#0a1626;--ink2:#13263f;
+    --acc:#ff4d5e;--accr:255,77,94;
+    --steel:#8fa2ba;
+    --line:#22344c;--line2:#1a2a3e;
+    --bg:#0a1424;--panel:#101e31;--panel2:#0d1a2b;--head:#16293f;
+    --t1:#eaf1fa;--t2:#b3c3d6;--t3:#7e92aa;
+    --ok:#4ad295;--warn:#ffb454;
+    --onacc:#160508;--chip:#1d3350;--chipbd:#36557a;
+    --tagL:72%;--tagS:70%;--tagA:.18;--tagB:.5;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ink:#0a1626;--ink2:#13263f;
+  --acc:#ff4d5e;--accr:255,77,94;
+  --steel:#8fa2ba;
+  --line:#22344c;--line2:#1a2a3e;
+  --bg:#0a1424;--panel:#101e31;--panel2:#0d1a2b;--head:#16293f;
+  --t1:#eaf1fa;--t2:#b3c3d6;--t3:#7e92aa;
+  --ok:#4ad295;--warn:#ffb454;
+  --onacc:#160508;--chip:#1d3350;--chipbd:#36557a;
+  --tagL:72%;--tagS:70%;--tagA:.18;--tagB:.5;
+}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 60px)}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:400;background:var(--ink)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--line2)}
+::-webkit-scrollbar-thumb{background:var(--steel);border-radius:0}
+.eyebrow{font-family:var(--cond);font-size:.82rem;font-weight:600;letter-spacing:.22em;color:var(--acc);text-transform:uppercase;margin-bottom:8px;display:block}
+h2.sec{font-family:var(--cond);font-size:2rem;font-weight:700;letter-spacing:.01em;line-height:1.1;color:var(--t1)}
+.sub{color:var(--t2);font-size:.92rem;font-weight:300;max-width:70ch;margin-top:6px}
+
+/* TOP BAR */
+.topbar{background:var(--ink);color:#c9d6e6;font-size:.76rem;letter-spacing:.04em}
+.topbar .in{max-width:1680px;margin:0 auto;padding:7px 28px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.topbar b{color:#fff;font-weight:600}
+.topbar .r{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:#8ba1bb}
+
+/* MASTHEAD + DEVICE TABS */
+.mast{background:var(--panel);border-bottom:1px solid var(--line)}
+.mast .in{max-width:1680px;margin:0 auto;padding:16px 28px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .mark{width:40px;height:40px;background:var(--acc);display:grid;place-items:center;color:#fff;font-family:var(--cond);font-weight:700;font-size:1.3rem;letter-spacing:.02em}
+.brand .nm{font-family:var(--cond);font-weight:700;font-size:1.22rem;letter-spacing:.06em;line-height:1.1}
+.brand .nm span{display:block;font-family:var(--sans);font-size:.68rem;font-weight:400;letter-spacing:.16em;color:var(--t3);text-transform:uppercase}
+.devtabs{display:flex;margin-left:auto;border:1px solid var(--line);background:var(--panel2);flex-wrap:wrap}
+.devtab{padding:9px 20px;background:none;border:0;border-right:1px solid var(--line);font-family:var(--cond);font-size:1.02rem;font-weight:600;letter-spacing:.06em;
+  color:var(--t2);cursor:pointer;transition:.18s;position:relative}
+.devtab:last-child{border-right:0}
+.devtab small{display:block;font-family:var(--sans);font-size:.62rem;font-weight:400;letter-spacing:.1em;color:var(--t3);text-transform:uppercase}
+.devtab:hover{background:var(--head);color:var(--t1)}
+.devtab.active{background:var(--acc);color:#fff}
+.devtab.active small{color:rgba(255,255,255,.82)}
+
+/* HERO */
+.hero{background:linear-gradient(118deg,var(--ink) 0%,var(--ink2) 62%,var(--ink) 100%);color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;opacity:.12;
+  background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+  background-size:52px 52px;mask-image:linear-gradient(100deg,transparent 35%,#000 100%)}
+.hero .in{max-width:1680px;margin:0 auto;padding:40px 28px 0;position:relative;z-index:1}
+.hero .eyebrow{color:#ff8e9b}
+.hero h1{font-family:var(--cond);font-size:3.1rem;font-weight:700;line-height:1;letter-spacing:.01em}
+.hero h1 em{font-style:normal;color:#9fb6d1;font-weight:500}
+.hero p.lead{color:#bfd0e3;font-weight:300;max-width:78ch;margin-top:10px;font-size:.95rem}
+.hero .rule{width:64px;height:4px;background:var(--acc);margin:18px 0 0}
+.counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:rgba(255,255,255,.14);margin-top:34px;border-top:1px solid rgba(255,255,255,.14)}
+.count{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0));padding:18px 16px}
+.count .v{font-family:var(--cond);font-size:2.05rem;font-weight:700;line-height:1;color:#fff}
+.count .v i{font-style:normal;color:var(--acc);font-size:1.3rem}
+.count .l{font-size:.64rem;letter-spacing:.17em;text-transform:uppercase;color:#9bb0c8;margin-top:5px}
+
+/* SECTION NAV */
+.snav{position:sticky;top:env(safe-area-inset-top,0px);z-index:300;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(16,35,60,.04)}
+.snav .in{max-width:1680px;margin:0 auto;padding:0 28px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;align-items:center}
+.snav .in::-webkit-scrollbar{display:none}
+.stab{padding:14px 18px;border:0;background:none;font-family:var(--cond);font-size:1.02rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--t3);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:.18s}
+.stab:hover{color:var(--t1)}
+.stab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.snav .pkgnow{margin-left:auto;font-family:var(--mono);font-size:.72rem;color:var(--t3);white-space:nowrap;padding-left:16px}
+.snav .pkgnow b{color:var(--t1)}
+
+/* LAYOUT */
+.wrap{max-width:1680px;margin:0 auto}
+.panel{display:none;padding:34px 28px 72px}
+.panel.active{display:block}
+.shead{margin-bottom:20px}
+.card{background:var(--panel);border:1px solid var(--line);margin-bottom:22px}
+.card .ch{padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel2);font-family:var(--cond);font-size:1rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase}
+.card .cb{padding:18px}
+.note{border:1px solid var(--line);border-left:3px solid var(--acc);background:var(--panel);padding:14px 18px;margin-bottom:20px;font-size:.88rem;color:var(--t2);font-weight:300}
+.note strong{color:var(--t1);font-weight:600}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.spec{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:22px}
+.spec div{background:var(--panel);padding:14px 16px}
+.spec .k{font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--t3)}
+.spec .v{font-family:var(--cond);font-size:1.3rem;font-weight:600;margin-top:2px}
+.vbox{background:var(--panel);border:1px solid var(--line);padding:16px 18px;font-size:.85rem;color:var(--t2);font-weight:300}
+.vbox h3{font-family:var(--cond);font-size:1.02rem;font-weight:600;letter-spacing:.05em;color:var(--t1);margin-bottom:6px;display:flex;gap:9px;align-items:baseline}
+.vbox .ok{color:var(--ok);font-weight:700} .vbox .nt{color:var(--warn);font-weight:700}
+.vbox code{font-family:var(--mono);font-size:.78rem;color:var(--t1);background:var(--panel2);padding:1px 4px}
+
+/* PACKAGE CARDS */
+.pkg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1000px){.pkg-grid{grid-template-columns:repeat(2,1fr)}}
+.pkg-btn{position:relative;padding:18px 16px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;font-family:inherit;transition:.18s}
+.pkg-btn:hover{border-color:var(--acc);transform:translateY(-2px)}
+.pkg-btn .t{font-family:var(--cond);font-size:1.25rem;font-weight:700;letter-spacing:.04em}
+.pkg-btn .d{font-size:.74rem;color:var(--t3);margin-top:3px}
+.pkg-btn .p{font-family:var(--mono);font-size:.72rem;color:var(--t2);margin-top:8px}
+.pkg-btn.active{border-color:var(--acc);background:rgba(var(--accr),.05);box-shadow:inset 3px 0 0 var(--acc)}
+.pkg-btn.active .t{color:var(--acc)}
+.pkg-btn[disabled]{opacity:.42;cursor:not-allowed;transform:none}
+.pkg-btn .na{position:absolute;top:10px;right:12px;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3)}
+
+/* FILTERS + SEARCH */
+.flabel{font-size:.64rem;letter-spacing:.17em;text-transform:uppercase;color:var(--t3);display:block;margin-bottom:10px}
+.fbtns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.fbtn{padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--t2);cursor:pointer;
+  font-family:var(--mono);font-size:.72rem;transition:.15s;display:flex;align-items:center;gap:6px}
+.fbtn:hover{border-color:var(--acc);color:var(--t1)}
+.fbtn .cnt{font-size:.64rem;color:var(--t3)}
+.fbtn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.fbtn.active .cnt{color:#9fb6d1}
+.search{width:100%;max-width:440px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);color:var(--t1);font-size:.88rem;font-family:inherit}
+.search:focus{outline:none;border-color:var(--acc)}
+.search::placeholder{color:var(--t3)}
+
+/* TABLE */
+.tw{overflow-x:auto;border:1px solid var(--line);background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{background:var(--head);padding:11px 12px;text-align:left;color:var(--t2);font-family:var(--cond);
+  font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:.76rem;border-bottom:1px solid var(--line);white-space:nowrap}
+#pinTable thead th[data-sort]{cursor:pointer}
+#pinTable thead th[data-sort]:hover{color:var(--acc)}
+thead th .ar{opacity:.3;font-size:.6rem;margin-left:3px}
+thead th.sorted{color:var(--acc)} thead th.sorted .ar{opacity:1}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line2);color:var(--t2);vertical-align:top}
+tbody tr:hover{background:var(--panel2)}
+.pnum{font-family:var(--mono);font-weight:700;color:var(--acc);white-space:nowrap}
+.pgpio{font-family:var(--mono);font-weight:700;color:var(--t1);white-space:nowrap}
+.pgpio small{display:block;font-weight:400;color:var(--t3);font-size:.68rem}
+.pio{font-family:var(--mono);font-size:.74rem;white-space:nowrap}
+.pfunc{font-family:var(--mono);font-size:.7rem;line-height:1.8;min-width:300px}
+.af{display:inline-block;margin:0 9px 0 0;white-space:nowrap;color:var(--t2)}
+.af i{font-style:normal;color:var(--acc);margin-right:4px;font-size:.64rem;font-weight:500}
+.padd{font-family:var(--mono);font-size:.7rem;color:var(--ok);line-height:1.7;min-width:130px}
+.sw{display:block;font-family:var(--sans);font-size:.7rem;color:var(--warn);margin-bottom:3px}
+.nmark{display:inline-block;min-width:17px;padding:0 4px;margin:0 3px 3px 0;font-family:var(--mono);font-size:.64rem;
+  color:var(--warn);border:1px solid currentColor;cursor:help;text-align:center}
+.empty-row td{text-align:center;color:var(--t3);padding:40px}
+
+/* TAGS */
+.tag{display:inline-block;padding:1px 7px;font-size:.62rem;font-weight:600;letter-spacing:.04em;border:1px solid;margin:1px 2px 1px 0;
+  font-family:var(--mono);white-space:nowrap;
+  background:hsl(var(--h) var(--tagS) 50% / var(--tagA));border-color:hsl(var(--h) var(--tagS) 50% / var(--tagB));color:hsl(var(--h) var(--tagS) var(--tagL))}
+.g-GPIO{--h:215} .g-TIMER{--h:24} .g-UART{--h:38} .g-SPI{--h:272} .g-I2C{--h:226} .g-SAI{--h:300}
+.g-CAN{--h:0} .g-USB{--h:192} .g-ETH{--h:162} .g-FMC{--h:48} .g-QSPI{--h:330} .g-SDMMC{--h:132}
+.g-LCD{--h:204} .g-DCMI{--h:252} .g-DFSDM{--h:96} .g-ADC{--h:150} .g-ANALOG{--h:174} .g-DEBUG{--h:58}
+.g-SYS{--h:316} .g-OTHER{--h:210} .g-PWR{--h:345}
+.g-GPIO,.g-OTHER{--tagS:12%}
+
+/* DIAGRAM */
+.dgwrap{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+@media(max-width:1180px){.dgwrap{grid-template-columns:1fr}}
+.dgbox{border:1px solid var(--line);background:var(--panel);position:relative;overflow:auto;max-height:80vh}
+.dgbox svg{display:block;margin:0 auto}
+.dgtools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.ctl{padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--t2);font-family:var(--mono);font-size:.72rem;cursor:pointer}
+.ctl:hover{border-color:var(--acc);color:var(--t1)}
+.ctl.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.ctl-g{display:flex;border:1px solid var(--line)}
+.ctl-g .ctl{border:0;border-right:1px solid var(--line)}
+.ctl-g .ctl:last-child{border-right:0}
+.pad{fill:var(--panel2);stroke:var(--steel);stroke-width:1;cursor:pointer}
+.pad.asg{stroke:var(--acc);stroke-width:2}
+.pad.hl{stroke:var(--acc);stroke-width:2.2}
+.pad.dim{opacity:.22}
+.plab{font-family:var(--mono);font-size:8px;fill:var(--t2)}
+.plab.asg{fill:var(--acc);font-weight:700}
+.plab.dim{opacity:.25}
+.body{fill:var(--chip);stroke:var(--chipbd)}
+.bodytx{font-family:var(--cond);fill:#fff;text-anchor:middle;letter-spacing:.08em}
+.bodysub{font-family:var(--mono);fill:#9fb6d1;text-anchor:middle}
+.axis{font-family:var(--mono);font-size:9px;fill:var(--t3);text-anchor:middle;dominant-baseline:middle}
+#tip{position:fixed;z-index:900;pointer-events:none;background:var(--ink);color:#fff;border:1px solid var(--ink2);
+  padding:8px 11px;font-size:.74rem;max-width:330px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.28)}
+#tip b{font-family:var(--mono);color:#fff;display:block;font-size:.8rem}
+#tip span{color:#a9c0d8;font-family:var(--mono);font-size:.68rem;display:block;margin-top:3px;line-height:1.5}
+.legend{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:12px}
+.lg{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--t2);font-family:var(--mono)}
+.lg i{width:11px;height:11px;display:block;border:1px solid;background:hsl(var(--h) var(--tagS,65%) 52% / .42);border-color:hsl(var(--h) var(--tagS,65%) 52% / .8)}
+.detail{border:1px solid var(--line);background:var(--panel);position:sticky;top:76px}
+.detail .dh{padding:12px 16px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:.84rem;display:flex;justify-content:space-between;gap:8px}
+.detail .dh em{font-style:normal;color:#9fb6d1;font-size:.72rem}
+.detail .db{padding:16px;max-height:62vh;overflow:auto}
+.kv{display:grid;grid-template-columns:86px 1fr;gap:4px 10px;font-size:.78rem;margin-bottom:14px}
+.kv dt{color:var(--t3);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.kv dd{font-family:var(--mono);color:var(--t1);font-size:.76rem}
+.aflist{font-family:var(--mono);font-size:.72rem;line-height:1.9;color:var(--t2)}
+.aflist i{font-style:normal;color:var(--acc);margin-right:5px}
+
+/* SELECTION */
+.sel-wrap{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+@media(max-width:1180px){.sel-wrap{grid-template-columns:1fr}.side{position:static!important}}
+.side{border:1px solid var(--line);background:var(--panel);position:sticky;top:76px}
+.side .sh2{padding:12px 16px;background:var(--ink);color:#fff;font-family:var(--cond);letter-spacing:.11em;text-transform:uppercase;
+  font-size:.9rem;display:flex;align-items:center;gap:9px}
+.side .sh2 span{margin-left:auto;font-family:var(--mono);font-size:.8rem;color:#9fb6d1}
+.side-list{max-height:48vh;overflow-y:auto;padding:10px}
+.srow{border:1px solid var(--line);padding:7px 10px;margin-bottom:6px;font-size:.74rem;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.srow:hover{border-color:var(--acc)}
+.srow.bad{border-color:var(--acc);background:rgba(var(--accr),.07)}
+.srow .lb{font-family:var(--mono);font-weight:700;color:var(--t1);white-space:nowrap}
+.srow .fn{font-family:var(--mono);font-size:.68rem;background:var(--ink);color:#fff;padding:1px 7px;text-align:right;word-break:break-all}
+.side-empty{text-align:center;color:var(--t3);padding:28px 10px;font-size:.82rem;font-weight:300}
+.chk{accent-color:var(--acc);width:16px;height:16px;cursor:pointer}
+select.fs,input.lbl{background:var(--panel);border:1px solid var(--line);color:var(--t1);padding:5px 8px;font-family:var(--mono);font-size:.73rem;width:100%}
+select.fs{cursor:pointer;max-width:250px}
+input.lbl{max-width:160px}
+select.fs:focus,input.lbl:focus{outline:none;border-color:var(--acc)}
+select.fs:disabled,input.lbl:disabled{opacity:.45;cursor:not-allowed}
+select.fs option,select.fs optgroup{background:var(--panel);color:var(--t1)}
+#selTable td{vertical-align:middle}
+tr.picked{background:rgba(var(--accr),.05)}
+tr.conflict td{background:rgba(var(--accr),.12)}
+.msgs{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.msgs:empty{display:none}
+.warn{border:1px solid var(--line);border-left:3px solid var(--warn);background:var(--panel);padding:9px 14px;font-size:.8rem;color:var(--t2);font-weight:300}
+.warn strong{color:var(--t1);font-weight:600}
+.warn.err{border-left-color:var(--acc)}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border:1px solid var(--line);background:var(--panel);color:var(--t1);font-family:var(--cond);
+  font-weight:600;font-size:.92rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:.18s}
+.btn:hover{border-color:var(--acc);color:var(--acc)}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.acc:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.full{width:100%;margin:0}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.sidefoot{padding:10px;border-top:1px solid var(--line)}
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.exp-btn{padding:20px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;font-family:inherit;transition:.18s}
+.exp-btn:hover{border-color:var(--acc);transform:translateY(-2px)}
+.exp-btn .t{font-family:var(--cond);font-size:1.15rem;font-weight:700;letter-spacing:.05em}
+.exp-btn .d{font-size:.74rem;color:var(--t3);margin-top:4px}
+.exp-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.ptabs{display:flex;gap:0;margin-bottom:12px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--line)}
+.ptab{padding:9px 16px;border:0;background:none;color:var(--t3);font-family:var(--mono);font-size:.74rem;cursor:pointer;border-bottom:2px solid transparent}
+.ptab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.ptabs .btn{margin-left:auto;padding:5px 12px;font-size:.78rem;margin-bottom:4px}
+.prev{background:var(--ink);color:#cfe0f0;border:1px solid var(--line);padding:18px;max-height:480px;overflow:auto;
+  font-family:var(--mono);font-size:.74rem;line-height:1.7;white-space:pre}
+
+/* FOOTER */
+footer{background:var(--ink);color:#a9bed6;margin-top:30px}
+footer .in{max-width:1680px;margin:0 auto;padding:34px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px}
+footer h4{font-family:var(--cond);color:#fff;font-size:1rem;letter-spacing:.11em;text-transform:uppercase;margin-bottom:10px}
+footer p,footer li{font-size:.8rem;font-weight:300;line-height:1.8}
+footer ul{list-style:none}
+footer .bar{border-top:1px solid rgba(255,255,255,.12);padding:12px 28px;font-size:.72rem;color:#7e96b1;text-align:center}
+
+#toasts{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:20px;z-index:950;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--ink);color:#fff;border-left:3px solid var(--ok);padding:11px 16px;font-size:.8rem;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.err{border-left-color:var(--acc)}
+
+@media(max-width:900px){.spec{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){
+  .hero h1{font-size:2.2rem}
+  .panel{padding:24px 16px 56px}
+  .topbar .in,.mast .in,.snav .in,.hero .in,footer .in{padding-left:16px;padding-right:16px}
+  .snav .pkgnow{display:none}
+  .devtabs{margin-left:0;width:100%}
+  .devtab{flex:1}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="in">
+  <span><b>STM32H7</b> High-performance line · single-core</span>
+  <span>Pin &amp; alternate-function configuration</span>
+  <span class="r">DS12110 · DS12117 · DS12556 · RM0433</span>
+</div></div>
+
+<header class="mast"><div class="in">
+  <div class="brand">
+    <div class="mark">H7</div>
+    <div class="nm">PIN MAPPER<span>MCU configuration utility</span></div>
+  </div>
+  <div class="devtabs" id="devTabs" role="tablist" aria-label="Device"></div>
+</div></header>
+
+<section class="hero"><div class="in">
+  <span class="eyebrow" id="heroEyebrow">High-performance Arm Cortex-M7</span>
+  <h1 id="heroTitle">STM32H743</h1>
+  <p class="lead" id="heroLead"></p>
+  <div class="rule"></div>
+  <div class="counts" id="counts"></div>
+</div></section>
+
+<nav class="snav"><div class="in">
+  <button class="stab active" data-panel="overview">Overview</button>
+  <button class="stab" data-panel="pinout">Pin Table</button>
+  <button class="stab" data-panel="diagram">Package Diagram</button>
+  <button class="stab" data-panel="select">Selection</button>
+  <button class="stab" data-panel="export">Export</button>
+  <span class="pkgnow">Package <b id="navPkg">LQFP144</b> · <b id="navPart">STM32H743ZIT6</b></span>
+</div></nav>
+
+<div class="wrap">
+
+<!-- OVERVIEW -->
+<section class="panel active" id="panel-overview">
+  <div class="shead"><span class="eyebrow">Device</span><h2 class="sec" id="ovTitle">STM32H743</h2>
+    <p class="sub" id="ovSub"></p></div>
+  <div class="spec" id="specGrid"></div>
+
+  <div class="shead" style="margin-top:34px"><span class="eyebrow">Step 1</span><h2 class="sec">Select package</h2>
+    <p class="sub">Every tab follows this choice. Pin assignments are kept when you switch package or device, as long as the pin and function still exist.</p></div>
+  <div class="pkg-grid" id="pkgGrid"></div>
+
+  <div class="shead" style="margin-top:38px"><span class="eyebrow">Source data</span><h2 class="sec">Verification</h2>
+    <p class="sub">How the pin data in this tool was checked before it was built.</p></div>
+  <div class="grid3" id="verifyGrid"></div>
+
+  <div class="shead" style="margin-top:38px"><span class="eyebrow">Capability</span><h2 class="sec">Peripheral summary</h2></div>
+  <div class="card"><table><tbody id="periphTable"></tbody></table></div>
+</section>
+
+<!-- PIN TABLE -->
+<section class="panel" id="panel-pinout">
+  <div class="shead"><span class="eyebrow">Reference</span><h2 class="sec">Pin table</h2>
+    <p class="sub">Full pin/ball list for the selected device and package. The AF number is shown before each alternate function.</p></div>
+  <label class="flabel">Filter by peripheral</label>
+  <div class="fbtns" id="filterBar"></div>
+  <label class="flabel" for="pinSearch">Search</label>
+  <input type="text" id="pinSearch" class="search" placeholder="Ball or pin number, port pin (PA9), or function (USART1_TX, AF7)…">
+  <div style="margin:12px 0 16px;font-size:.78rem;color:var(--t3);font-family:var(--mono)" id="pinCount"></div>
+  <div class="tw">
+    <table id="pinTable">
+      <thead><tr>
+        <th data-sort="pos">Pin/Ball<span class="ar">▲</span></th>
+        <th data-sort="name">Pin name<span class="ar">▲</span></th>
+        <th data-sort="type">Type<span class="ar">▲</span></th>
+        <th data-sort="io">I/O<span class="ar">▲</span></th>
+        <th>Notes</th>
+        <th>Alternate functions (AF0–AF15)</th>
+        <th>Additional functions</th>
+        <th>Peripheral groups</th>
+      </tr></thead>
+      <tbody id="pinBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- DIAGRAM -->
+<section class="panel" id="panel-diagram">
+  <div class="shead"><span class="eyebrow">Step 2</span><h2 class="sec" id="dgTitle">Package diagram</h2>
+    <p class="sub">Click any pin or ball to inspect it and assign a function. Assigned pins are outlined in the accent colour.</p></div>
+  <div class="dgtools">
+    <span class="flabel" style="margin:0 4px 0 0">Colour</span>
+    <div class="ctl-g">
+      <button class="ctl on" data-color="type">Pin type</button>
+      <button class="ctl" data-color="assign">Assignment</button>
+      <button class="ctl" data-color="group">Peripheral</button>
+    </div>
+    <select id="dgGroup" class="ctl" style="display:none"></select>
+    <button class="ctl on" id="ctlLabels">Labels</button>
+    <div class="ctl-g">
+      <button class="ctl" id="zOut">−</button>
+      <button class="ctl" id="zRst">100%</button>
+      <button class="ctl" id="zIn">+</button>
+    </div>
+    <input type="text" id="dgSearch" class="search" style="max-width:260px;padding:6px 10px;font-size:.78rem" placeholder="Highlight pin or function…">
+    <button class="ctl" id="dgSvg">Download SVG</button>
+  </div>
+  <div class="dgwrap">
+    <div class="dgbox" id="dgBox"></div>
+    <aside class="detail">
+      <div class="dh"><span id="dtName">No pin selected</span><em id="dtPos"></em></div>
+      <div class="db" id="dtBody"><p class="side-empty">Click a pin or ball in the diagram to see its full function list and assign it.</p></div>
+    </aside>
+  </div>
+  <div class="legend" id="legend"></div>
+</section>
+
+<!-- SELECTION -->
+<section class="panel" id="panel-select">
+  <div class="shead"><span class="eyebrow">Step 3</span><h2 class="sec">Pin selection &amp; assignment</h2>
+    <p class="sub">Tick a pin, then choose GPIO, an alternate function (with its AF number) or an additional/analog function. The optional label becomes the name in the C header.</p></div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center">
+    <input type="text" id="selSearch" class="search" style="max-width:300px" placeholder="Filter pins or functions…">
+    <button class="btn" id="btnClear">Clear all</button>
+  </div>
+  <div class="msgs" id="selMsgs"></div>
+  <div class="sel-wrap">
+    <div class="tw">
+      <table id="selTable">
+        <thead><tr><th style="width:42px">✓</th><th>Pin/Ball</th><th>Pin name</th><th style="min-width:240px">Assign function</th><th>Label</th></tr></thead>
+        <tbody id="selBody"></tbody>
+      </table>
+    </div>
+    <aside class="side">
+      <div class="sh2">Selected pins<span id="selBadge">0</span></div>
+      <div class="side-list" id="selList"><div class="side-empty">No pins selected yet.</div></div>
+      <div class="sidefoot"><button class="btn acc full" id="btnSideExport">Go to export</button></div>
+    </aside>
+  </div>
+</section>
+
+<!-- EXPORT -->
+<section class="panel" id="panel-export">
+  <div class="shead"><span class="eyebrow">Step 4</span><h2 class="sec">Export configuration</h2>
+    <p class="sub">Download the pin assignment for documentation, design review or firmware.</p></div>
+  <div class="note"><strong id="expCount">0</strong> pin(s) selected on <strong id="expPkg">LQFP144</strong> — <span id="expPart">STM32H743ZIT6</span>.</div>
+  <div class="exp-grid">
+    <button class="exp-btn" id="btnCsv"><div class="t">CSV file</div><div class="d">.csv — spreadsheet import, with AF numbers</div></button>
+    <button class="exp-btn" id="btnJson"><div class="t">JSON file</div><div class="d">.json — structured data for scripts and tools</div></button>
+    <button class="exp-btn" id="btnH"><div class="t">C header</div><div class="d">.h — STM32 HAL defines: port, pin, AF macro, mode</div></button>
+  </div>
+  <div class="shead" style="margin-top:34px"><span class="eyebrow">Check</span><h2 class="sec">Preview</h2></div>
+  <div class="ptabs">
+    <button class="ptab active" data-fmt="csv">CSV</button>
+    <button class="ptab" data-fmt="json">JSON</button>
+    <button class="ptab" data-fmt="h">C header</button>
+    <button class="btn" id="btnCopy">Copy preview</button>
+  </div>
+  <div class="prev" id="preview" tabindex="0">No pins selected yet. Open the Selection tab or the package diagram to choose pins.</div>
+</section>
+
+</div>
+
+<footer>
+  <div class="in">
+    <div><h4>About this tool</h4><p>An offline pin configuration utility for the single-core STM32H7 high-performance line. Pin, ball and alternate-function data is taken from the ST datasheets and cross-checked against ST's published STM32 pin database.</p></div>
+    <div><h4>Devices</h4><ul id="footDev"></ul></div>
+    <div><h4>Documents</h4><ul>
+      <li>DS12110 — STM32H742xI/G, STM32H743xI/G</li>
+      <li>DS12117 — STM32H753xI</li>
+      <li>DS12556 — STM32H750xB</li>
+      <li>RM0433 — reference manual</li>
+      <li>ES0392 / ES0396 — errata sheets</li>
+    </ul></div>
+    <div><h4>Use</h4><p>Always confirm a final pin assignment against the device datasheet and reference manual before release. Analog-switch pins, oscillator pins and debug pins need particular care.</p></div>
+  </div>
+  <div class="bar">Pin data © STMicroelectronics, reproduced for engineering reference. Tool generated for internal design use.</div>
+</footer>
+
+<div id="tip"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   PIN DATABASE — STM32H742 / H743 / H750 / H753
+   Pin and ball positions: DS12110 Rev 11 Table 9, verified against ST's
+   STM32 open pin data (STM32CubeMX database) for all four devices — the
+   four devices share identical pin positions.
+   AF numbers: DS12110 Rev 11 Table 10, cross-checked with the same ST data.
+   Row fields: n name, k port key, rs reset function, t type, io I/O structure,
+   pos[8] positions, pn[8] position notes, nn name note,
+   af [[afNumber, signal, HAL macro]], ad additional functions
+   Package index: 0 LQFP100, 1 TFBGA100, 2 LQFP144, 3 UFBGA169,
+                  4 UFBGA176+25, 5 LQFP176, 6 LQFP208, 7 TFBGA240+25
+   ========================================================= */
+var R = [{"n":"PE2","k":"PE2","rs":"","t":"I/O","io":"FT_h","pos":["1","A3","1","A2","A2","1","1","C3"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACECLK","GPIO_AF0_TRACE"],[2,"SAI1_CK1","GPIO_AF2_SAI1"],[5,"SPI4_SCK","GPIO_AF5_SPI4"],[6,"SAI1_MCLK_A","GPIO_AF6_SAI1"],[8,"SAI4_MCLK_A","GPIO_AF8_SAI4"],[9,"QUADSPI_BK1_IO2","GPIO_AF9_QUADSPI"],[10,"SAI4_CK1","GPIO_AF10_SAI4"],[11,"ETH_MII_TXD3","GPIO_AF11_ETH"],[12,"FMC_A23","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE3","k":"PE3","rs":"","t":"I/O","io":"FT_h","pos":["2","B3","2","B2","A1","2","2","D3"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED0","GPIO_AF0_TRACE"],[4,"TIM15_BKIN","GPIO_AF4_TIM15"],[6,"SAI1_SD_B","GPIO_AF6_SAI1"],[8,"SAI4_SD_B","GPIO_AF8_SAI4"],[12,"FMC_A19","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE4","k":"PE4","rs":"","t":"I/O","io":"FT_h","pos":["3","C3","3","A1","B1","3","3","D2"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED1","GPIO_AF0_TRACE"],[2,"SAI1_D2","GPIO_AF2_SAI1"],[3,"DFSDM1_DATIN3","GPIO_AF3_DFSDM1"],[4,"TIM15_CH1N","GPIO_AF4_TIM15"],[5,"SPI4_NSS","GPIO_AF5_SPI4"],[6,"SAI1_FS_A","GPIO_AF6_SAI1"],[8,"SAI4_FS_A","GPIO_AF8_SAI4"],[10,"SAI4_D2","GPIO_AF10_SAI4"],[12,"FMC_A20","GPIO_AF12_FMC"],[13,"DCMI_D4","GPIO_AF13_DCMI"],[14,"LCD_B0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE5","k":"PE5","rs":"","t":"I/O","io":"FT_h","pos":["4","D3","4","C3","B2","4","4","D1"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED2","GPIO_AF0_TRACE"],[2,"SAI1_CK2","GPIO_AF2_SAI1"],[3,"DFSDM1_CKIN3","GPIO_AF3_DFSDM1"],[4,"TIM15_CH1","GPIO_AF4_TIM15"],[5,"SPI4_MISO","GPIO_AF5_SPI4"],[6,"SAI1_SCK_A","GPIO_AF6_SAI1"],[8,"SAI4_SCK_A","GPIO_AF8_SAI4"],[10,"SAI4_CK2","GPIO_AF10_SAI4"],[12,"FMC_A21","GPIO_AF12_FMC"],[13,"DCMI_D6","GPIO_AF13_DCMI"],[14,"LCD_G0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE6","k":"PE6","rs":"","t":"I/O","io":"FT_h","pos":["5","E3","5","C2","B3","5","5","E5"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED3","GPIO_AF0_TRACE"],[1,"TIM1_BKIN2","GPIO_AF1_TIM1"],[2,"SAI1_D1","GPIO_AF2_SAI1"],[4,"TIM15_CH2","GPIO_AF4_TIM15"],[5,"SPI4_MOSI","GPIO_AF5_SPI4"],[6,"SAI1_SD_A","GPIO_AF6_SAI1"],[8,"SAI4_SD_A","GPIO_AF8_SAI4"],[9,"SAI4_D1","GPIO_AF9_SAI4"],[10,"SAI2_MCLK_B","GPIO_AF10_SAI2"],[11,"TIM1_BKIN2_COMP12",""],[12,"FMC_A22","GPIO_AF12_FMC"],[13,"DCMI_D7","GPIO_AF13_DCMI"],[14,"LCD_G1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","M4","H10","","","A1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","A3","","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VBAT","k":"VBAT","rs":"","t":"S","io":"-","pos":["6","B2","6","E3","C1","6","6","B1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","J6","","","B2"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PI8","k":"PI8","rs":"","t":"I/O","io":"FT","pos":["","","","","D2","7","7","E4"],"pn":["","","","","","","",""],"nn":"","af":[[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["RTC_TAMP2/WKUP3"]},{"n":"PC13","k":"PC13","rs":"","t":"I/O","io":"FT","pos":["7","A2","7","D3","D1","8","8","E3"],"pn":["","","","","","","",""],"nn":"","af":[[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["RTC_OUT/RTC_TAMP1/RTC_TS/WKUP4"]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","J7","","","B6"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PC14-OSC32_IN","k":"PC14","rs":"OSC32_IN","t":"I/O","io":"FT","pos":["8","A1","8","C1","E1","9","9","C2"],"pn":["","","","","","","",""],"nn":"1","af":[[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OSC32_IN"]},{"n":"PC15-OSC32_OUT","k":"PC15","rs":"OSC32_OUT","t":"I/O","io":"FT","pos":["9","B1","9","B1","F1","10","10","C1"],"pn":["","","","","","","",""],"nn":"1","af":[[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OSC32_OUT"]},{"n":"PI9","k":"PI9","rs":"","t":"I/O","io":"FT_h","pos":["","","","","D3","11","11","E2"],"pn":["","","","","","","",""],"nn":"","af":[[8,"UART4_RX","GPIO_AF8_UART4"],[9,"FDCAN1_RX","GPIO_AF9_FDCAN1"],[12,"FMC_D30","GPIO_AF12_FMC"],[14,"LCD_VSYNC","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI10","k":"PI10","rs":"","t":"I/O","io":"FT_h","pos":["","","","","E3","12","12","F3"],"pn":["","","","","","","",""],"nn":"","af":[[11,"ETH_MII_RX_ER","GPIO_AF11_ETH"],[12,"FMC_D31","GPIO_AF12_FMC"],[14,"LCD_HSYNC","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI11","k":"PI11","rs":"","t":"I/O","io":"FT","pos":["","","","E1","E4","13","13","F4"],"pn":["","","","","","","",""],"nn":"","af":[[9,"LCD_G6","GPIO_AF9_LTDC"],[10,"OTG_HS_ULPI_DIR","GPIO_AF10_OTG1_HS"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["WKUP5"]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","C2","","D2","F2","14","14","A17"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","D2","","D1","F3","15","15","E6"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","","","","F2"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"S","io":"-","pos":["","","","","","","","E1"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","","","","F1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","","","","G2"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PF0","k":"PF0","rs":"","t":"I/O","io":"FT_f","pos":["","","10","F3","E2","16","16","G4"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C2_SDA","GPIO_AF4_I2C2"],[12,"FMC_A0","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PF1","k":"PF1","rs":"","t":"I/O","io":"FT_f","pos":["","","11","E4","H3","17","17","G3"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C2_SCL","GPIO_AF4_I2C2"],[12,"FMC_A1","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PF2","k":"PF2","rs":"","t":"I/O","io":"FT","pos":["","","12","F4","H2","18","18","G1"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C2_SMBA","GPIO_AF4_I2C2"],[12,"FMC_A2","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI12","k":"PI12","rs":"","t":"I/O","io":"FT","pos":["","","","F2","","","19","H1"],"pn":["","","","","","","",""],"nn":"","af":[[11,"ETH_TX_ER","GPIO_AF11_ETH"],[14,"LCD_HSYNC","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI13","k":"PI13","rs":"","t":"I/O","io":"FT","pos":["","","","F1","","","20","H2"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_VSYNC","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI14","k":"PI14","rs":"","t":"I/O","io":"FT_h","pos":["","","","","","","21","H3"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_CLK","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PF3","k":"PF3","rs":"","t":"I/O","io":"FT_ha","pos":["","","13","E5","J2","19","22","H4"],"pn":["","","","","","","",""],"nn":"","af":[[12,"FMC_A3","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INP5"]},{"n":"PF4","k":"PF4","rs":"","t":"I/O","io":"FT_ha","pos":["","","14","G3","J3","20","23","J5"],"pn":["","","","","","","",""],"nn":"","af":[[12,"FMC_A4","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN5","ADC3_INP9"]},{"n":"PF5","k":"PF5","rs":"","t":"I/O","io":"FT_ha","pos":["","","15","F5","K3","21","24","J4"],"pn":["","","","","","","",""],"nn":"","af":[[12,"FMC_A5","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INP4"]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["10","","16","B10","G2","22","25","C10"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["11","","17","G1","G3","23","26","E9"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PF6","k":"PF6","rs":"","t":"I/O","io":"FT_ha","pos":["","","18","G4","K2","24","27","K2"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM16_CH1","GPIO_AF1_TIM16"],[5,"SPI5_NSS","GPIO_AF5_SPI5"],[6,"SAI1_SD_B","GPIO_AF6_SAI1"],[7,"UART7_RX","GPIO_AF7_UART7"],[8,"SAI4_SD_B","GPIO_AF8_SAI4"],[9,"QUADSPI_BK1_IO3","GPIO_AF9_QUADSPI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN4","ADC3_INP8"]},{"n":"PF7","k":"PF7","rs":"","t":"I/O","io":"FT_ha","pos":["","","19","F6","K1","25","28","K3"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM17_CH1","GPIO_AF1_TIM17"],[5,"SPI5_SCK","GPIO_AF5_SPI5"],[6,"SAI1_MCLK_B","GPIO_AF6_SAI1"],[7,"UART7_TX","GPIO_AF7_UART7"],[8,"SAI4_MCLK_B","GPIO_AF8_SAI4"],[9,"QUADSPI_BK1_IO2","GPIO_AF9_QUADSPI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INP3"]},{"n":"PF8","k":"PF8","rs":"","t":"I/O","io":"FT_ha","pos":["","","20","H4","L3","26","29","K4"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM16_CH1N","GPIO_AF1_TIM16"],[5,"SPI5_MISO","GPIO_AF5_SPI5"],[6,"SAI1_SCK_B","GPIO_AF6_SAI1"],[7,"UART7_RTS","GPIO_AF7_UART7"],[7,"UART7_DE","GPIO_AF7_UART7"],[8,"SAI4_SCK_B","GPIO_AF8_SAI4"],[9,"TIM13_CH1","GPIO_AF9_TIM13"],[10,"QUADSPI_BK1_IO0","GPIO_AF10_QUADSPI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN3","ADC3_INP7"]},{"n":"PF9","k":"PF9","rs":"","t":"I/O","io":"FT_ha","pos":["","","21","G5","L2","27","30","L4"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM17_CH1N","GPIO_AF1_TIM17"],[5,"SPI5_MOSI","GPIO_AF5_SPI5"],[6,"SAI1_FS_B","GPIO_AF6_SAI1"],[7,"UART7_CTS","GPIO_AF7_UART7"],[8,"SAI4_FS_B","GPIO_AF8_SAI4"],[9,"TIM14_CH1","GPIO_AF9_TIM14"],[10,"QUADSPI_BK1_IO1","GPIO_AF10_QUADSPI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INP2"]},{"n":"PF10","k":"PF10","rs":"","t":"I/O","io":"FT_ha","pos":["","","22","H3","L1","28","31","L3"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM16_BKIN","GPIO_AF1_TIM16"],[2,"SAI1_D3","GPIO_AF2_SAI1"],[9,"QUADSPI_CLK","GPIO_AF9_QUADSPI"],[10,"SAI4_D3","GPIO_AF10_SAI4"],[13,"DCMI_D11","GPIO_AF13_DCMI"],[14,"LCD_DE","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN2","ADC3_INP6"]},{"n":"PH0-OSC_IN","k":"PH0","rs":"PH0","t":"I/O","io":"FT","pos":["12","C1","23","H1","G1","29","32","J2"],"pn":["","","","","","","",""],"nn":"","af":[[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OSC_IN"]},{"n":"PH1-OSC_OUT","k":"PH1","rs":"PH1","t":"I/O","io":"FT","pos":["13","D1","24","H2","H1","30","33","J1"],"pn":["","","","","","","",""],"nn":"","af":[[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OSC_OUT"]},{"n":"NRST","k":"NRST","rs":"","t":"I/O","io":"RST","pos":["14","E1","25","G6","J1","31","34","K1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PC0","k":"PC0","rs":"","t":"I/O","io":"FT_a","pos":["15","F1","26","J1","M2","32","35","L2"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_CKIN0","GPIO_AF3_DFSDM1"],[6,"DFSDM1_DATIN4","GPIO_AF6_DFSDM1"],[8,"SAI2_FS_B","GPIO_AF8_SAI2"],[10,"OTG_HS_ULPI_STP","GPIO_AF10_OTG1_HS"],[12,"FMC_SDNWE","GPIO_AF12_FMC"],[14,"LCD_R5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC123_INP10"]},{"n":"PC1","k":"PC1","rs":"","t":"I/O","io":"FT_ha","pos":["16","F2","27","J2","M3","33","36","M2"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED0","GPIO_AF0_TRACE"],[2,"SAI1_D1","GPIO_AF2_SAI1"],[3,"DFSDM1_DATIN0","GPIO_AF3_DFSDM1"],[4,"DFSDM1_CKIN4","GPIO_AF4_DFSDM1"],[5,"SPI2_MOSI","GPIO_AF5_SPI2"],[5,"I2S2_SDO","GPIO_AF5_SPI2"],[6,"SAI1_SD_A","GPIO_AF6_SAI1"],[8,"SAI4_SD_A","GPIO_AF8_SAI4"],[9,"SDMMC2_CK","GPIO_AF9_SDMMC2"],[10,"SAI4_D1","GPIO_AF10_SAI4"],[11,"ETH_MDC","GPIO_AF11_ETH"],[12,"MDIOS_MDC","GPIO_AF12_MDIOS"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC123_INN10","ADC123_INP11","RTC_TAMP3/WKUP6"]},{"n":"PC2","k":"PC2","rs":"","t":"I/O","io":"FT_a","pos":["","","","","","","","M3"],"pn":["","","","","","","","3"],"nn":"","af":[[0,"C1DSLEEP",""],[3,"DFSDM1_CKIN1","GPIO_AF3_DFSDM1"],[5,"SPI2_MISO","GPIO_AF5_SPI2"],[5,"I2S2_SDI","GPIO_AF5_SPI2"],[6,"DFSDM1_CKOUT","GPIO_AF6_DFSDM1"],[10,"OTG_HS_ULPI_DIR","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_TXD2","GPIO_AF11_ETH"],[12,"FMC_SDNE0","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC123_INN11","ADC123_INP12"]},{"n":"PC2_C","k":"PC2_C","rs":"","t":"ANA","io":"TT_a","pos":["17","E2","28","K2","M4","34","37","R1"],"pn":["4","4","4","4","4","4","4","3"],"nn":"","af":[],"ad":["ADC3_INN1","ADC3_INP0"]},{"n":"PC3","k":"PC3","rs":"","t":"I/O","io":"FT_a","pos":["","","","","","","","M4"],"pn":["","","","","","","","3"],"nn":"","af":[[0,"C1SLEEP",""],[3,"DFSDM1_DATIN1","GPIO_AF3_DFSDM1"],[5,"SPI2_MOSI","GPIO_AF5_SPI2"],[5,"I2S2_SDO","GPIO_AF5_SPI2"],[10,"OTG_HS_ULPI_NXT","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_TX_CLK","GPIO_AF11_ETH"],[12,"FMC_SDCKE0","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INN12","ADC12_INP13"]},{"n":"PC3_C","k":"PC3_C","rs":"","t":"ANA","io":"TT_a","pos":["18","F3","29","K1","M5","35","38","R2"],"pn":["4","4","4","4","4","4","4","3"],"nn":"","af":[],"ad":["ADC3_INP1"]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","F5","30","","","36","39","E11"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","E6","","B3","J10","","","C13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSSA","k":"VSSA","rs":"","t":"S","io":"-","pos":["19","G1","31","J3","M1","37","40","P1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VREF-","k":"VREF-","rs":"","t":"S","io":"-","pos":["","","","","N1","","","N1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VREF+","k":"VREF+","rs":"","t":"S","io":"-","pos":["20","","32","L2","P1","38","41","M1"],"pn":["","5","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDDA","k":"VDDA","rs":"","t":"S","io":"-","pos":["21","H1","33","L1","R1","39","42","L1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PA0","k":"PA0","rs":"","t":"I/O","io":"FT_a","pos":["22","G2","34","J5","N3","40","43","N5"],"pn":["","","","","","","","3"],"nn":"","af":[[1,"TIM2_CH1","GPIO_AF1_TIM2"],[1,"TIM2_ETR","GPIO_AF1_TIM2"],[2,"TIM5_CH1","GPIO_AF2_TIM5"],[3,"TIM8_ETR","GPIO_AF3_TIM8"],[4,"TIM15_BKIN","GPIO_AF4_TIM15"],[7,"USART2_CTS","GPIO_AF7_USART2"],[7,"USART2_NSS","GPIO_AF7_USART2"],[8,"UART4_TX","GPIO_AF8_UART4"],[9,"SDMMC2_CMD","GPIO_AF9_SDMMC2"],[10,"SAI2_SD_B","GPIO_AF10_SAI2"],[11,"ETH_MII_CRS","GPIO_AF11_ETH"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC1_INP16","WKUP1"]},{"n":"PA0_C","k":"PA0_C","rs":"","t":"ANA","io":"TT_a","pos":["","","","","","","","T1"],"pn":["","","","","","","","3"],"nn":"","af":[],"ad":["ADC12_INN1","ADC12_INP0"]},{"n":"PA1","k":"PA1","rs":"","t":"I/O","io":"FT_ha","pos":["23","H2","35","K4","N2","41","44","N4"],"pn":["","","","","","","","3"],"nn":"","af":[[1,"TIM2_CH2","GPIO_AF1_TIM2"],[2,"TIM5_CH2","GPIO_AF2_TIM5"],[3,"LPTIM3_OUT","GPIO_AF3_LPTIM3"],[4,"TIM15_CH1N","GPIO_AF4_TIM15"],[7,"USART2_RTS","GPIO_AF7_USART2"],[7,"USART2_DE","GPIO_AF7_USART2"],[8,"UART4_RX","GPIO_AF8_UART4"],[9,"QUADSPI_BK1_IO3","GPIO_AF9_QUADSPI"],[10,"SAI2_MCLK_B","GPIO_AF10_SAI2"],[11,"ETH_MII_RX_CLK","GPIO_AF11_ETH"],[11,"ETH_RMII_REF_CLK","GPIO_AF11_ETH"],[14,"LCD_R2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC1_INN16","ADC1_INP17"]},{"n":"PA1_C","k":"PA1_C","rs":"","t":"ANA","io":"TT_a","pos":["","","","","","","","T2"],"pn":["","","","","","","","3"],"nn":"","af":[],"ad":["ADC12_INP1"]},{"n":"PA2","k":"PA2","rs":"","t":"I/O","io":"FT_a","pos":["24","J2","36","N1","P2","42","45","N3"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM2_CH3","GPIO_AF1_TIM2"],[2,"TIM5_CH3","GPIO_AF2_TIM5"],[3,"LPTIM4_OUT","GPIO_AF3_LPTIM4"],[4,"TIM15_CH1","GPIO_AF4_TIM15"],[7,"USART2_TX","GPIO_AF7_USART2"],[8,"SAI2_SCK_B","GPIO_AF8_SAI2"],[11,"ETH_MDIO","GPIO_AF11_ETH"],[12,"MDIOS_MDIO","GPIO_AF12_MDIOS"],[14,"LCD_R1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INP14","WKUP2"]},{"n":"PH2","k":"PH2","rs":"","t":"I/O","io":"FT_ha","pos":["","","","N2","F4","43","46","N2"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_IN2","GPIO_AF1_LPTIM1"],[9,"QUADSPI_BK2_IO0","GPIO_AF9_QUADSPI"],[10,"SAI2_SCK_B","GPIO_AF10_SAI2"],[11,"ETH_MII_CRS","GPIO_AF11_ETH"],[12,"FMC_SDCKE0","GPIO_AF12_FMC"],[14,"LCD_R0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INP13"]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","K1","","M1","","","","F5"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","J1","","M7","J8","","","C16"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PH3","k":"PH3","rs":"","t":"I/O","io":"FT_ha","pos":["","","","M3","G4","44","47","P2"],"pn":["","","","","","","",""],"nn":"","af":[[9,"QUADSPI_BK2_IO1","GPIO_AF9_QUADSPI"],[10,"SAI2_MCLK_B","GPIO_AF10_SAI2"],[11,"ETH_MII_COL","GPIO_AF11_ETH"],[12,"FMC_SDNE0","GPIO_AF12_FMC"],[14,"LCD_R1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN13","ADC3_INP14"]},{"n":"PH4","k":"PH4","rs":"","t":"I/O","io":"FT_fa","pos":["","","","K3","H4","45","48","P3"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C2_SCL","GPIO_AF4_I2C2"],[9,"LCD_G5","GPIO_AF9_LTDC"],[10,"OTG_HS_ULPI_NXT","GPIO_AF10_OTG1_HS"],[14,"LCD_G4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN14","ADC3_INP15"]},{"n":"PH5","k":"PH5","rs":"","t":"I/O","io":"FT_fa","pos":["","","","L3","J4","46","49","P4"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C2_SDA","GPIO_AF4_I2C2"],[5,"SPI5_NSS","GPIO_AF5_SPI5"],[12,"FMC_SDNWE","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC3_INN15","ADC3_INP16"]},{"n":"PA3","k":"PA3","rs":"","t":"I/O","io":"FT_ha","pos":["25","K2","37","N3","R2","47","50","U2"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM2_CH4","GPIO_AF1_TIM2"],[2,"TIM5_CH4","GPIO_AF2_TIM5"],[3,"LPTIM5_OUT","GPIO_AF3_LPTIM5"],[4,"TIM15_CH2","GPIO_AF4_TIM15"],[7,"USART2_RX","GPIO_AF7_USART2"],[9,"LCD_B2","GPIO_AF9_LTDC"],[10,"OTG_HS_ULPI_D0","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_COL","GPIO_AF11_ETH"],[14,"LCD_B5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INP15"]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["26","","38","G2","K6","","51",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","L4","48","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["27","","39","","K4","49","52","G5"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PA4","k":"PA4","rs":"","t":"I/O","io":"TT_a","pos":["28","G3","40","H6","N4","50","53","U3"],"pn":["","","","","","","",""],"nn":"","af":[[0,"D1PWREN",""],[2,"TIM5_ETR","GPIO_AF2_TIM5"],[5,"SPI1_NSS","GPIO_AF5_SPI1"],[5,"I2S1_WS","GPIO_AF5_SPI1"],[6,"SPI3_NSS","GPIO_AF6_SPI3"],[6,"I2S3_WS","GPIO_AF6_SPI3"],[7,"USART2_CK","GPIO_AF7_USART2"],[8,"SPI6_NSS","GPIO_AF8_SPI6"],[12,"OTG_HS_SOF","GPIO_AF12_OTG1_FS"],[13,"DCMI_HSYNC","GPIO_AF13_DCMI"],[14,"LCD_VSYNC","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INP18","DAC1_OUT1"]},{"n":"PA5","k":"PA5","rs":"","t":"I/O","io":"TT_ha","pos":["29","H3","41","L4","P4","51","54","T3"],"pn":["","","","","","","",""],"nn":"","af":[[0,"D2PWREN",""],[1,"TIM2_CH1","GPIO_AF1_TIM2"],[1,"TIM2_ETR","GPIO_AF1_TIM2"],[3,"TIM8_CH1N","GPIO_AF3_TIM8"],[5,"SPI1_SCK","GPIO_AF5_SPI1"],[5,"I2S1_CK","GPIO_AF5_SPI1"],[8,"SPI6_SCK","GPIO_AF8_SPI6"],[10,"OTG_HS_ULPI_CK","GPIO_AF10_OTG1_HS"],[14,"LCD_R4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INN18","ADC12_INP19","DAC1_OUT2"]},{"n":"PA6","k":"PA6","rs":"","t":"I/O","io":"FT_a","pos":["30","J3","42","K5","P3","52","55","R3"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_BKIN","GPIO_AF1_TIM1"],[2,"TIM3_CH1","GPIO_AF2_TIM3"],[3,"TIM8_BKIN","GPIO_AF3_TIM8"],[5,"SPI1_MISO","GPIO_AF5_SPI1"],[5,"I2S1_SDI","GPIO_AF5_SPI1"],[8,"SPI6_MISO","GPIO_AF8_SPI6"],[9,"TIM13_CH1","GPIO_AF9_TIM13"],[10,"TIM8_BKIN_COMP12",""],[11,"MDIOS_MDC","GPIO_AF11_MDIOS"],[12,"TIM1_BKIN_COMP12",""],[13,"DCMI_PIXCLK","GPIO_AF13_DCMI"],[14,"LCD_G2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INP3"]},{"n":"PA7","k":"PA7","rs":"","t":"I/O","io":"TT_a","pos":["31","K3","43","J6","R3","53","56","R5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH1N","GPIO_AF1_TIM1"],[2,"TIM3_CH2","GPIO_AF2_TIM3"],[3,"TIM8_CH1N","GPIO_AF3_TIM8"],[5,"SPI1_MOSI","GPIO_AF5_SPI1"],[5,"I2S1_SDO","GPIO_AF5_SPI1"],[8,"SPI6_MOSI","GPIO_AF8_SPI6"],[9,"TIM14_CH1","GPIO_AF9_TIM14"],[11,"ETH_MII_RX_DV","GPIO_AF11_ETH"],[11,"ETH_RMII_CRS_DV","GPIO_AF11_ETH"],[12,"FMC_SDNWE","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INN3","ADC12_INP7","OPAMP1_VINM"]},{"n":"PC4","k":"PC4","rs":"","t":"I/O","io":"TT_a","pos":["32","G4","44","K6","N5","54","57","T4"],"pn":["","","","","","","",""],"nn":"","af":[[0,"C2DSLEEP",""],[3,"DFSDM1_CKIN2","GPIO_AF3_DFSDM1"],[5,"I2S1_MCK","GPIO_AF5_SPI1"],[9,"SPDIFRX1_IN3","GPIO_AF9_SPDIF"],[11,"ETH_MII_RXD0","GPIO_AF11_ETH"],[11,"ETH_RMII_RXD0","GPIO_AF11_ETH"],[12,"FMC_SDNE0","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INP4","OPAMP1_VOUT","COMP1_INM"]},{"n":"PC5","k":"PC5","rs":"","t":"I/O","io":"TT_a","pos":["33","H4","45","N5","P5","55","58","U4"],"pn":["","","","","","","",""],"nn":"","af":[[0,"C2SLEEP",""],[2,"SAI1_D3","GPIO_AF2_SAI1"],[3,"DFSDM1_DATIN2","GPIO_AF3_DFSDM1"],[9,"SPDIFRX1_IN4","GPIO_AF9_SPDIF"],[10,"SAI4_D3","GPIO_AF10_SAI4"],[11,"ETH_MII_RXD1","GPIO_AF11_ETH"],[11,"ETH_RMII_RXD1","GPIO_AF11_ETH"],[12,"FMC_SDCKE0","GPIO_AF12_FMC"],[13,"COMP1_OUT","GPIO_AF13_COMP1"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INN4","ADC12_INP8","OPAMP1_VINM"]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","N4","","","59","G13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","H12","J9","","60","R4"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PB0","k":"PB0","rs":"","t":"I/O","io":"FT_a","pos":["34","J4","46","M5","R5","56","61","U5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2N","GPIO_AF1_TIM1"],[2,"TIM3_CH3","GPIO_AF2_TIM3"],[3,"TIM8_CH2N","GPIO_AF3_TIM8"],[6,"DFSDM1_CKOUT","GPIO_AF6_DFSDM1"],[8,"UART4_CTS","GPIO_AF8_UART4"],[9,"LCD_R3","GPIO_AF9_LTDC"],[10,"OTG_HS_ULPI_D1","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_RXD2","GPIO_AF11_ETH"],[14,"LCD_G1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INN5","ADC12_INP9","OPAMP1_VINP","COMP1_INP"]},{"n":"PB1","k":"PB1","rs":"","t":"I/O","io":"TT_a","pos":["35","K4","47","L5","R4","57","62","T5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH3N","GPIO_AF1_TIM1"],[2,"TIM3_CH4","GPIO_AF2_TIM3"],[3,"TIM8_CH3N","GPIO_AF3_TIM8"],[6,"DFSDM1_DATIN1","GPIO_AF6_DFSDM1"],[9,"LCD_R6","GPIO_AF9_LTDC"],[10,"OTG_HS_ULPI_D2","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_RXD3","GPIO_AF11_ETH"],[14,"LCD_G0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC12_INP5","COMP1_INM"]},{"n":"PB2","k":"PB2","rs":"","t":"I/O","io":"FT_ha","pos":["36","G5","48","L6","M6","58","63","R6"],"pn":["","","","","","","",""],"nn":"","af":[[0,"RTC_OUT","GPIO_AF0_RTC_50Hz"],[2,"SAI1_D1","GPIO_AF2_SAI1"],[4,"DFSDM1_CKIN1","GPIO_AF4_DFSDM1"],[6,"SAI1_SD_A","GPIO_AF6_SAI1"],[7,"SPI3_MOSI","GPIO_AF7_SPI3"],[7,"I2S3_SDO","GPIO_AF7_SPI3"],[8,"SAI4_SD_A","GPIO_AF8_SAI4"],[9,"QUADSPI_CLK","GPIO_AF9_QUADSPI"],[10,"SAI4_D1","GPIO_AF10_SAI4"],[11,"ETH_TX_ER","GPIO_AF11_ETH"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["COMP1_INP"]},{"n":"PI15","k":"PI15","rs":"","t":"I/O","io":"FT","pos":["","","","","","","64","P5"],"pn":["","","","","","","",""],"nn":"","af":[[9,"LCD_G2","GPIO_AF9_LTDC"],[14,"LCD_R0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ0","k":"PJ0","rs":"","t":"I/O","io":"FT","pos":["","","","J4","","","65","N6"],"pn":["","","","","","","",""],"nn":"","af":[[9,"LCD_R7","GPIO_AF9_LTDC"],[14,"LCD_R1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ1","k":"PJ1","rs":"","t":"I/O","io":"FT","pos":["","","","H5","","","66","P6"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_R2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ2","k":"PJ2","rs":"","t":"I/O","io":"FT","pos":["","","","","","","67","T6"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_R3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ3","k":"PJ3","rs":"","t":"I/O","io":"FT","pos":["","","","","","","68","U6"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_R4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ4","k":"PJ4","rs":"","t":"I/O","io":"FT","pos":["","","","","","","69","U7"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_R5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PF11","k":"PF11","rs":"","t":"I/O","io":"FT_a","pos":["","","49","M6","R6","59","70","T7"],"pn":["","","","","","","",""],"nn":"","af":[[5,"SPI5_MOSI","GPIO_AF5_SPI5"],[10,"SAI2_SD_B","GPIO_AF10_SAI2"],[12,"FMC_SDNRAS","GPIO_AF12_FMC"],[13,"DCMI_D12","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC1_INP2"]},{"n":"PF12","k":"PF12","rs":"","t":"I/O","io":"FT_ha","pos":["","","50","N6","P6","60","71","R7"],"pn":["","","","","","","",""],"nn":"","af":[[12,"FMC_A6","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC1_INN2","ADC1_INP6"]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","51","M11","M8","61","72","J3"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","52","","N8","62","73","H5"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PF13","k":"PF13","rs":"","t":"I/O","io":"FT_ha","pos":["","","53","G7","N6","63","74","P7"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_DATIN6","GPIO_AF3_DFSDM1"],[4,"I2C4_SMBA","GPIO_AF4_I2C4"],[12,"FMC_A7","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC2_INP2"]},{"n":"PF14","k":"PF14","rs":"","t":"I/O","io":"FT_fha","pos":["","","54","H7","R7","64","75","P8"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_CKIN6","GPIO_AF3_DFSDM1"],[4,"I2C4_SCL","GPIO_AF4_I2C4"],[12,"FMC_A8","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["ADC2_INN2","ADC2_INP6"]},{"n":"PF15","k":"PF15","rs":"","t":"I/O","io":"FT_fh","pos":["","","55","J7","P7","65","76","R9"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C4_SDA","GPIO_AF4_I2C4"],[12,"FMC_A9","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG0","k":"PG0","rs":"","t":"I/O","io":"FT_h","pos":["","","56","K7","N7","66","77","T8"],"pn":["","","","","","","",""],"nn":"","af":[[12,"FMC_A10","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","M2","F6","","","J16"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","A10","","","","H13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PG1","k":"PG1","rs":"","t":"I/O","io":"TT_h","pos":["","","57","L7","M7","67","78","U8"],"pn":["","","","","","","",""],"nn":"","af":[[12,"FMC_A11","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OPAMP2_VINM"]},{"n":"PE7","k":"PE7","rs":"","t":"I/O","io":"TT_ha","pos":["37","H5","58","G8","R8","68","79","U9"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_ETR","GPIO_AF1_TIM1"],[3,"DFSDM1_DATIN2","GPIO_AF3_DFSDM1"],[7,"UART7_RX","GPIO_AF7_UART7"],[10,"QUADSPI_BK2_IO0","GPIO_AF10_QUADSPI"],[12,"FMC_D4","GPIO_AF12_FMC"],[12,"FMC_DA4","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OPAMP2_VOUT","COMP2_INM"]},{"n":"PE8","k":"PE8","rs":"","t":"I/O","io":"TT_ha","pos":["38","J5","59","H8","P8","69","80","T9"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH1N","GPIO_AF1_TIM1"],[3,"DFSDM1_CKIN2","GPIO_AF3_DFSDM1"],[7,"UART7_TX","GPIO_AF7_UART7"],[10,"QUADSPI_BK2_IO1","GPIO_AF10_QUADSPI"],[12,"FMC_D5","GPIO_AF12_FMC"],[12,"FMC_DA5","GPIO_AF12_FMC"],[13,"COMP2_OUT","GPIO_AF13_COMP2"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OPAMP2_VINM"]},{"n":"PE9","k":"PE9","rs":"","t":"I/O","io":"TT_ha","pos":["39","K5","60","J8","P9","70","81","P9"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH1","GPIO_AF1_TIM1"],[3,"DFSDM1_CKOUT","GPIO_AF3_DFSDM1"],[7,"UART7_RTS","GPIO_AF7_UART7"],[7,"UART7_DE","GPIO_AF7_UART7"],[10,"QUADSPI_BK2_IO2","GPIO_AF10_QUADSPI"],[12,"FMC_D6","GPIO_AF12_FMC"],[12,"FMC_DA6","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OPAMP2_VINP","COMP2_INP"]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","61","C12","M9","71","82","J17"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","62","C13","N9","72","83","J13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PE10","k":"PE10","rs":"","t":"I/O","io":"FT_ha","pos":["40","G6","63","M8","R9","73","84","N9"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2N","GPIO_AF1_TIM1"],[3,"DFSDM1_DATIN4","GPIO_AF3_DFSDM1"],[7,"UART7_CTS","GPIO_AF7_UART7"],[10,"QUADSPI_BK2_IO3","GPIO_AF10_QUADSPI"],[12,"FMC_D7","GPIO_AF12_FMC"],[12,"FMC_DA7","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["COMP2_INM"]},{"n":"PE11","k":"PE11","rs":"","t":"I/O","io":"FT_ha","pos":["41","H6","64","N8","P10","74","85","P10"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2","GPIO_AF1_TIM1"],[3,"DFSDM1_CKIN4","GPIO_AF3_DFSDM1"],[5,"SPI4_NSS","GPIO_AF5_SPI4"],[10,"SAI2_SD_B","GPIO_AF10_SAI2"],[12,"FMC_D8","GPIO_AF12_FMC"],[12,"FMC_DA8","GPIO_AF12_FMC"],[14,"LCD_G3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["COMP2_INP"]},{"n":"PE12","k":"PE12","rs":"","t":"I/O","io":"FT_h","pos":["42","J6","65","L8","R10","75","86","R10"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH3N","GPIO_AF1_TIM1"],[3,"DFSDM1_DATIN5","GPIO_AF3_DFSDM1"],[5,"SPI4_SCK","GPIO_AF5_SPI4"],[10,"SAI2_SCK_B","GPIO_AF10_SAI2"],[12,"FMC_D9","GPIO_AF12_FMC"],[12,"FMC_DA9","GPIO_AF12_FMC"],[13,"COMP1_OUT","GPIO_AF13_COMP1"],[14,"LCD_B4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE13","k":"PE13","rs":"","t":"I/O","io":"FT_h","pos":["43","K6","66","K8","N11","76","87","T10"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH3","GPIO_AF1_TIM1"],[3,"DFSDM1_CKIN5","GPIO_AF3_DFSDM1"],[5,"SPI4_MISO","GPIO_AF5_SPI4"],[10,"SAI2_FS_B","GPIO_AF10_SAI2"],[12,"FMC_D10","GPIO_AF12_FMC"],[12,"FMC_DA10","GPIO_AF12_FMC"],[13,"COMP2_OUT","GPIO_AF13_COMP2"],[14,"LCD_DE","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","L12","F7","","","T12"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","H13","","","","K13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PE14","k":"PE14","rs":"","t":"I/O","io":"FT_h","pos":["44","G7","67","J9","P11","77","88","U10"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH4","GPIO_AF1_TIM1"],[5,"SPI4_MOSI","GPIO_AF5_SPI4"],[10,"SAI2_MCLK_B","GPIO_AF10_SAI2"],[12,"FMC_D11","GPIO_AF12_FMC"],[12,"FMC_DA11","GPIO_AF12_FMC"],[14,"LCD_CLK","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE15","k":"PE15","rs":"","t":"I/O","io":"FT_h","pos":["45","H7","68","N9","R11","78","89","R11"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_BKIN","GPIO_AF1_TIM1"],[12,"FMC_D12","GPIO_AF12_FMC"],[12,"FMC_DA12","GPIO_AF12_FMC"],[13,"TIM1_BKIN_COMP12",""],[13,"COMP_TIM1_BKIN","GPIO_AF13_TIM1"],[14,"LCD_R7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB10","k":"PB10","rs":"","t":"I/O","io":"FT_f","pos":["46","J7","69","L9","R12","79","90","P11"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM2_CH3","GPIO_AF1_TIM2"],[2,"HRTIM_SCOUT","GPIO_AF2_HRTIM1"],[3,"LPTIM2_IN1","GPIO_AF3_LPTIM2"],[4,"I2C2_SCL","GPIO_AF4_I2C2"],[5,"SPI2_SCK","GPIO_AF5_SPI2"],[5,"I2S2_CK","GPIO_AF5_SPI2"],[6,"DFSDM1_DATIN7","GPIO_AF6_DFSDM1"],[7,"USART3_TX","GPIO_AF7_USART3"],[9,"QUADSPI_BK1_NCS","GPIO_AF9_QUADSPI"],[10,"OTG_HS_ULPI_D3","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_RX_ER","GPIO_AF11_ETH"],[14,"LCD_G4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB11","k":"PB11","rs":"","t":"I/O","io":"FT_f","pos":["47","K7","70","M9","R13","80","91","P12"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM2_CH4","GPIO_AF1_TIM2"],[2,"HRTIM_SCIN","GPIO_AF2_HRTIM1"],[3,"LPTIM2_ETR","GPIO_AF3_LPTIM2"],[4,"I2C2_SDA","GPIO_AF4_I2C2"],[6,"DFSDM1_CKIN7","GPIO_AF6_DFSDM1"],[7,"USART3_RX","GPIO_AF7_USART3"],[10,"OTG_HS_ULPI_D4","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_TX_EN","GPIO_AF11_ETH"],[11,"ETH_RMII_TX_EN","GPIO_AF11_ETH"],[14,"LCD_G5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VCAP","k":"VCAP","rs":"","t":"S","io":"-","pos":["48","F8","71","N10","M10","81","92","U11"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["49","E4","","","K7","","93",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDDLDO","k":"VDDLDO","rs":"","t":"S","io":"-","pos":["","","","M10","","","","U12"],"pn":["","","","","","","",""],"nn":"6","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["50","","72","","N10","82","94","L13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PJ5","k":"PJ5","rs":"","t":"I/O","io":"FT","pos":["","","","","","","95","R12"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_R6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH6","k":"PH6","rs":"","t":"I/O","io":"FT","pos":["","","","","M11","83","96","T11"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM12_CH1","GPIO_AF2_TIM12"],[4,"I2C2_SMBA","GPIO_AF4_I2C2"],[5,"SPI5_SCK","GPIO_AF5_SPI5"],[11,"ETH_MII_RXD2","GPIO_AF11_ETH"],[12,"FMC_SDNE1","GPIO_AF12_FMC"],[13,"DCMI_D8","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH7","k":"PH7","rs":"","t":"I/O","io":"FT_fa","pos":["","","","","N12","84","97","U13"],"pn":["","","","","","","",""],"nn":"","af":[[4,"I2C3_SCL","GPIO_AF4_I2C3"],[5,"SPI5_MISO","GPIO_AF5_SPI5"],[11,"ETH_MII_RXD3","GPIO_AF11_ETH"],[12,"FMC_SDCKE1","GPIO_AF12_FMC"],[13,"DCMI_D9","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH8","k":"PH8","rs":"","t":"I/O","io":"FT_fha","pos":["","","","","M12","85","98","T13"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM5_ETR","GPIO_AF2_TIM5"],[4,"I2C3_SDA","GPIO_AF4_I2C3"],[12,"FMC_D16","GPIO_AF12_FMC"],[13,"DCMI_HSYNC","GPIO_AF13_DCMI"],[14,"LCD_R2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","F8","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","L13","","","","M13"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PH9","k":"PH9","rs":"","t":"I/O","io":"FT_h","pos":["","","","","M13","86","99","R13"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM12_CH2","GPIO_AF2_TIM12"],[4,"I2C3_SMBA","GPIO_AF4_I2C3"],[12,"FMC_D17","GPIO_AF12_FMC"],[13,"DCMI_D0","GPIO_AF13_DCMI"],[14,"LCD_R3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH10","k":"PH10","rs":"","t":"I/O","io":"FT_h","pos":["","","","K9","L13","87","100","P13"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM5_CH1","GPIO_AF2_TIM5"],[4,"I2C4_SMBA","GPIO_AF4_I2C4"],[12,"FMC_D18","GPIO_AF12_FMC"],[13,"DCMI_D1","GPIO_AF13_DCMI"],[14,"LCD_R4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH11","k":"PH11","rs":"","t":"I/O","io":"FT_fh","pos":["","","","L10","L12","88","101","P14"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM5_CH2","GPIO_AF2_TIM5"],[4,"I2C4_SCL","GPIO_AF4_I2C4"],[12,"FMC_D19","GPIO_AF12_FMC"],[13,"DCMI_D2","GPIO_AF13_DCMI"],[14,"LCD_R5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH12","k":"PH12","rs":"","t":"I/O","io":"FT_fh","pos":["","","","K10","K12","89","102","R14"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM5_CH3","GPIO_AF2_TIM5"],[4,"I2C4_SDA","GPIO_AF4_I2C4"],[12,"FMC_D20","GPIO_AF12_FMC"],[13,"DCMI_D3","GPIO_AF13_DCMI"],[14,"LCD_R6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","H12","90","","N16"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","N11","J12","91","103","P17"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PB12","k":"PB12","rs":"","t":"I/O","io":"FT_u","pos":["51","K8","73","N12","P12","92","104","T14"],"pn":["","","","","","","",""],"nn":"7","af":[[1,"TIM1_BKIN","GPIO_AF1_TIM1"],[4,"I2C2_SMBA","GPIO_AF4_I2C2"],[5,"SPI2_NSS","GPIO_AF5_SPI2"],[5,"I2S2_WS","GPIO_AF5_SPI2"],[6,"DFSDM1_DATIN1","GPIO_AF6_DFSDM1"],[7,"USART3_CK","GPIO_AF7_USART3"],[9,"FDCAN2_RX","GPIO_AF9_FDCAN2"],[10,"OTG_HS_ULPI_D5","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_TXD0","GPIO_AF11_ETH"],[11,"ETH_RMII_TXD0","GPIO_AF11_ETH"],[12,"OTG_HS_ID","GPIO_AF12_OTG1_FS"],[13,"TIM1_BKIN_COMP12",""],[14,"UART5_RX","GPIO_AF14_UART5"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB13","k":"PB13","rs":"","t":"I/O","io":"FT_u","pos":["52","J8","74","L11","P13","93","105","U14"],"pn":["","","","","","","",""],"nn":"7","af":[[1,"TIM1_CH1N","GPIO_AF1_TIM1"],[3,"LPTIM2_OUT","GPIO_AF3_LPTIM2"],[5,"SPI2_SCK","GPIO_AF5_SPI2"],[5,"I2S2_CK","GPIO_AF5_SPI2"],[6,"DFSDM1_CKIN1","GPIO_AF6_DFSDM1"],[7,"USART3_CTS","GPIO_AF7_USART3"],[7,"USART3_NSS","GPIO_AF7_USART3"],[9,"FDCAN2_TX","GPIO_AF9_FDCAN2"],[10,"OTG_HS_ULPI_D6","GPIO_AF10_OTG1_HS"],[11,"ETH_MII_TXD1","GPIO_AF11_ETH"],[11,"ETH_RMII_TXD1","GPIO_AF11_ETH"],[14,"UART5_TX","GPIO_AF14_UART5"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OTG_HS_VBUS"]},{"n":"PB14","k":"PB14","rs":"","t":"I/O","io":"FT_u","pos":["53","H10","75","N13","R14","94","106","U15"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2N","GPIO_AF1_TIM1"],[2,"TIM12_CH1","GPIO_AF2_TIM12"],[3,"TIM8_CH2N","GPIO_AF3_TIM8"],[4,"USART1_TX","GPIO_AF4_USART1"],[5,"SPI2_MISO","GPIO_AF5_SPI2"],[5,"I2S2_SDI","GPIO_AF5_SPI2"],[6,"DFSDM1_DATIN2","GPIO_AF6_DFSDM1"],[7,"USART3_RTS","GPIO_AF7_USART3"],[7,"USART3_DE","GPIO_AF7_USART3"],[8,"UART4_RTS","GPIO_AF8_UART4"],[8,"UART4_DE","GPIO_AF8_UART4"],[9,"SDMMC2_D0","GPIO_AF9_SDMMC2"],[12,"OTG_HS_DM","GPIO_AF12_OTG1_FS"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB15","k":"PB15","rs":"","t":"I/O","io":"FT_u","pos":["54","G10","76","M13","R15","95","107","T15"],"pn":["","","","","","","",""],"nn":"","af":[[0,"RTC_REFIN","GPIO_AF0_RTC_50Hz"],[1,"TIM1_CH3N","GPIO_AF1_TIM1"],[2,"TIM12_CH2","GPIO_AF2_TIM12"],[3,"TIM8_CH3N","GPIO_AF3_TIM8"],[4,"USART1_RX","GPIO_AF4_USART1"],[5,"SPI2_MOSI","GPIO_AF5_SPI2"],[5,"I2S2_SDO","GPIO_AF5_SPI2"],[6,"DFSDM1_CKIN2","GPIO_AF6_DFSDM1"],[8,"UART4_CTS","GPIO_AF8_UART4"],[9,"SDMMC2_D1","GPIO_AF9_SDMMC2"],[12,"OTG_HS_DP","GPIO_AF12_OTG1_FS"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD8","k":"PD8","rs":"","t":"I/O","io":"FT_h","pos":["55","K9","77","M12","P15","96","108","U16"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_CKIN3","GPIO_AF3_DFSDM1"],[6,"SAI3_SCK_B","GPIO_AF6_SAI3"],[7,"USART3_TX","GPIO_AF7_USART3"],[9,"SPDIFRX1_IN2","GPIO_AF9_SPDIF"],[12,"FMC_D13","GPIO_AF12_FMC"],[12,"FMC_DA13","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD9","k":"PD9","rs":"","t":"I/O","io":"FT_h","pos":["56","J9","78","K11","P14","97","109","T17"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_DATIN3","GPIO_AF3_DFSDM1"],[6,"SAI3_SD_B","GPIO_AF6_SAI3"],[7,"USART3_RX","GPIO_AF7_USART3"],[12,"FMC_D14","GPIO_AF12_FMC"],[12,"FMC_DA14","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD10","k":"PD10","rs":"","t":"I/O","io":"FT_h","pos":["57","H9","79","K12","N15","98","110","T16"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_CKOUT","GPIO_AF3_DFSDM1"],[6,"SAI3_FS_B","GPIO_AF6_SAI3"],[7,"USART3_CK","GPIO_AF7_USART3"],[12,"FMC_D15","GPIO_AF12_FMC"],[12,"FMC_DA15","GPIO_AF12_FMC"],[14,"LCD_B3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","N7","","","","N12"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","F9","","","U17"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PD11","k":"PD11","rs":"","t":"I/O","io":"FT_h","pos":["58","G9","80","J10","N14","99","111","R15"],"pn":["","","","","","","",""],"nn":"","af":[[3,"LPTIM2_IN2","GPIO_AF3_LPTIM2"],[4,"I2C4_SMBA","GPIO_AF4_I2C4"],[7,"USART3_CTS","GPIO_AF7_USART3"],[7,"USART3_NSS","GPIO_AF7_USART3"],[9,"QUADSPI_BK1_IO0","GPIO_AF9_QUADSPI"],[10,"SAI2_SD_A","GPIO_AF10_SAI2"],[12,"FMC_A16","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD12","k":"PD12","rs":"","t":"I/O","io":"FT_fh","pos":["59","K10","81","K13","N13","100","112","R16"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_IN1","GPIO_AF1_LPTIM1"],[2,"TIM4_CH1","GPIO_AF2_TIM4"],[3,"LPTIM2_IN1","GPIO_AF3_LPTIM2"],[4,"I2C4_SCL","GPIO_AF4_I2C4"],[7,"USART3_RTS","GPIO_AF7_USART3"],[7,"USART3_DE","GPIO_AF7_USART3"],[9,"QUADSPI_BK1_IO1","GPIO_AF9_QUADSPI"],[10,"SAI2_FS_A","GPIO_AF10_SAI2"],[12,"FMC_A17","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD13","k":"PD13","rs":"","t":"I/O","io":"FT_fh","pos":["60","J10","82","J11","M15","101","113","R17"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_OUT","GPIO_AF1_LPTIM1"],[2,"TIM4_CH2","GPIO_AF2_TIM4"],[4,"I2C4_SDA","GPIO_AF4_I2C4"],[9,"QUADSPI_BK1_IO3","GPIO_AF9_QUADSPI"],[10,"SAI2_SCK_A","GPIO_AF10_SAI2"],[12,"FMC_A18","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","83","","K8","102","114",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","84","","J13","103","115","N11"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PD14","k":"PD14","rs":"","t":"I/O","io":"FT_h","pos":["61","H8","85","J13","M14","104","116","P16"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM4_CH3","GPIO_AF2_TIM4"],[6,"SAI3_MCLK_B","GPIO_AF6_SAI3"],[8,"UART8_CTS","GPIO_AF8_UART8"],[12,"FMC_D0","GPIO_AF12_FMC"],[12,"FMC_DA0","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD15","k":"PD15","rs":"","t":"I/O","io":"FT_h","pos":["62","G8","86","J12","L14","105","117","P15"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM4_CH4","GPIO_AF2_TIM4"],[6,"SAI3_MCLK_A","GPIO_AF6_SAI3"],[8,"UART8_RTS","GPIO_AF8_UART8"],[8,"UART8_DE","GPIO_AF8_UART8"],[12,"FMC_D1","GPIO_AF12_FMC"],[12,"FMC_DA1","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ6","k":"PJ6","rs":"","t":"I/O","io":"FT","pos":["","","","","","","118","N15"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH2","GPIO_AF3_TIM8"],[14,"LCD_R7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ7","k":"PJ7","rs":"","t":"I/O","io":"FT","pos":["","","","","","","119","N14"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRGIN","GPIO_AF0_TRACE"],[3,"TIM8_CH2N","GPIO_AF3_TIM8"],[14,"LCD_G0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","","","","","N10"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","F10","","","R8"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PJ8","k":"PJ8","rs":"","t":"I/O","io":"FT","pos":["","","","","","","120","N13"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH3N","GPIO_AF1_TIM1"],[3,"TIM8_CH1","GPIO_AF3_TIM8"],[8,"UART8_TX","GPIO_AF8_UART8"],[14,"LCD_G1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ9","k":"PJ9","rs":"","t":"I/O","io":"FT","pos":["","","","","","","121","M14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH3","GPIO_AF1_TIM1"],[3,"TIM8_CH1N","GPIO_AF3_TIM8"],[8,"UART8_RX","GPIO_AF8_UART8"],[14,"LCD_G2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ10","k":"PJ10","rs":"","t":"I/O","io":"FT","pos":["","","","","","","122","L14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2N","GPIO_AF1_TIM1"],[3,"TIM8_CH2","GPIO_AF3_TIM8"],[5,"SPI5_MOSI","GPIO_AF5_SPI5"],[14,"LCD_G3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ11","k":"PJ11","rs":"","t":"I/O","io":"FT","pos":["","","","","","","123","K14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2","GPIO_AF1_TIM1"],[3,"TIM8_CH2N","GPIO_AF3_TIM8"],[5,"SPI5_MISO","GPIO_AF5_SPI5"],[14,"LCD_G4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","","","","124","N8"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","G6","","125","U1"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","N17"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","M16"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","M17"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","","","","K15"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","L16"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","L17"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","K16"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"NC","k":"NC","rs":"","t":"-","io":"-","pos":["","","","","","","","K17"],"pn":["","","","","","","","2"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","","","","L15"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PK0","k":"PK0","rs":"","t":"I/O","io":"FT","pos":["","","","","","","126","J14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH1N","GPIO_AF1_TIM1"],[3,"TIM8_CH3","GPIO_AF3_TIM8"],[5,"SPI5_SCK","GPIO_AF5_SPI5"],[14,"LCD_G5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PK1","k":"PK1","rs":"","t":"I/O","io":"FT","pos":["","","","","","","127","J15"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH1","GPIO_AF1_TIM1"],[3,"TIM8_CH3N","GPIO_AF3_TIM8"],[5,"SPI5_NSS","GPIO_AF5_SPI5"],[14,"LCD_G6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PK2","k":"PK2","rs":"","t":"I/O","io":"FT","pos":["","","","","","","128","H17"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_BKIN","GPIO_AF1_TIM1"],[3,"TIM8_BKIN","GPIO_AF3_TIM8"],[10,"TIM8_BKIN_COMP12",""],[11,"TIM1_BKIN_COMP12",""],[14,"LCD_G7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG2","k":"PG2","rs":"","t":"I/O","io":"FT_h","pos":["","","87","H9","L15","106","129","H16"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_BKIN","GPIO_AF3_TIM8"],[11,"TIM8_BKIN_COMP12",""],[12,"FMC_A12","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG3","k":"PG3","rs":"","t":"I/O","io":"FT_h","pos":["","","88","H10","K15","107","130","H15"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_BKIN2","GPIO_AF3_TIM8"],[11,"TIM8_BKIN2_COMP12",""],[12,"FMC_A13","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","G7","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","","","","","N7"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PG4","k":"PG4","rs":"","t":"I/O","io":"FT_h","pos":["","","89","F8","K14","108","131","H14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_BKIN2","GPIO_AF1_TIM1"],[11,"TIM1_BKIN2_COMP12",""],[12,"FMC_A14","GPIO_AF12_FMC"],[12,"FMC_BA0","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG5","k":"PG5","rs":"","t":"I/O","io":"FT_h","pos":["","","90","H11","K13","109","132","G14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_ETR","GPIO_AF1_TIM1"],[12,"FMC_A15","GPIO_AF12_FMC"],[12,"FMC_BA1","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG6","k":"PG6","rs":"","t":"I/O","io":"FT_h","pos":["","","91","G9","J15","110","133","G15"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM17_BKIN","GPIO_AF1_TIM17"],[2,"HRTIM_CHE1","GPIO_AF2_HRTIM1"],[10,"QUADSPI_BK1_NCS","GPIO_AF10_QUADSPI"],[12,"FMC_NE3","GPIO_AF12_FMC"],[13,"DCMI_D12","GPIO_AF13_DCMI"],[14,"LCD_R7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG7","k":"PG7","rs":"","t":"I/O","io":"FT_h","pos":["","","92","G10","J14","111","134","F16"],"pn":["","","","","","","",""],"nn":"","af":[[2,"HRTIM_CHE2","GPIO_AF2_HRTIM1"],[6,"SAI1_MCLK_A","GPIO_AF6_SAI1"],[7,"USART6_CK","GPIO_AF7_USART6"],[12,"FMC_INT","GPIO_AF12_FMC"],[13,"DCMI_D13","GPIO_AF13_DCMI"],[14,"LCD_CLK","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG8","k":"PG8","rs":"","t":"I/O","io":"FT_h","pos":["","","93","G11","H14","112","135","F15"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_ETR","GPIO_AF3_TIM8"],[5,"SPI6_NSS","GPIO_AF5_SPI6"],[7,"USART6_RTS","GPIO_AF7_USART6"],[7,"USART6_DE","GPIO_AF7_USART6"],[8,"SPDIFRX1_IN3","GPIO_AF8_SPDIF"],[11,"ETH_PPS_OUT","GPIO_AF11_ETH"],[12,"FMC_SDCLK","GPIO_AF12_FMC"],[14,"LCD_G7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","94","","G12","113","136","G16"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD50USB","k":"VDD50USB","rs":"","t":"S","io":"-","pos":["","","","G12","","","","G17"],"pn":["","","","","","","",""],"nn":"8","af":[],"ad":[]},{"n":"VDD33USB","k":"VDD33USB","rs":"","t":"S","io":"-","pos":["","F6","95","G13","H13","114","137","F17"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","","","","","M5"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PC6","k":"PC6","rs":"","t":"I/O","io":"FT_h","pos":["63","F10","96","F9","H15","115","138","F14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"HRTIM_CHA1","GPIO_AF1_HRTIM1"],[2,"TIM3_CH1","GPIO_AF2_TIM3"],[3,"TIM8_CH1","GPIO_AF3_TIM8"],[4,"DFSDM1_CKIN3","GPIO_AF4_DFSDM1"],[5,"I2S2_MCK","GPIO_AF5_SPI2"],[7,"USART6_TX","GPIO_AF7_USART6"],[8,"SDMMC1_D0DIR","GPIO_AF8_SDMMC1"],[9,"FMC_NWAIT","GPIO_AF9_FMC"],[10,"SDMMC2_D6","GPIO_AF10_SDMMC2"],[12,"SDMMC1_D6","GPIO_AF12_SDMMC1"],[13,"DCMI_D0","GPIO_AF13_DCMI"],[14,"LCD_HSYNC","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["SWPMI_IO"]},{"n":"PC7","k":"PC7","rs":"","t":"I/O","io":"FT_h","pos":["64","E10","97","F10","G15","116","139","F13"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRGIO","GPIO_AF0_TRACE"],[1,"HRTIM_CHA2","GPIO_AF1_HRTIM1"],[2,"TIM3_CH2","GPIO_AF2_TIM3"],[3,"TIM8_CH2","GPIO_AF3_TIM8"],[4,"DFSDM1_DATIN3","GPIO_AF4_DFSDM1"],[6,"I2S3_MCK","GPIO_AF6_SPI3"],[7,"USART6_RX","GPIO_AF7_USART6"],[8,"SDMMC1_D123DIR","GPIO_AF8_SDMMC1"],[9,"FMC_NE1","GPIO_AF9_FMC"],[10,"SDMMC2_D7","GPIO_AF10_SDMMC2"],[11,"SWPMI_TX",""],[12,"SDMMC1_D7","GPIO_AF12_SDMMC1"],[13,"DCMI_D1","GPIO_AF13_DCMI"],[14,"LCD_G6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PC8","k":"PC8","rs":"","t":"I/O","io":"FT_h","pos":["65","F9","98","F12","G14","117","140","E13"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED1","GPIO_AF0_TRACE"],[1,"HRTIM_CHB1","GPIO_AF1_HRTIM1"],[2,"TIM3_CH3","GPIO_AF2_TIM3"],[3,"TIM8_CH3","GPIO_AF3_TIM8"],[7,"USART6_CK","GPIO_AF7_USART6"],[8,"UART5_RTS","GPIO_AF8_UART5"],[8,"UART5_DE","GPIO_AF8_UART5"],[9,"FMC_NE2","GPIO_AF9_FMC"],[9,"FMC_NCE","GPIO_AF9_FMC"],[11,"SWPMI_RX",""],[12,"SDMMC1_D0","GPIO_AF12_SDMMC1"],[13,"DCMI_D2","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PC9","k":"PC9","rs":"","t":"I/O","io":"FT_fh","pos":["66","E9","99","F11","F14","118","141","E14"],"pn":["","","","","","","",""],"nn":"","af":[[0,"MCO2",""],[2,"TIM3_CH4","GPIO_AF2_TIM3"],[3,"TIM8_CH4","GPIO_AF3_TIM8"],[4,"I2C3_SDA","GPIO_AF4_I2C3"],[5,"I2S_CKIN","GPIO_AF5_SPI1"],[8,"UART5_CTS","GPIO_AF8_UART5"],[9,"QUADSPI_BK1_IO0","GPIO_AF9_QUADSPI"],[10,"LCD_G3","GPIO_AF10_LTDC"],[11,"SWPMI_SUSPEND",""],[12,"SDMMC1_D1","GPIO_AF12_SDMMC1"],[13,"DCMI_D3","GPIO_AF13_DCMI"],[14,"LCD_B2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","G8","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","","","","","L5"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PA8","k":"PA8","rs":"","t":"I/O","io":"FT_fha","pos":["67","D9","100","E12","F15","119","142","E15"],"pn":["","","","","","","",""],"nn":"","af":[[0,"MCO1",""],[1,"TIM1_CH1","GPIO_AF1_TIM1"],[2,"HRTIM_CHB2","GPIO_AF2_HRTIM1"],[3,"TIM8_BKIN2","GPIO_AF3_TIM8"],[4,"I2C3_SCL","GPIO_AF4_I2C3"],[7,"USART1_CK","GPIO_AF7_USART1"],[10,"OTG_FS_SOF","GPIO_AF10_OTG2_FS"],[11,"UART7_RX","GPIO_AF11_UART7"],[12,"TIM8_BKIN2_COMP12",""],[13,"LCD_B3","GPIO_AF13_LTDC"],[14,"LCD_R6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PA9","k":"PA9","rs":"","t":"I/O","io":"FT_u","pos":["68","C9","101","E11","E15","120","143","D15"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH2","GPIO_AF1_TIM1"],[2,"HRTIM_CHC1","GPIO_AF2_HRTIM1"],[3,"LPUART1_TX","GPIO_AF3_LPUART"],[4,"I2C3_SMBA","GPIO_AF4_I2C3"],[5,"SPI2_SCK","GPIO_AF5_SPI2"],[5,"I2S2_CK","GPIO_AF5_SPI2"],[7,"USART1_TX","GPIO_AF7_USART1"],[11,"ETH_TX_ER","GPIO_AF11_ETH"],[13,"DCMI_D0","GPIO_AF13_DCMI"],[14,"LCD_R5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["OTG_FS_VBUS"]},{"n":"PA10","k":"PA10","rs":"","t":"I/O","io":"FT_u","pos":["69","D10","102","E10","D15","121","144","D14"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH3","GPIO_AF1_TIM1"],[2,"HRTIM_CHC2","GPIO_AF2_HRTIM1"],[3,"LPUART1_RX","GPIO_AF3_LPUART"],[7,"USART1_RX","GPIO_AF7_USART1"],[10,"OTG_FS_ID","GPIO_AF10_OTG2_FS"],[11,"MDIOS_MDIO","GPIO_AF11_MDIOS"],[12,"LCD_B4","GPIO_AF12_LTDC"],[13,"DCMI_D1","GPIO_AF13_DCMI"],[14,"LCD_B1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PA11","k":"PA11","rs":"","t":"I/O","io":"FT_u","pos":["70","C10","103","F13","C15","122","145","E17"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_CH4","GPIO_AF1_TIM1"],[2,"HRTIM_CHD1","GPIO_AF2_HRTIM1"],[3,"LPUART1_CTS","GPIO_AF3_LPUART"],[5,"SPI2_NSS","GPIO_AF5_SPI2"],[5,"I2S2_WS","GPIO_AF5_SPI2"],[6,"UART4_RX","GPIO_AF6_UART4"],[7,"USART1_CTS","GPIO_AF7_USART1"],[7,"USART1_NSS","GPIO_AF7_USART1"],[9,"FDCAN1_RX","GPIO_AF9_FDCAN1"],[10,"OTG_FS_DM","GPIO_AF10_OTG2_FS"],[14,"LCD_R4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PA12","k":"PA12","rs":"","t":"I/O","io":"FT_u","pos":["71","B10","104","E13","B15","123","146","E16"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM1_ETR","GPIO_AF1_TIM1"],[2,"HRTIM_CHD2","GPIO_AF2_HRTIM1"],[3,"LPUART1_RTS","GPIO_AF3_LPUART"],[3,"LPUART1_DE","GPIO_AF3_LPUART"],[5,"SPI2_SCK","GPIO_AF5_SPI2"],[5,"I2S2_CK","GPIO_AF5_SPI2"],[6,"UART4_TX","GPIO_AF6_UART4"],[7,"USART1_RTS","GPIO_AF7_USART1"],[7,"USART1_DE","GPIO_AF7_USART1"],[8,"SAI2_FS_B","GPIO_AF8_SAI2"],[9,"FDCAN1_TX","GPIO_AF9_FDCAN1"],[10,"OTG_FS_DP","GPIO_AF10_OTG2_FS"],[14,"LCD_R5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PA13","k":"PA13","rs":"JTMS/SWDIO","t":"I/O","io":"FT","pos":["72","A10","105","D11","A15","124","147","C15"],"pn":["","","","","","","",""],"nn":"","af":[[0,"JTMS-SWDIO","GPIO_AF0_TRACE"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VCAP","k":"VCAP","rs":"","t":"S","io":"-","pos":["73","E7","106","D13","F13","125","148","D17"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["74","E5","107","","F12","126","149",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDDLDO","k":"VDDLDO","rs":"","t":"S","io":"-","pos":["","","","D12","","","","C17"],"pn":["","","","","","","",""],"nn":"6","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["75","","108","","G13","127","150","K5"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PH13","k":"PH13","rs":"","t":"I/O","io":"FT_h","pos":["","","","","E12","128","151","D16"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH1N","GPIO_AF3_TIM8"],[8,"UART4_TX","GPIO_AF8_UART4"],[9,"FDCAN1_TX","GPIO_AF9_FDCAN1"],[12,"FMC_D21","GPIO_AF12_FMC"],[14,"LCD_G2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH14","k":"PH14","rs":"","t":"I/O","io":"FT_h","pos":["","","","","E13","129","152","B17"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH2N","GPIO_AF3_TIM8"],[8,"UART4_RX","GPIO_AF8_UART4"],[9,"FDCAN1_RX","GPIO_AF9_FDCAN1"],[12,"FMC_D22","GPIO_AF12_FMC"],[13,"DCMI_D4","GPIO_AF13_DCMI"],[14,"LCD_G3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PH15","k":"PH15","rs":"","t":"I/O","io":"FT_h","pos":["","","","","D13","130","153","B16"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH3N","GPIO_AF3_TIM8"],[12,"FMC_D23","GPIO_AF12_FMC"],[13,"DCMI_D11","GPIO_AF13_DCMI"],[14,"LCD_G4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI0","k":"PI0","rs":"","t":"I/O","io":"FT_h","pos":["","","","A13","E14","131","154","A16"],"pn":["","","","","","","",""],"nn":"","af":[[2,"TIM5_CH4","GPIO_AF2_TIM5"],[5,"SPI2_NSS","GPIO_AF5_SPI2"],[5,"I2S2_WS","GPIO_AF5_SPI2"],[12,"FMC_D24","GPIO_AF12_FMC"],[13,"DCMI_D13","GPIO_AF13_DCMI"],[14,"LCD_G5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","G9","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PI1","k":"PI1","rs":"","t":"I/O","io":"FT_h","pos":["","","","B13","D14","132","155","A15"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_BKIN2","GPIO_AF3_TIM8"],[5,"SPI2_SCK","GPIO_AF5_SPI2"],[5,"I2S2_CK","GPIO_AF5_SPI2"],[11,"TIM8_BKIN2_COMP12",""],[12,"FMC_D25","GPIO_AF12_FMC"],[13,"DCMI_D8","GPIO_AF13_DCMI"],[14,"LCD_G6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI2","k":"PI2","rs":"","t":"I/O","io":"FT_h","pos":["","","","A6","C14","133","156","B15"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH4","GPIO_AF3_TIM8"],[5,"SPI2_MISO","GPIO_AF5_SPI2"],[5,"I2S2_SDI","GPIO_AF5_SPI2"],[12,"FMC_D26","GPIO_AF12_FMC"],[13,"DCMI_D9","GPIO_AF13_DCMI"],[14,"LCD_G7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI3","k":"PI3","rs":"","t":"I/O","io":"FT_h","pos":["","","","B7","C13","134","157","C14"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_ETR","GPIO_AF3_TIM8"],[5,"SPI2_MOSI","GPIO_AF5_SPI2"],[5,"I2S2_SDO","GPIO_AF5_SPI2"],[12,"FMC_D27","GPIO_AF12_FMC"],[13,"DCMI_D10","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","D9","135","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","","C9","136","158",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PA14","k":"PA14","rs":"JTCK/SWCLK","t":"I/O","io":"FT","pos":["76","A9","109","B12","A14","137","159","B14"],"pn":["","","","","","","",""],"nn":"","af":[[0,"JTCK-SWCLK","GPIO_AF0_TRACE"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PA15","k":"PA15","rs":"JTDI","t":"I/O","io":"FT","pos":["77","A8","110","C11","A13","138","160","A14"],"pn":["","","","","","","",""],"nn":"","af":[[0,"JTDI","GPIO_AF0_TRACE"],[1,"TIM2_CH1","GPIO_AF1_TIM2"],[1,"TIM2_ETR","GPIO_AF1_TIM2"],[2,"HRTIM_FLT1","GPIO_AF2_HRTIM1"],[4,"CEC","GPIO_AF4_CEC"],[5,"SPI1_NSS","GPIO_AF5_SPI1"],[5,"I2S1_WS","GPIO_AF5_SPI1"],[6,"SPI3_NSS","GPIO_AF6_SPI3"],[6,"I2S3_WS","GPIO_AF6_SPI3"],[7,"SPI6_NSS","GPIO_AF7_SPI6"],[8,"UART4_RTS","GPIO_AF8_UART4"],[8,"UART4_DE","GPIO_AF8_UART4"],[11,"UART7_TX","GPIO_AF11_UART7"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PC10","k":"PC10","rs":"","t":"I/O","io":"FT_ha","pos":["78","B9","111","A12","B14","139","161","A13"],"pn":["","","","","","","",""],"nn":"","af":[[2,"HRTIM_EEV1","GPIO_AF2_HRTIM1"],[3,"DFSDM1_CKIN5","GPIO_AF3_DFSDM1"],[6,"SPI3_SCK","GPIO_AF6_SPI3"],[6,"I2S3_CK","GPIO_AF6_SPI3"],[7,"USART3_TX","GPIO_AF7_USART3"],[8,"UART4_TX","GPIO_AF8_UART4"],[9,"QUADSPI_BK1_IO1","GPIO_AF9_QUADSPI"],[12,"SDMMC1_D2","GPIO_AF12_SDMMC1"],[13,"DCMI_D8","GPIO_AF13_DCMI"],[14,"LCD_R2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PC11","k":"PC11","rs":"","t":"I/O","io":"FT_h","pos":["79","B8","112","B11","B13","140","162","B13"],"pn":["","","","","","","",""],"nn":"","af":[[2,"HRTIM_FLT2","GPIO_AF2_HRTIM1"],[3,"DFSDM1_DATIN5","GPIO_AF3_DFSDM1"],[6,"SPI3_MISO","GPIO_AF6_SPI3"],[6,"I2S3_SDI","GPIO_AF6_SPI3"],[7,"USART3_RX","GPIO_AF7_USART3"],[8,"UART4_RX","GPIO_AF8_UART4"],[9,"QUADSPI_BK2_NCS","GPIO_AF9_QUADSPI"],[12,"SDMMC1_D3","GPIO_AF12_SDMMC1"],[13,"DCMI_D4","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PC12","k":"PC12","rs":"","t":"I/O","io":"FT_h","pos":["80","C8","113","A11","A12","141","163","C12"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED3","GPIO_AF0_TRACE"],[2,"HRTIM_EEV2","GPIO_AF2_HRTIM1"],[6,"SPI3_MOSI","GPIO_AF6_SPI3"],[6,"I2S3_SDO","GPIO_AF6_SPI3"],[7,"USART3_CK","GPIO_AF7_USART3"],[8,"UART5_TX","GPIO_AF8_UART5"],[12,"SDMMC1_CK","GPIO_AF12_SDMMC1"],[13,"DCMI_D9","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","G10","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PD0","k":"PD0","rs":"","t":"I/O","io":"FT_h","pos":["81","D8","114","D10","B12","142","164","D13"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_CKIN6","GPIO_AF3_DFSDM1"],[6,"SAI3_SCK_A","GPIO_AF6_SAI3"],[8,"UART4_RX","GPIO_AF8_UART4"],[9,"FDCAN1_RX","GPIO_AF9_FDCAN1"],[12,"FMC_D2","GPIO_AF12_FMC"],[12,"FMC_DA2","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD1","k":"PD1","rs":"","t":"I/O","io":"FT_h","pos":["82","E8","115","C10","C12","143","165","E12"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_DATIN6","GPIO_AF3_DFSDM1"],[6,"SAI3_SD_A","GPIO_AF6_SAI3"],[8,"UART4_TX","GPIO_AF8_UART4"],[9,"FDCAN1_TX","GPIO_AF9_FDCAN1"],[12,"FMC_D3","GPIO_AF12_FMC"],[12,"FMC_DA3","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD2","k":"PD2","rs":"","t":"I/O","io":"FT_h","pos":["83","B7","116","E9","D12","144","166","D12"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED2","GPIO_AF0_TRACE"],[2,"TIM3_ETR","GPIO_AF2_TIM3"],[8,"UART5_RX","GPIO_AF8_UART5"],[12,"SDMMC1_CMD","GPIO_AF12_SDMMC1"],[13,"DCMI_D11","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD3","k":"PD3","rs":"","t":"I/O","io":"FT_h","pos":["84","C7","117","D9","D11","145","167","B12"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_CKOUT","GPIO_AF3_DFSDM1"],[5,"SPI2_SCK","GPIO_AF5_SPI2"],[5,"I2S2_CK","GPIO_AF5_SPI2"],[7,"USART2_CTS","GPIO_AF7_USART2"],[7,"USART2_NSS","GPIO_AF7_USART2"],[12,"FMC_CLK","GPIO_AF12_FMC"],[13,"DCMI_D5","GPIO_AF13_DCMI"],[14,"LCD_G7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD4","k":"PD4","rs":"","t":"I/O","io":"FT_h","pos":["85","D7","118","C9","D10","146","168","A12"],"pn":["","","","","","","",""],"nn":"","af":[[2,"HRTIM_FLT3","GPIO_AF2_HRTIM1"],[6,"SAI3_FS_A","GPIO_AF6_SAI3"],[7,"USART2_RTS","GPIO_AF7_USART2"],[7,"USART2_DE","GPIO_AF7_USART2"],[12,"FMC_NOE","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD5","k":"PD5","rs":"","t":"I/O","io":"FT_h","pos":["86","B6","119","A9","C11","147","169","A11"],"pn":["","","","","","","",""],"nn":"","af":[[2,"HRTIM_EEV3","GPIO_AF2_HRTIM1"],[7,"USART2_TX","GPIO_AF7_USART2"],[12,"FMC_NWE","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","120","","D8","148","170",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","121","","C8","149","171",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PD6","k":"PD6","rs":"","t":"I/O","io":"FT_h","pos":["87","C6","122","B9","B11","150","172","B11"],"pn":["","","","","","","",""],"nn":"","af":[[2,"SAI1_D1","GPIO_AF2_SAI1"],[3,"DFSDM1_CKIN4","GPIO_AF3_DFSDM1"],[4,"DFSDM1_DATIN1","GPIO_AF4_DFSDM1"],[5,"SPI3_MOSI","GPIO_AF5_SPI3"],[5,"I2S3_SDO","GPIO_AF5_SPI3"],[6,"SAI1_SD_A","GPIO_AF6_SAI1"],[7,"USART2_RX","GPIO_AF7_USART2"],[8,"SAI4_SD_A","GPIO_AF8_SAI4"],[10,"SAI4_D1","GPIO_AF10_SAI4"],[11,"SDMMC2_CK","GPIO_AF11_SDMMC2"],[12,"FMC_NWAIT","GPIO_AF12_FMC"],[13,"DCMI_D10","GPIO_AF13_DCMI"],[14,"LCD_B2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PD7","k":"PD7","rs":"","t":"I/O","io":"FT_h","pos":["88","D6","123","D8","A11","151","173","C11"],"pn":["","","","","","","",""],"nn":"","af":[[3,"DFSDM1_DATIN4","GPIO_AF3_DFSDM1"],[5,"SPI1_MOSI","GPIO_AF5_SPI1"],[5,"I2S1_SDO","GPIO_AF5_SPI1"],[6,"DFSDM1_CKIN1","GPIO_AF6_DFSDM1"],[7,"USART2_CK","GPIO_AF7_USART2"],[9,"SPDIFRX1_IN1","GPIO_AF9_SPDIF"],[11,"SDMMC2_CMD","GPIO_AF11_SDMMC2"],[12,"FMC_NE1","GPIO_AF12_FMC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ12","k":"PJ12","rs":"","t":"I/O","io":"FT","pos":["","","","","","","174","D11"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRGOUT","GPIO_AF0_TRACE"],[9,"LCD_G3","GPIO_AF9_LTDC"],[14,"LCD_B0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ13","k":"PJ13","rs":"","t":"I/O","io":"FT","pos":["","","","","","","175","E10"],"pn":["","","","","","","",""],"nn":"","af":[[9,"LCD_B4","GPIO_AF9_LTDC"],[14,"LCD_B1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ14","k":"PJ14","rs":"","t":"I/O","io":"FT","pos":["","","","","","","176","D10"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_B2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PJ15","k":"PJ15","rs":"","t":"I/O","io":"FT","pos":["","","","","","","177","B10"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_B3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","H6","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","","A7","","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PG9","k":"PG9","rs":"","t":"I/O","io":"FT_h","pos":["","","124","C8","C10","152","178","A10"],"pn":["","","","","","","",""],"nn":"","af":[[5,"SPI1_MISO","GPIO_AF5_SPI1"],[5,"I2S1_SDI","GPIO_AF5_SPI1"],[7,"USART6_RX","GPIO_AF7_USART6"],[8,"SPDIFRX1_IN4","GPIO_AF8_SPDIF"],[9,"QUADSPI_BK2_IO2","GPIO_AF9_QUADSPI"],[10,"SAI2_FS_B","GPIO_AF10_SAI2"],[12,"FMC_NE2","GPIO_AF12_FMC"],[12,"FMC_NCE","GPIO_AF12_FMC"],[13,"DCMI_VSYNC","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG10","k":"PG10","rs":"","t":"I/O","io":"FT_h","pos":["","","125","A8","B10","153","179","A9"],"pn":["","","","","","","",""],"nn":"","af":[[2,"HRTIM_FLT5","GPIO_AF2_HRTIM1"],[5,"SPI1_NSS","GPIO_AF5_SPI1"],[5,"I2S1_WS","GPIO_AF5_SPI1"],[9,"LCD_G3","GPIO_AF9_LTDC"],[10,"SAI2_SD_B","GPIO_AF10_SAI2"],[12,"FMC_NE3","GPIO_AF12_FMC"],[13,"DCMI_D2","GPIO_AF13_DCMI"],[14,"LCD_B2","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG11","k":"PG11","rs":"","t":"I/O","io":"FT_h","pos":["","","126","B8","B9","154","180","B9"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_IN2","GPIO_AF1_LPTIM1"],[2,"HRTIM_EEV4","GPIO_AF2_HRTIM1"],[5,"SPI1_SCK","GPIO_AF5_SPI1"],[5,"I2S1_CK","GPIO_AF5_SPI1"],[8,"SPDIFRX1_IN1","GPIO_AF8_SPDIF"],[10,"SDMMC2_D2","GPIO_AF10_SDMMC2"],[11,"ETH_MII_TX_EN","GPIO_AF11_ETH"],[11,"ETH_RMII_TX_EN","GPIO_AF11_ETH"],[13,"DCMI_D3","GPIO_AF13_DCMI"],[14,"LCD_B3","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG12","k":"PG12","rs":"","t":"I/O","io":"FT_h","pos":["","","127","E8","B8","155","181","C9"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_IN1","GPIO_AF1_LPTIM1"],[2,"HRTIM_EEV5","GPIO_AF2_HRTIM1"],[5,"SPI6_MISO","GPIO_AF5_SPI6"],[7,"USART6_RTS","GPIO_AF7_USART6"],[7,"USART6_DE","GPIO_AF7_USART6"],[8,"SPDIFRX1_IN2","GPIO_AF8_SPDIF"],[9,"LCD_B4","GPIO_AF9_LTDC"],[11,"ETH_MII_TXD1","GPIO_AF11_ETH"],[11,"ETH_RMII_TXD1","GPIO_AF11_ETH"],[12,"FMC_NE4","GPIO_AF12_FMC"],[14,"LCD_B1","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG13","k":"PG13","rs":"","t":"I/O","io":"FT_h","pos":["","","128","D7","A8","156","182","D9"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED0","GPIO_AF0_TRACE"],[1,"LPTIM1_OUT","GPIO_AF1_LPTIM1"],[2,"HRTIM_EEV10","GPIO_AF2_HRTIM1"],[5,"SPI6_SCK","GPIO_AF5_SPI6"],[7,"USART6_CTS","GPIO_AF7_USART6"],[7,"USART6_NSS","GPIO_AF7_USART6"],[11,"ETH_MII_TXD0","GPIO_AF11_ETH"],[11,"ETH_RMII_TXD0","GPIO_AF11_ETH"],[12,"FMC_A24","GPIO_AF12_FMC"],[14,"LCD_R0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PG14","k":"PG14","rs":"","t":"I/O","io":"FT_h","pos":["","","129","C7","A7","157","183","D8"],"pn":["","","","","","","",""],"nn":"","af":[[0,"TRACED1","GPIO_AF0_TRACE"],[1,"LPTIM1_ETR","GPIO_AF1_LPTIM1"],[5,"SPI6_MOSI","GPIO_AF5_SPI6"],[7,"USART6_TX","GPIO_AF7_USART6"],[9,"QUADSPI_BK2_IO3","GPIO_AF9_QUADSPI"],[11,"ETH_MII_TXD1","GPIO_AF11_ETH"],[11,"ETH_RMII_TXD1","GPIO_AF11_ETH"],[12,"FMC_A25","GPIO_AF12_FMC"],[14,"LCD_B0","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","130","","D7","158","184",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["","","131","","C7","159","185",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PK3","k":"PK3","rs":"","t":"I/O","io":"FT","pos":["","","","","","","186","C8"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_B4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PK4","k":"PK4","rs":"","t":"I/O","io":"FT","pos":["","","","","","","187","B8"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_B5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PK5","k":"PK5","rs":"","t":"I/O","io":"FT","pos":["","","","","","","188","A8"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_B6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PK6","k":"PK6","rs":"","t":"I/O","io":"FT","pos":["","","","","","","189","C7"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_B7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PK7","k":"PK7","rs":"","t":"I/O","io":"FT","pos":["","","","","","","190","D7"],"pn":["","","","","","","",""],"nn":"","af":[[14,"LCD_DE","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","H7","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PG15","k":"PG15","rs":"","t":"I/O","io":"FT_h","pos":["","","132","E7","B7","160","191","D6"],"pn":["","","","","","","",""],"nn":"","af":[[7,"USART6_CTS","GPIO_AF7_USART6"],[7,"USART6_NSS","GPIO_AF7_USART6"],[12,"FMC_SDNCAS","GPIO_AF12_FMC"],[13,"DCMI_D13","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB3","k":"PB3","rs":"JTDO/TRACESWO","t":"I/O","io":"FT","pos":["89","A7","133","F7","A10","161","192","C6"],"pn":["","","","","","","",""],"nn":"","af":[[0,"JTDO","GPIO_AF0_TRACE"],[0,"TRACESWO",""],[1,"TIM2_CH2","GPIO_AF1_TIM2"],[2,"HRTIM_FLT4","GPIO_AF2_HRTIM1"],[5,"SPI1_SCK","GPIO_AF5_SPI1"],[5,"I2S1_CK","GPIO_AF5_SPI1"],[6,"SPI3_SCK","GPIO_AF6_SPI3"],[6,"I2S3_CK","GPIO_AF6_SPI3"],[8,"SPI6_SCK","GPIO_AF8_SPI6"],[9,"SDMMC2_D2","GPIO_AF9_SDMMC2"],[10,"CRS_SYNC","GPIO_AF10_CRS_SYNC"],[11,"UART7_RX","GPIO_AF11_UART7"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB4","k":"PB4","rs":"NJTRST","t":"I/O","io":"FT","pos":["90","A6","134","B6","A9","162","193","B7"],"pn":["","","","","","","",""],"nn":"","af":[[0,"NJTRST",""],[1,"TIM16_BKIN","GPIO_AF1_TIM16"],[2,"TIM3_CH1","GPIO_AF2_TIM3"],[3,"HRTIM_EEV6","GPIO_AF3_HRTIM1"],[5,"SPI1_MISO","GPIO_AF5_SPI1"],[5,"I2S1_SDI","GPIO_AF5_SPI1"],[6,"SPI3_MISO","GPIO_AF6_SPI3"],[6,"I2S3_SDI","GPIO_AF6_SPI3"],[7,"SPI2_NSS","GPIO_AF7_SPI2"],[7,"I2S2_WS","GPIO_AF7_SPI2"],[8,"SPI6_MISO","GPIO_AF8_SPI6"],[9,"SDMMC2_D3","GPIO_AF9_SDMMC2"],[11,"UART7_TX","GPIO_AF11_UART7"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB5","k":"PB5","rs":"","t":"I/O","io":"FT","pos":["91","C5","135","C6","A6","163","194","A5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM17_BKIN","GPIO_AF1_TIM17"],[2,"TIM3_CH2","GPIO_AF2_TIM3"],[3,"HRTIM_EEV7","GPIO_AF3_HRTIM1"],[4,"I2C1_SMBA","GPIO_AF4_I2C1"],[5,"SPI1_MOSI","GPIO_AF5_SPI1"],[5,"I2S1_SDO","GPIO_AF5_SPI1"],[6,"I2C4_SMBA","GPIO_AF6_I2C4"],[7,"SPI3_MOSI","GPIO_AF7_SPI3"],[7,"I2S3_SDO","GPIO_AF7_SPI3"],[8,"SPI6_MOSI","GPIO_AF8_SPI6"],[9,"FDCAN2_RX","GPIO_AF9_FDCAN2"],[10,"OTG_HS_ULPI_D7","GPIO_AF10_OTG1_HS"],[11,"ETH_PPS_OUT","GPIO_AF11_ETH"],[12,"FMC_SDCKE1","GPIO_AF12_FMC"],[13,"DCMI_D10","GPIO_AF13_DCMI"],[14,"UART5_RX","GPIO_AF14_UART5"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","H8","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PB6","k":"PB6","rs":"","t":"I/O","io":"FT_f","pos":["92","B5","136","A5","B6","164","195","B5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM16_CH1N","GPIO_AF1_TIM16"],[2,"TIM4_CH1","GPIO_AF2_TIM4"],[3,"HRTIM_EEV8","GPIO_AF3_HRTIM1"],[4,"I2C1_SCL","GPIO_AF4_I2C1"],[5,"CEC","GPIO_AF5_CEC"],[6,"I2C4_SCL","GPIO_AF6_I2C4"],[7,"USART1_TX","GPIO_AF7_USART1"],[8,"LPUART1_TX","GPIO_AF8_LPUART"],[9,"FDCAN2_TX","GPIO_AF9_FDCAN2"],[10,"QUADSPI_BK1_NCS","GPIO_AF10_QUADSPI"],[11,"DFSDM1_DATIN5","GPIO_AF11_DFSDM1"],[12,"FMC_SDNE1","GPIO_AF12_FMC"],[13,"DCMI_D5","GPIO_AF13_DCMI"],[14,"UART5_TX","GPIO_AF14_UART5"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB7","k":"PB7","rs":"","t":"I/O","io":"FT_fa","pos":["93","A5","137","D6","B5","165","196","C5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM17_CH1N","GPIO_AF1_TIM17"],[2,"TIM4_CH2","GPIO_AF2_TIM4"],[3,"HRTIM_EEV9","GPIO_AF3_HRTIM1"],[4,"I2C1_SDA","GPIO_AF4_I2C1"],[6,"I2C4_SDA","GPIO_AF6_I2C4"],[7,"USART1_RX","GPIO_AF7_USART1"],[8,"LPUART1_RX","GPIO_AF8_LPUART"],[11,"DFSDM1_CKIN5","GPIO_AF11_DFSDM1"],[12,"FMC_NL","GPIO_AF12_FMC"],[13,"DCMI_VSYNC","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":["PVD_IN"]},{"n":"BOOT0","k":"BOOT0","rs":"","t":"I","io":"B","pos":["94","D5","138","E6","D6","166","197","E8"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":["VPP"]},{"n":"PB8","k":"PB8","rs":"","t":"I/O","io":"FT_fh","pos":["95","B4","139","B5","A5","167","198","D5"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM16_CH1","GPIO_AF1_TIM16"],[2,"TIM4_CH3","GPIO_AF2_TIM4"],[3,"DFSDM1_CKIN7","GPIO_AF3_DFSDM1"],[4,"I2C1_SCL","GPIO_AF4_I2C1"],[6,"I2C4_SCL","GPIO_AF6_I2C4"],[7,"SDMMC1_CKIN","GPIO_AF7_SDMMC1"],[8,"UART4_RX","GPIO_AF8_UART4"],[9,"FDCAN1_RX","GPIO_AF9_FDCAN1"],[10,"SDMMC2_D4","GPIO_AF10_SDMMC2"],[11,"ETH_MII_TXD3","GPIO_AF11_ETH"],[12,"SDMMC1_D4","GPIO_AF12_SDMMC1"],[13,"DCMI_D6","GPIO_AF13_DCMI"],[14,"LCD_B6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PB9","k":"PB9","rs":"","t":"I/O","io":"FT_fh","pos":["96","A4","140","C5","B4","168","199","D4"],"pn":["","","","","","","",""],"nn":"","af":[[1,"TIM17_CH1","GPIO_AF1_TIM17"],[2,"TIM4_CH4","GPIO_AF2_TIM4"],[3,"DFSDM1_DATIN7","GPIO_AF3_DFSDM1"],[4,"I2C1_SDA","GPIO_AF4_I2C1"],[5,"SPI2_NSS","GPIO_AF5_SPI2"],[5,"I2S2_WS","GPIO_AF5_SPI2"],[6,"I2C4_SDA","GPIO_AF6_I2C4"],[7,"SDMMC1_CDIR","GPIO_AF7_SDMMC1"],[8,"UART4_TX","GPIO_AF8_UART4"],[9,"FDCAN1_TX","GPIO_AF9_FDCAN1"],[10,"SDMMC2_D5","GPIO_AF10_SDMMC2"],[11,"I2C4_SMBA","GPIO_AF11_I2C4"],[12,"SDMMC1_D5","GPIO_AF12_SDMMC1"],[13,"DCMI_D7","GPIO_AF13_DCMI"],[14,"LCD_B7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE0","k":"PE0","rs":"","t":"I/O","io":"FT_h","pos":["97","D4","141","D5","A4","169","200","C4"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_ETR","GPIO_AF1_LPTIM1"],[2,"TIM4_ETR","GPIO_AF2_TIM4"],[3,"HRTIM_SCIN","GPIO_AF3_HRTIM1"],[4,"LPTIM2_ETR","GPIO_AF4_LPTIM2"],[8,"UART8_RX","GPIO_AF8_UART8"],[10,"SAI2_MCLK_A","GPIO_AF10_SAI2"],[12,"FMC_NBL0","GPIO_AF12_FMC"],[13,"DCMI_D2","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PE1","k":"PE1","rs":"","t":"I/O","io":"FT_h","pos":["98","C4","142","D4","A3","170","201","B4"],"pn":["","","","","","","",""],"nn":"","af":[[1,"LPTIM1_IN2","GPIO_AF1_LPTIM1"],[3,"HRTIM_SCOUT","GPIO_AF3_HRTIM1"],[8,"UART8_TX","GPIO_AF8_UART8"],[12,"FMC_NBL1","GPIO_AF12_FMC"],[13,"DCMI_D3","GPIO_AF13_DCMI"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VCAP","k":"VCAP","rs":"","t":"S","io":"-","pos":["","","","","","","","A7"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["99","","","","D5","","202",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PDR_ON","k":"PDR_ON","rs":"","t":"I","io":"FT","pos":["","F7","143","C4","C6","171","203","E7"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VDDLDO","k":"VDDLDO","rs":"","t":"S","io":"-","pos":["","F4","","B4","","","","A6"],"pn":["","","","","","","",""],"nn":"6","af":[],"ad":[]},{"n":"VDD","k":"VDD","rs":"","t":"S","io":"-","pos":["100","","144","","C5","172","204",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"PI4","k":"PI4","rs":"","t":"I/O","io":"FT_h","pos":["","","","","D4","173","205","A4"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_BKIN","GPIO_AF3_TIM8"],[10,"SAI2_MCLK_A","GPIO_AF10_SAI2"],[11,"TIM8_BKIN_COMP12",""],[12,"FMC_NBL2","GPIO_AF12_FMC"],[13,"DCMI_D5","GPIO_AF13_DCMI"],[14,"LCD_B4","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI5","k":"PI5","rs":"","t":"I/O","io":"FT_h","pos":["","","","","C4","174","206","A3"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH1","GPIO_AF3_TIM8"],[10,"SAI2_SCK_A","GPIO_AF10_SAI2"],[12,"FMC_NBL3","GPIO_AF12_FMC"],[13,"DCMI_VSYNC","GPIO_AF13_DCMI"],[14,"LCD_B5","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI6","k":"PI6","rs":"","t":"I/O","io":"FT_h","pos":["","","","A4","C3","175","207","A2"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH2","GPIO_AF3_TIM8"],[10,"SAI2_SD_A","GPIO_AF10_SAI2"],[12,"FMC_D28","GPIO_AF12_FMC"],[13,"DCMI_D6","GPIO_AF13_DCMI"],[14,"LCD_B6","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"PI7","k":"PI7","rs":"","t":"I/O","io":"FT_h","pos":["","","","E2","C2","176","208","B3"],"pn":["","","","","","","",""],"nn":"","af":[[3,"TIM8_CH3","GPIO_AF3_TIM8"],[10,"SAI2_FS_A","GPIO_AF10_SAI2"],[12,"FMC_D29","GPIO_AF12_FMC"],[13,"DCMI_D7","GPIO_AF13_DCMI"],[14,"LCD_B7","GPIO_AF14_LTDC"],[15,"EVENTOUT","GPIO_AF15_EVENTOUT"]],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","H9","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","K9","","",""],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"-","pos":["","","","","K10","","","M15"],"pn":["","","","","","","",""],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","G7"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","G8"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","G9"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","G10"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","G11"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","H7"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","H8"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","H9"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","H10"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","H11"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","J7"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","J8"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","J9"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","J10"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","J11"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","K7"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","K8"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","K9"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","K10"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","K11"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","L7"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","L8"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","L9"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","L10"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]},{"n":"VSS","k":"VSS","rs":"","t":"S","io":"","pos":["","","","","","","","L11"],"pn":["","","","","","","","C"],"nn":"","af":[],"ad":[]}];
+
+var PKS = [
+  {i:0, id:"LQFP100",     dim:"14 × 14 mm", pins:100, sfx:"V"},
+  {i:1, id:"TFBGA100",    dim:"8 × 8 mm",   pins:100, sfx:"V", bga:true},
+  {i:2, id:"LQFP144",     dim:"20 × 20 mm", pins:144, sfx:"Z"},
+  {i:3, id:"UFBGA169",    dim:"7 × 7 mm",   pins:169, sfx:"A", bga:true},
+  {i:5, id:"LQFP176",     dim:"24 × 24 mm", pins:176, sfx:"I"},
+  {i:4, id:"UFBGA176+25", dim:"10 × 10 mm", pins:201, sfx:"I", bga:true},
+  {i:6, id:"LQFP208",     dim:"28 × 28 mm", pins:208, sfx:"B"},
+  {i:7, id:"TFBGA240+25", dim:"14 × 14 mm", pins:265, sfx:"X", bga:true}
+];
+/* package code letter -> ordering code in the ST part number */
+var PKCODE = {"LQFP100":"T6","TFBGA100":"H6","LQFP144":"T6","UFBGA169":"I6","LQFP176":"T6","UFBGA176+25":"K6","LQFP208":"T6","TFBGA240+25":"H6"};
+
+var DEVS = [
+  {id:"H742", name:"STM32H742", line:"STM32H742xI/G", doc:"DS12110",
+   flash:"1 MB or 2 MB", ram:"692 KB", sram:"AXI 384 KB · SRAM1 32 KB · SRAM2 16 KB · SRAM4 64 KB",
+   mhz:"480 MHz", pkgs:[0,1,2,3,4,5,6,7], noLcd:true, crypto:false,
+   note:"Same pinout as the STM32H743, without the LCD-TFT controller and the JPEG codec. Memory sizes are smaller: no SRAM3, and a reduced AXI SRAM.",
+   suffix:{I:"I",G:"G"}},
+  {id:"H743", name:"STM32H743", line:"STM32H743xI/G", doc:"DS12110",
+   flash:"1 MB or 2 MB", ram:"1 MB", sram:"AXI 512 KB · SRAM1/2 128 KB each · SRAM3 32 KB · SRAM4 64 KB",
+   mhz:"480 MHz", pkgs:[0,1,2,3,4,5,6,7], noLcd:false, crypto:false,
+   note:"The reference device of the single-core high-performance line, with LCD-TFT, Chrom-ART and a hardware JPEG codec.",
+   suffix:{I:"I",G:"G"}},
+  {id:"H750", name:"STM32H750", line:"STM32H750xB", doc:"DS12556",
+   flash:"128 KB", ram:"1 MB", sram:"AXI 512 KB · SRAM1/2 128 KB each · SRAM3 32 KB · SRAM4 64 KB",
+   mhz:"480 MHz", pkgs:[0,2,4,5,7], noLcd:false, crypto:true,
+   note:"Value line: the same silicon and pinout with 128 KB of flash, intended to run code from external QUADSPI or FMC memory. Offered in five packages only.",
+   suffix:{B:"B"}},
+  {id:"H753", name:"STM32H753", line:"STM32H753xI", doc:"DS12117",
+   flash:"2 MB", ram:"1 MB", sram:"AXI 512 KB · SRAM1/2 128 KB each · SRAM3 32 KB · SRAM4 64 KB",
+   mhz:"480 MHz", pkgs:[0,1,2,3,4,5,6,7], noLcd:false, crypto:true,
+   note:"Identical pinout and alternate functions to the STM32H743, with added cryptographic hardware (AES, HASH, HMAC) and secure firmware install.",
+   suffix:{I:"I"}}
+];
+
+var NOTES = {
+  "1":"If the pin was configured as an oscillator, the oscillator function is kept during and after reset (all resets except power-on reset).",
+  "2":"This ball must be left floating.",
+  "3":"Pxy_C and Pxy are two separate pads (analog switch open). The switch is configured through a SYSCFG register (see RM0433).",
+  "4":"Pxy_C connects to Pxy through an analog switch. Pxy alternate functions are available on Pxy_C when the switch is closed (SYSCFG register, see RM0433).",
+  "5":"VREF+ and the internal reference are not available on TFBGA100; this pin is double-bonded to VDDA. Keep the internal reference buffer disabled.",
+  "6":"Where VDDLDO is not available on a package, it is tied internally to VDD.",
+  "7":"In USB configuration (OTG_HS_ID / OTG_HS_VBUS) this I/O is supplied by VDD33USB, otherwise by VDD.",
+  "8":"Where VDD50USB is not available on a package, it is tied internally to VDD33USB.",
+  "C":"Centre ground ball of the +25 array. Not listed in datasheet Table 9; taken from ST's STM32CubeMX pin database."
+};
+
+var GROUPS = ["GPIO","TIMER","UART","SPI","I2C","SAI","CAN","USB","ETH","FMC","QSPI","SDMMC",
+              "LCD","DCMI","DFSDM","ADC","ANALOG","DEBUG","SYS","OTHER","PWR"];
+var LABEL = {GPIO:"GPIO",TIMER:"Timer",UART:"U(S)ART",SPI:"SPI/I2S",I2C:"I2C",SAI:"SAI",CAN:"FDCAN",
+  USB:"USB OTG",ETH:"Ethernet",FMC:"FMC",QSPI:"QUADSPI",SDMMC:"SDMMC",LCD:"LCD-TFT",DCMI:"DCMI",
+  DFSDM:"DFSDM",ADC:"ADC",ANALOG:"DAC/COMP/OPAMP",DEBUG:"Debug",SYS:"System",OTHER:"Other",PWR:"Power"};
+var HUE = {GPIO:215,TIMER:24,UART:38,SPI:272,I2C:226,SAI:300,CAN:0,USB:192,ETH:162,FMC:48,QSPI:330,
+  SDMMC:132,LCD:204,DCMI:252,DFSDM:96,ADC:150,ANALOG:174,DEBUG:58,SYS:316,OTHER:210,PWR:345};
+var GRULES = [
+  [/^SWPMI/,"OTHER"],[/^(SPDIFRX|CEC)/,"OTHER"],
+  [/^(TIM\d|HRTIM|LPTIM)/,"TIMER"],[/^(USART|UART|LPUART)/,"UART"],[/^(SPI|I2S)/,"SPI"],
+  [/^I2C/,"I2C"],[/^SAI/,"SAI"],[/^FDCAN/,"CAN"],[/^OTG/,"USB"],[/^(ETH|MDIOS)/,"ETH"],
+  [/^FMC/,"FMC"],[/^QUADSPI/,"QSPI"],[/^SDMMC/,"SDMMC"],[/^LCD/,"LCD"],[/^DCMI/,"DCMI"],
+  [/^DFSDM/,"DFSDM"],[/^ADC/,"ADC"],[/^(DAC|OPAMP|COMP)/,"ANALOG"],
+  [/^(TRACE|JT|NJTRST|TRGIN|TRGOUT|TRGIO)/,"DEBUG"],
+  [/^(MCO|OSC|RTC|WKUP|PVD|C\dD?SLEEP|D\dPWREN|CRS|VPP)/,"SYS"]
+];
+function groupOfFn(fn){
+  for(var i=0;i<GRULES.length;i++) if(GRULES[i][0].test(fn)) return GRULES[i][1];
+  return "OTHER";
+}
+
+/* ======================= STATE ======================= */
+var DEV = DEVS[1], PK = PKS[2], PINS = [];
+var filter = "ALL", sortKey = "pos", sortAsc = true, pfmt = "csv";
+var colorMode = "type", dgGroup = "ADC", showLabels = true, zoom = 1, dgQuery = "", curPin = null;
+var sel = {};
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function rowByKey(k){ for(var i=0;i<R.length;i++) if(R[i].k===k) return R[i]; return null; }
+function toast(msg, isErr){
+  var t = document.createElement("div");
+  t.className = "toast" + (isErr ? " err" : "");
+  t.textContent = msg;
+  $("toasts").appendChild(t);
+  while($("toasts").children.length > 3) $("toasts").firstChild.remove();
+  setTimeout(function(){ t.style.transition="opacity .3s"; t.style.opacity="0";
+    setTimeout(function(){ if(t.parentNode) t.remove(); }, 320); }, 2600);
+}
+function partNumber(dev, pk){
+  var mem = Object.keys(dev.suffix)[0];
+  return dev.name + pk.sfx + mem + PKCODE[pk.id];
+}
+
+/* ======================= PIN MODEL ======================= */
+function devAf(r){
+  if(!DEV.noLcd) return r.af;
+  return r.af.filter(function(a){ return a[1].indexOf("LCD_") !== 0; });
+}
+function buildPins(){
+  var out = [];
+  R.forEach(function(r){
+    var pos = r.pos[PK.i];
+    if(!pos) return;
+    var notes = [];
+    if(r.nn) notes.push(r.nn);
+    if(r.pn[PK.i] && notes.indexOf(r.pn[PK.i]) === -1) notes.push(r.pn[PK.i]);
+    var o = {pos:pos, r:r, notes:notes, sw:null};
+    if((r.k === "PC2_C" || r.k === "PC3_C") && notes.indexOf("4") !== -1) o.sw = rowByKey(r.k.replace("_C",""));
+    out.push(o);
+  });
+  return out;
+}
+function kindOf(o){
+  var r = o.r;
+  if(r.t === "I/O" && r.io !== "RST") return "io";
+  if(r.t === "ANA") return o.sw ? "io" : "ana";
+  return "fixed";
+}
+function afList(o){ return devAf(o.sw ? o.sw : o.r); }
+function addList(o){
+  var a = [];
+  o.r.ad.concat(o.sw ? o.sw.ad : []).forEach(function(x){
+    x.split("/").forEach(function(t){ t = t.trim(); if(t && a.indexOf(t) === -1) a.push(t); });
+  });
+  return a;
+}
+function funcsOf(o){
+  var k = kindOf(o), out = [];
+  if(k === "fixed") return out;
+  if(k === "io"){
+    out.push({v:"GPIO_Input",  label:"GPIO Input",  grp:"GPIO", fn:"GPIO_Input"});
+    out.push({v:"GPIO_Output", label:"GPIO Output", grp:"GPIO", fn:"GPIO_Output"});
+    afList(o).forEach(function(a){
+      out.push({v:"AF"+a[0]+":"+a[1], label:"AF"+a[0]+" · "+a[1], grp:"AF", fn:a[1], af:a[0], macro:a[2]});
+    });
+  }
+  addList(o).forEach(function(t){ out.push({v:"X:"+t, label:t, grp:"ADD", fn:t}); });
+  return out;
+}
+function funcByVal(o, v){
+  var f = funcsOf(o);
+  for(var i=0;i<f.length;i++) if(f[i].v === v) return f[i];
+  return null;
+}
+function groupsOf(o){
+  var r = o.r, g = [];
+  function add(x){ if(g.indexOf(x) === -1) g.push(x); }
+  if(r.t === "S" || r.n === "NC") add("PWR");
+  if(kindOf(o) === "io") add("GPIO");
+  if(r.k === "NRST" || r.k === "BOOT0" || r.k === "PDR_ON") add("SYS");
+  afList(o).forEach(function(a){ if(a[1] !== "EVENTOUT") add(groupOfFn(a[1])); });
+  addList(o).forEach(function(t){ add(groupOfFn(t)); });
+  if(!g.length) add("OTHER");
+  return g;
+}
+/* the group that best characterises a pin, for diagram colouring.
+   Ranked so the rarer, board-level buses win over the ubiquitous ones. */
+var RANK = ["PWR","LCD","ETH","FMC","SDMMC","USB","DCMI","QSPI","SAI","DFSDM","CAN",
+            "ADC","ANALOG","DEBUG","SYS","I2C","SPI","UART","TIMER","OTHER","GPIO"];
+function mainGroup(o){
+  var g = groupsOf(o);
+  if(o.r.k === "NRST" || o.r.k === "BOOT0" || o.r.k === "PDR_ON") return "SYS";
+  for(var i=0;i<RANK.length;i++) if(g.indexOf(RANK[i]) !== -1) return RANK[i];
+  return "GPIO";
+}
+function tagHtml(gs){ return gs.map(function(g){ return '<span class="tag g-'+g+'">'+(LABEL[g]||g)+'</span>'; }).join(""); }
+function noteHtml(ns){ return ns.map(function(n){ return '<span class="nmark" title="'+esc(NOTES[n]||"")+'">'+n+'</span>'; }).join(""); }
+function nameHtml(r){ return esc(r.n) + (r.rs ? '<small>reset: '+esc(r.rs)+'</small>' : ''); }
+function pinByKey(k){ for(var i=0;i<PINS.length;i++) if(PINS[i].r.k === k && kindOf(PINS[i]) !== "fixed") return PINS[i]; return null; }
+function pinByPos(p){ for(var i=0;i<PINS.length;i++) if(PINS[i].pos === p) return PINS[i]; return null; }
+function selectedKeys(){
+  return Object.keys(sel).filter(function(k){ return !!pinByKey(k); }).sort(function(a,b){
+    return pinByKey(a).pos.localeCompare(pinByKey(b).pos, undefined, {numeric:true});
+  });
+}
+function hay(o){
+  var r = o.r;
+  return (o.pos+" "+r.n+" "+r.k+" "+r.rs+" "+r.t+" "+r.io+" "+
+    afList(o).map(function(a){ return "AF"+a[0]+" "+a[1]; }).join(" ")+" "+addList(o).join(" ")).toLowerCase();
+}
+
+/* ======================= DEVICE / PACKAGE ======================= */
+function buildDevTabs(){
+  $("devTabs").innerHTML = DEVS.map(function(d){
+    return '<button class="devtab" role="tab" data-dev="'+d.id+'">'+d.name+'<small>'+(d.id==="H750"?"value line":(d.crypto?"crypto":(d.noLcd?"no LCD-TFT":"reference")))+'</small></button>';
+  }).join("");
+  $("footDev").innerHTML = DEVS.map(function(d){ return '<li>'+d.name+' — '+d.flash+' flash, '+d.ram+' RAM</li>'; }).join("");
+  var b = $("devTabs").querySelectorAll(".devtab");
+  for(var i=0;i<b.length;i++) b[i].addEventListener("click", function(){ setDevice(this.getAttribute("data-dev")); });
+}
+function buildPkgGrid(){
+  $("pkgGrid").innerHTML = PKS.map(function(p){
+    var ok = DEV.pkgs.indexOf(p.i) !== -1;
+    return '<button class="pkg-btn" data-pkg="'+p.id+'"'+(ok?"":" disabled")+'>'+
+      (ok?'':'<span class="na">not offered</span>')+
+      '<div class="t">'+p.id+'</div><div class="d">'+p.pins+(p.bga?" balls":" pins")+' · '+p.dim+'</div>'+
+      '<div class="p">'+(ok?partNumber(DEV,p):"—")+'</div></button>';
+  }).join("");
+  var b = $("pkgGrid").querySelectorAll(".pkg-btn");
+  for(var i=0;i<b.length;i++) b[i].addEventListener("click", function(){ if(!this.disabled) setPackage(this.getAttribute("data-pkg")); });
+}
+function setDevice(id, quiet){
+  DEVS.forEach(function(d){ if(d.id === id) DEV = d; });
+  var tabs = $("devTabs").querySelectorAll(".devtab");
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.toggle("active", tabs[i].getAttribute("data-dev") === DEV.id);
+  if(DEV.pkgs.indexOf(PK.i) === -1){
+    for(var j=0;j<PKS.length;j++) if(PKS[j].i === DEV.pkgs[0]) PK = PKS[j];
+  }
+  $("heroTitle").innerHTML = DEV.name + ' <em>' + DEV.line.replace(DEV.name,"") + '</em>';
+  $("heroLead").textContent = DEV.note;
+  $("ovTitle").textContent = DEV.line;
+  $("ovSub").textContent = DEV.note + " Datasheet " + DEV.doc + ", reference manual RM0433.";
+  buildPkgGrid();
+  buildSpec();
+  buildVerify();
+  buildPeriphTable();
+  setPackage(PK.id, true);
+  if(!quiet) toast(DEV.name + " selected — " + DEV.pkgs.length + " packages, " + DEV.flash + " flash");
+}
+function setPackage(id, quiet){
+  PKS.forEach(function(p){ if(p.id === id) PK = p; });
+  PINS = buildPins();
+  var before = Object.keys(sel).length, dropped = 0;
+  Object.keys(sel).forEach(function(k){
+    var o = pinByKey(k);
+    if(!o || !funcByVal(o, sel[k].v)){ delete sel[k]; dropped++; }
+  });
+  if(curPin && !pinByPos(curPin)) curPin = null;
+  var btns = $("pkgGrid").querySelectorAll(".pkg-btn");
+  for(var i=0;i<btns.length;i++) btns[i].classList.toggle("active", btns[i].getAttribute("data-pkg") === PK.id);
+  $("navPkg").textContent = PK.id;
+  $("navPart").textContent = partNumber(DEV, PK);
+  $("expPkg").textContent = PK.id;
+  $("expPart").textContent = partNumber(DEV, PK);
+  $("dgTitle").textContent = PK.id + (PK.bga ? " ballout" : " pinout");
+  buildCounts();
+  buildFilterBar();
+  renderPinTable();
+  renderSelTable();
+  renderDiagram();
+  renderSidebar();
+  if(!quiet) toast(PK.id + " loaded" + (before ? (dropped ? " · " + dropped + " assignment(s) removed" : " · assignments kept") : ""));
+}
+function buildCounts(){
+  var io = PINS.filter(function(o){ return kindOf(o) === "io"; }).length;
+  var adc = PINS.filter(function(o){ return addList(o).some(function(t){ return /^ADC/.test(t); }); }).length;
+  var af = 0; PINS.forEach(function(o){ af += afList(o).length; });
+  var rows = [[PINS.length, PK.bga ? "Package balls" : "Package pins"],
+              [io, "Assignable I/O"], [adc, "ADC input pins"], [af, "Alternate functions"],
+              [DEV.mhz.replace(" MHz",""), "MHz max CPU"]];
+  $("counts").innerHTML = rows.map(function(r){
+    return '<div class="count"><div class="v">'+r[0]+'</div><div class="l">'+r[1]+'</div></div>';
+  }).join("");
+}
+function buildSpec(){
+  var rows = [["Line",DEV.line],["Flash",DEV.flash],["RAM",DEV.ram],["Max CPU",DEV.mhz],
+    ["Datasheet",DEV.doc],["LCD-TFT / JPEG",DEV.noLcd?"Not available":"Available"],
+    ["Crypto (AES/HASH)",DEV.crypto?"Available":"Not available"],["Packages",DEV.pkgs.length+" of 8"]];
+  $("specGrid").innerHTML = rows.map(function(r){
+    return '<div><div class="k">'+r[0]+'</div><div class="v">'+esc(r[1])+'</div></div>'; }).join("")+
+    '<div style="grid-column:1/-1"><div class="k">SRAM layout</div><div class="v" style="font-size:.95rem;font-family:var(--mono)">'+esc(DEV.sram)+' · ITCM 64 KB · DTCM 128 KB · backup 4 KB</div></div>';
+}
+function buildVerify(){
+  var v = [
+    ["ok","Pin and ball positions","Every position in all eight packages was compared with ST's published STM32 pin database (the STM32CubeMX data). All match. The four devices in this tool share identical positions, which the same comparison confirms."],
+    ["ok","Alternate-function numbers","901 AF assignments agree between ST's database and an independent transcription of datasheet Table 10, with zero conflicts. Every GPIO also keeps the ascending AF order of Table 9."],
+    ["ok","HAL macro names","All 99 <code>GPIO_AFx_*</code> macros used by the C header export exist in ST's current STM32H7 HAL, and each macro's value equals its AF number."],
+    ["ok","ADC channels","Every ADC input listed under additional functions matches ST's database, pin by pin."],
+    ["nt","Device differences","Verified against ST's data: the H742 has no LCD-TFT signals (they are hidden on that tab); the H750 is offered in five packages; the H753 is identical to the H743 in pinout and alternate functions."],
+    ["nt","Inferred and added","The 25 centre VSS balls of the +25 arrays come from ST's database, marked <span class=\"nmark\">C</span>. The datasheet numbers SPDIFRX inputs IN1–IN4 while the HAL uses IN0–IN3; datasheet names are kept. C1DSLEEP, C1SLEEP, C2DSLEEP, C2SLEEP, D1PWREN and D2PWREN are shown as AF0 from the Table 9 ordering, as neither database lists them."]
+  ];
+  $("verifyGrid").innerHTML = v.map(function(x){
+    return '<div class="vbox"><h3><span class="'+x[0]+'">'+(x[0]==="ok"?"✔":"ⓘ")+'</span>'+x[1]+'</h3>'+x[2]+'</div>';
+  }).join("");
+}
+function buildPeriphTable(){
+  var rows = [
+    ["UART","4× USART, 4× UART, 1× LPUART — ISO7816, LIN, IrDA, up to 12.5 Mbit/s"],
+    ["SPI","6× SPI (3 with I2S audio), plus Quad-SPI and SPI mode on the USARTs"],
+    ["I2C","4× I2C with FM+ (SMBus/PMBus)"],
+    ["SAI","4× SAI serial audio interfaces; SPDIFRX with 4 inputs"],
+    ["CAN","2× FDCAN, one with time-triggered CAN"],
+    ["USB","USB OTG full-speed and USB OTG high-speed (ULPI), crystal-less, LPM and BCD"],
+    ["ETH","10/100 Ethernet MAC with DMA (MII/RMII); MDIO slave"],
+    ["FMC","FMC for SRAM, PSRAM, NOR/NAND and SDRAM, up to 32-bit data bus"],
+    ["QSPI","Dual-mode Quad-SPI memory interface up to 133 MHz"],
+    ["SDMMC","2× SD/SDIO/MMC interfaces up to 125 MHz"],
+    ["LCD", DEV.noLcd ? "Not available on this device — LCD-TFT and JPEG codec are H743/H750/H753 only"
+                      : "LCD-TFT controller up to XGA, Chrom-ART (DMA2D), hardware JPEG codec"],
+    ["DCMI","8- to 14-bit camera interface up to 80 MHz"],
+    ["ADC","3× 16-bit ADC, up to 36 channels, up to 3.6 MSPS; temperature sensor"],
+    ["ANALOG","2× 12-bit DAC, 2× ultra-low-power comparators, 2× operational amplifiers"],
+    ["DFSDM","DFSDM with 8 channels and 4 filters, for sigma-delta modulators and PDM microphones"],
+    ["TIMER","HRTIM (2.1 ns), 2× 32-bit, 2× advanced motor-control, 10× general-purpose, 5× low-power timers"],
+    ["DEBUG","SWD and JTAG, 4 KB embedded trace buffer"],
+    ["OTHER", (DEV.crypto ? "AES, HASH/HMAC crypto acceleration, " : "") + "HDMI-CEC, SWPMI, RNG, CRC, 96-bit unique ID"]
+  ];
+  $("periphTable").innerHTML = rows.map(function(r){
+    return '<tr><td style="width:190px"><span class="tag g-'+r[0]+'">'+LABEL[r[0]]+'</span></td>'+
+           '<td style="font-size:.84rem;font-weight:300">'+r[1]+'</td></tr>'; }).join("");
+}
+
+/* ======================= FILTERS / PIN TABLE ======================= */
+function buildFilterBar(){
+  var counts = {ALL: PINS.length};
+  GROUPS.forEach(function(g){ counts[g] = 0; });
+  PINS.forEach(function(o){ groupsOf(o).forEach(function(g){ counts[g]++; }); });
+  if(filter !== "ALL" && !counts[filter]) filter = "ALL";
+  var bar = $("filterBar");
+  bar.innerHTML = "";
+  ["ALL"].concat(GROUPS).forEach(function(g){
+    if(g !== "ALL" && !counts[g]) return;
+    var b = document.createElement("button");
+    b.className = "fbtn" + (g === filter ? " active" : "");
+    b.setAttribute("data-f", g);
+    b.innerHTML = (g === "ALL" ? "ALL" : (LABEL[g] || g)) + '<span class="cnt">' + counts[g] + '</span>';
+    b.addEventListener("click", function(){ filter = g; buildFilterBar(); renderPinTable(); });
+    bar.appendChild(b);
+  });
+}
+function renderPinTable(){
+  var q = ($("pinSearch").value || "").trim().toLowerCase();
+  var rows = PINS.filter(function(o){
+    if(filter !== "ALL" && groupsOf(o).indexOf(filter) === -1) return false;
+    if(q && hay(o).indexOf(q) === -1) return false;
+    return true;
+  });
+  var keyf = {pos:function(o){return o.pos;}, name:function(o){return o.r.k;},
+              type:function(o){return o.r.t;}, io:function(o){return o.r.io;}}[sortKey];
+  rows.sort(function(a,b){
+    var r = String(keyf(a)).localeCompare(String(keyf(b)), undefined, {numeric:true});
+    if(!r) r = a.pos.localeCompare(b.pos, undefined, {numeric:true});
+    return sortAsc ? r : -r;
+  });
+  var html = [];
+  if(!rows.length) html.push('<tr class="empty-row"><td colspan="8">No pins match this filter or search.</td></tr>');
+  else rows.forEach(function(o){
+    var r = o.r;
+    var afs = afList(o).map(function(a){ return '<span class="af"><i>AF'+a[0]+'</i>'+esc(a[1])+'</span>'; }).join("");
+    if(o.sw && afs) afs = '<span class="sw">Through the analog switch (closed) — functions of '+esc(o.sw.k)+'</span>' + afs;
+    html.push('<tr>'+
+      '<td class="pnum">'+esc(o.pos)+'</td>'+
+      '<td class="pgpio">'+nameHtml(r)+'</td>'+
+      '<td style="white-space:nowrap">'+esc(r.t)+'</td>'+
+      '<td class="pio">'+esc(r.io || "—")+'</td>'+
+      '<td>'+noteHtml(o.notes)+'</td>'+
+      '<td class="pfunc">'+(afs || '—')+'</td>'+
+      '<td class="padd">'+(addList(o).map(esc).join("<br>") || '—')+'</td>'+
+      '<td>'+tagHtml(groupsOf(o))+'</td></tr>');
+  });
+  $("pinBody").innerHTML = html.join("");
+  var ths = $("pinTable").querySelectorAll("thead th[data-sort]");
+  for(var i=0;i<ths.length;i++){
+    var on = ths[i].getAttribute("data-sort") === sortKey;
+    ths[i].classList.toggle("sorted", on);
+    ths[i].querySelector(".ar").textContent = on ? (sortAsc ? "▲" : "▼") : "▲";
+  }
+  $("pinCount").textContent = "Showing " + rows.length + " of " + PINS.length + (PK.bga ? " balls" : " pins") +
+    " · " + DEV.name + " " + PK.id + (filter !== "ALL" ? " · group " + (LABEL[filter]||filter) : "");
+}
+
+/* ======================= PACKAGE DIAGRAM ======================= */
+var SVGNS = "http://www.w3.org/2000/svg";
+function el(n, a){
+  var e = document.createElementNS(SVGNS, n);
+  for(var k in a) if(a[k] !== null && a[k] !== undefined) e.setAttribute(k, a[k]);
+  return e;
+}
+function hue(g, a){ return "hsl("+HUE[g]+" "+((g==="GPIO"||g==="OTHER")?"16%":"68%")+" 50% / "+a+")"; }
+function padFill(o){
+  if(colorMode === "assign"){
+    if(sel[o.r.k] && pinByKey(o.r.k)) return "rgba(var(--accr),.42)";
+    if(kindOf(o) === "fixed") return "hsl(345 60% 50% / .18)";
+    return "hsl(215 16% 55% / .14)";
+  }
+  if(colorMode === "group"){
+    if(groupsOf(o).indexOf(dgGroup) !== -1) return hue(dgGroup, ".5");
+    return "hsl(215 10% 60% / .1)";
+  }
+  var k = kindOf(o);
+  if(k === "io") return "hsl(215 55% 50% / .3)";
+  if(k === "ana") return "hsl(150 60% 42% / .34)";
+  if(o.r.t === "S") return "hsl(345 65% 50% / .3)";
+  return "hsl(38 75% 50% / .34)";
+}
+function pad(attrs, o){
+  attrs.class = padClass(o);
+  var e = el("rect", attrs);
+  e.style.fill = padFill(o);
+  return e;
+}
+function matchQ(o){ return dgQuery && hay(o).indexOf(dgQuery) !== -1; }
+function renderDiagram(){
+  var box = $("dgBox");
+  box.innerHTML = "";
+  var svg = PK.bga ? bgaSvg() : lqfpSvg();
+  box.appendChild(svg);
+  buildLegend();
+  renderDetail();
+}
+function decorate(g, o){
+  g.addEventListener("mouseenter", function(e){ showTip(e, o); });
+  g.addEventListener("mousemove", moveTip);
+  g.addEventListener("mouseleave", hideTip);
+  g.addEventListener("click", function(){ curPin = o.pos; renderDiagram(); });
+}
+function padClass(o){
+  var c = "pad", s = sel[o.r.k] && pinByKey(o.r.k);
+  if(s) c += " asg";
+  if(curPin === o.pos || matchQ(o)) c += " hl";
+  if(dgQuery && !matchQ(o)) c += " dim";
+  return c;
+}
+function labFill(o){
+  if(sel[o.r.k] && pinByKey(o.r.k)) return null;
+  if(colorMode !== "group") return null;
+  return groupsOf(o).indexOf(dgGroup) !== -1 ? "hsl("+HUE[dgGroup]+" 72% 30%)" : null;
+}
+function labClass(o){
+  var c = "plab", s = sel[o.r.k] && pinByKey(o.r.k);
+  if(s) c += " asg";
+  if(dgQuery && !matchQ(o)) c += " dim";
+  else if(colorMode === "group" && !s && groupsOf(o).indexOf(dgGroup) === -1) c += " dim";
+  return c;
+}
+function padLabel(o, short){
+  var s = sel[o.r.k] && pinByKey(o.r.k) ? funcByVal(pinByKey(o.r.k), sel[o.r.k].v) : null;
+  if(s) return (sel[o.r.k].label || s.fn);
+  return short ? (/^P[A-K]\d/.test(o.r.k) ? o.r.k : o.r.n) : o.r.n;
+}
+function lqfpSvg(){
+  var N = PINS.length, S = N/4, SP = 15, M = 26, BS = S*SP + 2*M, LBL = 118, PL = 13;
+  var W = BS + 2*(PL + LBL), H = W, BX = PL + LBL, BY = BX;
+  var svg = el("svg", {viewBox:"0 0 "+W+" "+H, width:Math.round(W*zoom), height:Math.round(H*zoom),
+    xmlns:SVGNS, "font-family":"monospace"});
+  svg.appendChild(el("rect", {x:BX, y:BY, width:BS, height:BS, class:"body", rx:2}));
+  var t1 = el("text", {x:BX+BS/2, y:BY+BS/2-6, class:"bodytx", "font-size":"26", "font-weight":"700"});
+  t1.textContent = DEV.name; svg.appendChild(t1);
+  var t2 = el("text", {x:BX+BS/2, y:BY+BS/2+16, class:"bodysub", "font-size":"12"});
+  t2.textContent = partNumber(DEV, PK) + " · " + PK.id; svg.appendChild(t2);
+  var t3 = el("text", {x:BX+BS/2, y:BY+BS/2+34, class:"bodysub", "font-size":"10"});
+  t3.textContent = PK.dim + " · top view"; svg.appendChild(t3);
+  /* pin 1 marker */
+  svg.appendChild(el("circle", {cx:BX+16, cy:BY+16, r:6, fill:"none", stroke:"#9fb6d1", "stroke-width":1.5}));
+  PINS.forEach(function(o){
+    var n = parseInt(o.pos, 10), g = el("g", {}), x, y, lx, ly, anc, rot = 0;
+    if(n <= S){                       /* left, top to bottom */
+      y = BY + M + (n - 0.5)*SP; x = BX - PL;
+      g.appendChild(pad({x:x, y:y-3, width:PL, height:6}, o));
+      lx = x - 5; ly = y + 3; anc = "end";
+    } else if(n <= 2*S){              /* bottom, left to right */
+      var j = n - S; x = BX + M + (j - 0.5)*SP; y = BY + BS;
+      g.appendChild(pad({x:x-3, y:y, width:6, height:PL}, o));
+      lx = x + 3; ly = y + PL + 5; anc = "end"; rot = -90;
+    } else if(n <= 3*S){              /* right, bottom to top */
+      var k = n - 2*S; y = BY + BS - M - (k - 0.5)*SP; x = BX + BS;
+      g.appendChild(pad({x:x, y:y-3, width:PL, height:6}, o));
+      lx = x + PL + 5; ly = y + 3; anc = "start";
+    } else {                          /* top, right to left */
+      var m = n - 3*S; x = BX + BS - M - (m - 0.5)*SP; y = BY - PL;
+      g.appendChild(pad({x:x-3, y:y, width:6, height:PL}, o));
+      lx = x + 3; ly = y - 5; anc = "start"; rot = -90;
+    }
+    if(showLabels){
+      var t = el("text", {x:lx, y:ly, class:labClass(o), "text-anchor":anc, "font-size":"8"});
+      var lf = labFill(o); if(lf) t.style.fill = lf;
+      if(rot) t.setAttribute("transform", "rotate(-90 "+lx+" "+ly+")");
+      t.textContent = o.pos + "  " + padLabel(o, true);
+      g.appendChild(t);
+    }
+    decorate(g, o);
+    svg.appendChild(g);
+  });
+  return svg;
+}
+function bgaSvg(){
+  var rows = [], cols = [];
+  PINS.forEach(function(o){
+    var m = /^([A-Z]+)(\d+)$/.exec(o.pos);
+    if(!m) return;
+    if(rows.indexOf(m[1]) === -1) rows.push(m[1]);
+    var c = parseInt(m[2],10);
+    if(cols.indexOf(c) === -1) cols.push(c);
+  });
+  rows.sort(); cols.sort(function(a,b){ return a-b; });
+  var P = showLabels ? 42 : 26, R0 = showLabels ? 15 : 9, M = 44;
+  var W = M*2 + cols.length*P, H = M*2 + rows.length*P;
+  var svg = el("svg", {viewBox:"0 0 "+W+" "+H, width:Math.round(W*zoom), height:Math.round(H*zoom), xmlns:SVGNS});
+  svg.appendChild(el("rect", {x:M-P/2+4, y:M-P/2+4, width:cols.length*P-8, height:rows.length*P-8,
+    fill:"var(--panel2)", stroke:"var(--line)"}));
+  cols.forEach(function(c, ci){
+    var t = el("text", {x:M + ci*P, y:M - P/2 - 6, class:"axis"}); t.textContent = c; svg.appendChild(t);
+    var t2 = el("text", {x:M + ci*P, y:M + (rows.length-1)*P + P/2 + 12, class:"axis"}); t2.textContent = c; svg.appendChild(t2);
+  });
+  rows.forEach(function(rw, ri){
+    var t = el("text", {x:M - P/2 - 10, y:M + ri*P, class:"axis"}); t.textContent = rw; svg.appendChild(t);
+    var t2 = el("text", {x:M + (cols.length-1)*P + P/2 + 10, y:M + ri*P, class:"axis"}); t2.textContent = rw; svg.appendChild(t2);
+  });
+  /* A1 corner marker */
+  svg.appendChild(el("circle", {cx:M - P/2 - 10, cy:M - P/2 - 10, r:4, fill:"var(--acc)"}));
+  PINS.forEach(function(o){
+    var m = /^([A-Z]+)(\d+)$/.exec(o.pos);
+    if(!m) return;
+    var cx = M + cols.indexOf(parseInt(m[2],10))*P, cy = M + rows.indexOf(m[1])*P;
+    var g = el("g", {});
+    var c = el("circle", {cx:cx, cy:cy, r:R0, class:padClass(o)});
+    c.style.fill = padFill(o);
+    g.appendChild(c);
+    if(showLabels){
+      var txt = padLabel(o, true);
+      if(txt.length > 8) txt = txt.slice(0,8);
+      var t = el("text", {x:cx, y:cy+2.5, class:labClass(o),
+        "text-anchor":"middle", "font-size": txt.length > 7 ? "4.8" : (txt.length > 5 ? "6" : "7")});
+      var lf2 = labFill(o); if(lf2) t.style.fill = lf2;
+      t.textContent = txt;
+      g.appendChild(t);
+    }
+    decorate(g, o);
+    svg.appendChild(g);
+  });
+  return svg;
+}
+function setFills(){ /* LQFP pads use CSS class only; apply fill after build */ }
+function buildLegend(){
+  var n = PINS.filter(function(o){ return groupsOf(o).indexOf(dgGroup) !== -1; }).length;
+  if(colorMode === "group"){
+    $("legend").innerHTML = '<span class="lg"><i style="--h:'+HUE[dgGroup]+';--tagS:'+((dgGroup==="GPIO"||dgGroup==="OTHER")?"16%":"68%")+'"></i>'+
+      (LABEL[dgGroup]||dgGroup)+' capable — '+n+' pin(s)</span>'+
+      '<span class="lg"><i style="--h:215;--tagS:10%"></i>Other pins</span>';
+  } else if(colorMode === "type"){
+    $("legend").innerHTML = '<span class="lg"><i style="--h:215;--tagS:55%"></i>Assignable I/O</span>'+
+      '<span class="lg"><i style="--h:150;--tagS:60%"></i>Analog-only (Pxy_C)</span>'+
+      '<span class="lg"><i style="--h:345;--tagS:65%"></i>Power and ground</span>'+
+      '<span class="lg"><i style="--h:38;--tagS:75%"></i>Reset, boot, PDR_ON, NC</span>';
+  } else {
+    $("legend").innerHTML = '<span class="lg"><i style="background:rgba(var(--accr),.42);border-color:var(--acc)"></i>Assigned</span>'+
+      '<span class="lg"><i style="--h:215;--tagS:16%"></i>Free to assign</span>'+
+      '<span class="lg"><i style="--h:345;--tagS:60%"></i>Fixed function</span>';
+  }
+}
+function showTip(e, o){
+  var t = $("tip"), af = afList(o);
+  var s = sel[o.r.k] && pinByKey(o.r.k) ? funcByVal(pinByKey(o.r.k), sel[o.r.k].v) : null;
+  t.innerHTML = '<b>'+esc(o.pos)+' · '+esc(o.r.n)+'</b>'+
+    '<span>'+esc(o.r.t)+(o.r.io ? " · " + esc(o.r.io) : "")+(s ? " · assigned " + esc(s.label) : "")+'</span>'+
+    (af.length ? '<span>'+af.slice(0,6).map(function(a){ return "AF"+a[0]+" "+esc(a[1]); }).join("  ")+(af.length>6?"  …":"")+'</span>' : "")+
+    (addList(o).length ? '<span>'+esc(addList(o).join(", "))+'</span>' : "");
+  t.style.display = "block";
+  moveTip(e);
+}
+function moveTip(e){
+  var t = $("tip"), x = e.clientX + 16, y = e.clientY + 16;
+  if(x + t.offsetWidth > window.innerWidth - 10) x = e.clientX - t.offsetWidth - 16;
+  if(y + t.offsetHeight > window.innerHeight - 10) y = e.clientY - t.offsetHeight - 16;
+  t.style.left = x + "px"; t.style.top = y + "px";
+}
+function hideTip(){ $("tip").style.display = "none"; }
+function renderDetail(){
+  var o = curPin ? pinByPos(curPin) : null;
+  if(!o){
+    $("dtName").textContent = "No pin selected"; $("dtPos").textContent = "";
+    $("dtBody").innerHTML = '<p class="side-empty">Click a pin or ball in the diagram to see its full function list and assign it.</p>';
+    return;
+  }
+  $("dtName").textContent = o.r.n;
+  $("dtPos").textContent = PK.id + " " + o.pos;
+  var fixed = kindOf(o) === "fixed", k = o.r.k, s = fixed ? null : sel[k];
+  var h = '<dl class="kv">'+
+    '<dt>Position</dt><dd>'+esc(o.pos)+'</dd>'+
+    '<dt>Type</dt><dd>'+esc(o.r.t)+'</dd>'+
+    '<dt>I/O</dt><dd>'+esc(o.r.io || "—")+'</dd>'+
+    (o.r.rs ? '<dt>After reset</dt><dd>'+esc(o.r.rs)+'</dd>' : '')+
+    (o.notes.length ? '<dt>Notes</dt><dd>'+noteHtml(o.notes)+'</dd>' : '')+
+    '</dl>'+
+    '<div style="margin-bottom:12px">'+tagHtml(groupsOf(o))+'</div>';
+  if(!fixed){
+    h += '<div class="flabel">Assign function</div>'+
+      '<select class="fs" id="dtSel" style="max-width:100%;margin-bottom:10px">'+optionsHtml(o, s ? s.v : "")+'</select>'+
+      '<div class="flabel">Label for C header</div>'+
+      '<input class="lbl" id="dtLbl" type="text" maxlength="32" style="max-width:100%;margin-bottom:16px" placeholder="optional" value="'+esc(s && s.label ? s.label : "")+'">';
+  } else {
+    h += '<div class="warn" style="margin-bottom:14px">This pin has a fixed function and cannot be assigned.</div>';
+  }
+  if(o.sw) h += '<div class="warn" style="margin-bottom:14px"><strong>Analog switch.</strong> The alternate functions below belong to '+esc(o.sw.k)+' and need the SYSCFG analog switch closed.</div>';
+  var af = afList(o);
+  h += '<div class="flabel">Alternate functions</div><div class="aflist">'+
+    (af.length ? af.map(function(a){ return '<div><i>AF'+a[0]+'</i>'+esc(a[1])+(a[2] ? ' <span style="color:var(--t3)">'+esc(a[2])+'</span>' : '')+'</div>'; }).join("") : "—")+'</div>';
+  if(addList(o).length) h += '<div class="flabel" style="margin-top:14px">Additional functions</div><div class="aflist">'+addList(o).map(esc).join("<br>")+'</div>';
+  $("dtBody").innerHTML = h;
+  if(!fixed){
+    $("dtSel").addEventListener("change", function(){
+      if(this.value) sel[k] = {v:this.value, label:($("dtLbl").value || "").trim()};
+      else delete sel[k];
+      renderSelTable(); renderSidebar(); renderDiagram();
+    });
+    $("dtLbl").addEventListener("input", function(){
+      if(sel[k]){ sel[k].label = this.value.trim(); renderSelTable(); renderSidebar(); }
+    });
+  }
+}
+
+/* ======================= SELECTION ======================= */
+function optionsHtml(o, cur){
+  var f = funcsOf(o), g = {GPIO:[],AF:[],ADD:[]};
+  f.forEach(function(x){ g[x.grp].push(x); });
+  var h = '<option value="">— unassigned —</option>';
+  var names = {GPIO:"GPIO", AF:o.sw ? "Alternate functions (switch closed)" : "Alternate functions", ADD:"Additional / analog"};
+  ["GPIO","AF","ADD"].forEach(function(k){
+    if(!g[k].length) return;
+    h += '<optgroup label="'+names[k]+'">' + g[k].map(function(x){
+      return '<option value="'+esc(x.v)+'"'+(cur === x.v ? " selected" : "")+'>'+esc(x.label)+'</option>';
+    }).join("") + '</optgroup>';
+  });
+  return h;
+}
+function renderSelTable(){
+  var q = ($("selSearch").value || "").trim().toLowerCase();
+  var html = [];
+  PINS.slice().sort(function(a,b){ return a.pos.localeCompare(b.pos, undefined, {numeric:true}); }).forEach(function(o){
+    if(q && hay(o).indexOf(q) === -1) return;
+    var fixed = kindOf(o) === "fixed", k = o.r.k, s = fixed ? null : sel[k];
+    var dd = fixed ? '<option>'+esc(o.r.n)+' — fixed</option>' : optionsHtml(o, s ? s.v : "");
+    html.push('<tr data-k="'+esc(k)+'"'+(s ? ' class="picked"' : '')+'>'+
+      '<td><input type="checkbox" class="chk" aria-label="Select '+esc(o.r.n)+'" data-k="'+esc(k)+'"'+(s ? " checked" : "")+(fixed ? " disabled" : "")+'></td>'+
+      '<td class="pnum">'+esc(o.pos)+'</td>'+
+      '<td class="pgpio">'+nameHtml(o.r)+'</td>'+
+      '<td><select class="fs" aria-label="Function for '+esc(o.r.n)+'" data-k="'+esc(k)+'"'+(fixed ? " disabled" : "")+'>'+dd+'</select></td>'+
+      '<td><input class="lbl" type="text" maxlength="32" placeholder="optional" aria-label="Label for '+esc(o.r.n)+'" data-k="'+esc(k)+'" value="'+esc(s && s.label ? s.label : "")+'"'+(fixed ? " disabled" : "")+'></td></tr>');
+  });
+  if(!html.length) html.push('<tr class="empty-row"><td colspan="5">No pins match that filter.</td></tr>');
+  $("selBody").innerHTML = html.join("");
+}
+function onSelChange(e){
+  var t = e.target, k = t.getAttribute("data-k");
+  if(!k || t.disabled) return;
+  var tr = t.closest("tr"), dd = tr.querySelector("select.fs"), cb = tr.querySelector("input.chk"), lb = tr.querySelector("input.lbl");
+  if(t.classList.contains("chk")){
+    if(t.checked){ if(!dd.value) dd.value = "GPIO_Input"; sel[k] = {v:dd.value, label:lb.value.trim()}; }
+    else { delete sel[k]; dd.value = ""; }
+  } else if(t.classList.contains("fs")){
+    if(t.value){ sel[k] = {v:t.value, label:lb.value.trim()}; cb.checked = true; }
+    else { delete sel[k]; cb.checked = false; }
+  } else if(t.classList.contains("lbl")){
+    if(sel[k]) sel[k].label = t.value.trim();
+    renderSidebar(); renderDiagram(); return;
+  }
+  tr.classList.toggle("picked", !!sel[k]);
+  renderSidebar(); renderDiagram();
+}
+function fnOf(k){ var o = pinByKey(k); return o ? funcByVal(o, sel[k].v) : null; }
+function findConflicts(){
+  var used = {}, bad = {};
+  selectedKeys().forEach(function(k){
+    var f = fnOf(k);
+    if(!f || f.grp === "GPIO" || f.fn === "EVENTOUT") return;
+    (used[f.fn] = used[f.fn] || []).push(k);
+  });
+  Object.keys(used).forEach(function(fn){ if(used[fn].length > 1) bad[fn] = used[fn]; });
+  return bad;
+}
+function warnings(){
+  var w = [], swd = {PA13:"JTMS-SWDIO", PA14:"JTCK-SWCLK"};
+  Object.keys(swd).forEach(function(k){
+    if(sel[k] && pinByKey(k)){ var f = fnOf(k); if(f && f.fn !== swd[k]) w.push("<strong>"+k+"</strong> is an SWD debug pin ("+swd[k]+"). Reassigning it disables SWD debugging once the pin is configured."); }
+  });
+  ["PC2_C","PC3_C"].forEach(function(k){
+    var o = pinByKey(k);
+    if(sel[k] && o && o.sw){ var f = fnOf(k); if(f && !/^ADC3/.test(f.fn)) w.push("<strong>"+k+"</strong> uses "+o.sw.k+" functions, which needs the SYSCFG analog switch closed (RM0433, SYSCFG_PMCR)."); }
+  });
+  if((sel.PH0 && pinByKey("PH0")) || (sel.PH1 && pinByKey("PH1"))) w.push("<strong>PH0/PH1</strong> are the HSE oscillator pins. Using them as GPIO means no external high-speed crystal.");
+  if((sel.PC14 && pinByKey("PC14")) || (sel.PC15 && pinByKey("PC15"))) w.push("<strong>PC14/PC15</strong> are the LSE oscillator pins. Using them as GPIO means no 32.768 kHz crystal.");
+  return w;
+}
+function renderSidebar(){
+  var keys = selectedKeys();
+  $("selBadge").textContent = keys.length;
+  $("expCount").textContent = keys.length;
+  var bad = findConflicts(), badFns = Object.keys(bad), badKeys = [];
+  badFns.forEach(function(fn){ badKeys = badKeys.concat(bad[fn]); });
+  var msgs = [];
+  if(badFns.length) msgs.push('<div class="warn err"><strong>Duplicate assignment:</strong> '+badFns.map(function(fn){ return esc(fn)+" on "+bad[fn].join(", "); }).join(" · ")+'. Each peripheral signal can be routed to one pin only.</div>');
+  warnings().forEach(function(m){ msgs.push('<div class="warn">'+m+'</div>'); });
+  $("selMsgs").innerHTML = msgs.join("");
+  var trs = $("selBody").querySelectorAll("tr[data-k]");
+  for(var i=0;i<trs.length;i++) trs[i].classList.toggle("conflict", badKeys.indexOf(trs[i].getAttribute("data-k")) !== -1);
+  $("selList").innerHTML = keys.length ? keys.map(function(k){
+    var o = pinByKey(k), f = fnOf(k);
+    return '<div class="srow'+(badKeys.indexOf(k) !== -1 ? ' bad' : '')+'"><span class="lb">'+esc(o.pos)+' · '+esc(k)+'</span>'+
+           '<span class="fn">'+esc(f ? f.label : sel[k].v)+'</span></div>';
+  }).join("") : '<div class="side-empty">No pins selected yet.</div>';
+  ["btnCsv","btnJson","btnH"].forEach(function(id){ $(id).disabled = !keys.length; });
+  renderPreview();
+}
+
+/* ======================= EXPORT ======================= */
+function portOf(k){
+  var m = /^P([A-K])(\d+)/.exec(k);
+  return m ? {port:"GPIO"+m[1], pin:"GPIO_PIN_"+m[2]} : null;
+}
+function modeOf(f){
+  if(f.v === "GPIO_Input") return "GPIO_MODE_INPUT";
+  if(f.v === "GPIO_Output") return "GPIO_MODE_OUTPUT_PP";
+  if(f.grp === "AF") return /^I2C\d_(SCL|SDA|SMBA)$/.test(f.fn) ? "GPIO_MODE_AF_OD" : "GPIO_MODE_AF_PP";
+  if(/^(ADC|DAC|OPAMP|COMP\d_IN)/.test(f.fn)) return "GPIO_MODE_ANALOG";
+  return "";
+}
+function record(k){
+  var o = pinByKey(k), f = fnOf(k), r = o.r;
+  return {position:o.pos, pin:r.k, name:r.n,
+    mode: f.grp === "GPIO" ? f.label : (f.grp === "AF" ? "Alternate function" : "Additional / analog"),
+    function: f.grp === "GPIO" ? "GPIO" : f.fn, af: f.grp === "AF" ? f.af : null,
+    halAf: f.grp === "AF" ? (f.macro || "") : "", halMode: modeOf(f),
+    label: sel[k].label || "", io: r.io || "", notes: o.notes.join(" "),
+    viaSwitch: !!(o.sw && !/^ADC3/.test(f.fn))};
+}
+function buildCsv(){
+  var head = ["Device","Part","Package","Pin/Ball","Port Pin","Pin Name","Mode","Assigned Function","AF","HAL AF Macro","HAL Mode","Label","I/O Structure","Notes","Peripheral Groups","All Alternate Functions"];
+  var q = function(v){ return '"' + String(v === null || v === undefined ? "" : v).replace(/"/g,'""') + '"'; };
+  var lines = [head.map(q).join(",")];
+  selectedKeys().forEach(function(k){
+    var x = record(k), o = pinByKey(k);
+    lines.push([DEV.name, partNumber(DEV,PK), PK.id, x.position, x.pin, x.name, x.mode, x.function,
+      x.af === null ? "" : "AF"+x.af, x.halAf, x.halMode, x.label, x.io,
+      x.notes + (x.viaSwitch ? " (analog switch closed)" : ""), groupsOf(o).join(" "),
+      afList(o).map(function(a){ return "AF"+a[0]+" "+a[1]; }).join(" | ")].map(q).join(","));
+  });
+  return lines.join("\r\n");
+}
+function buildJson(){
+  return JSON.stringify({device:DEV.name, line:DEV.line, part:partNumber(DEV,PK), package:PK.id,
+    source:"Datasheet " + DEV.doc + " pin/ball table with Table 10 AF numbers, cross-checked with ST STM32 open pin data",
+    generated:new Date().toISOString(), pins:selectedKeys().map(record)}, null, 2);
+}
+function ident(s){ return String(s).toUpperCase().replace(/[^A-Z0-9]+/g,"_").replace(/^_+|_+$/g,"").replace(/^(\d)/,"_$1"); }
+function buildHeader(){
+  var pad = function(s,n){ s = String(s); while(s.length < n) s += " "; return s; };
+  var guard = ident(DEV.name) + "_" + ident(PK.id) + "_PINMAP_H";
+  var out = ["/**", " * @file    "+DEV.name.toLowerCase()+"_pinmap.h",
+    " * @brief   Pin assignment for " + partNumber(DEV,PK) + " (" + PK.id + ")",
+    " *          Generated " + new Date().toLocaleString() + " by the STM32H7 Pin Mapper.",
+    " *          AF numbers: datasheet " + DEV.doc + " Table 10, cross-checked with ST CubeMX pin data.",
+    " */", "#ifndef " + guard, "#define " + guard, "", '#include "stm32h7xx_hal.h"', ""];
+  var bad = Object.keys(findConflicts());
+  if(bad.length) out.push("#warning \"Duplicate pin assignments: " + bad.join(", ") + "\"", "");
+  var seen = {};
+  selectedKeys().forEach(function(k){
+    var x = record(k), p = portOf(k);
+    var base = ident(x.label || (x.function === "GPIO" ? k : x.function));
+    if(seen[base]) base = base + "_" + ident(k);
+    seen[base] = 1;
+    out.push("/* " + x.position + " · " + k + " · " + (x.function === "GPIO" ? x.mode : x.function) + (x.af !== null ? " (AF" + x.af + ")" : "") + " */");
+    if(x.viaSwitch) out.push("/* needs HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_" + k.replace("_C","") + ", SYSCFG_SWITCH_" + k.replace("_C","") + "_CLOSE) */");
+    if(p){ out.push("#define " + pad(base + "_GPIO_Port", 34) + p.port);
+           out.push("#define " + pad(base + "_Pin", 34) + p.pin); }
+    if(x.halMode) out.push("#define " + pad(base + "_Mode", 34) + x.halMode);
+    if(x.af !== null) out.push("#define " + pad(base + "_AF", 34) + (x.halAf || "((uint8_t)0x" + ("0"+x.af.toString(16).toUpperCase()).slice(-2) + ")  /* AF"+x.af+", no HAL name */"));
+    out.push("");
+  });
+  out.push("#endif /* " + guard + " */", "");
+  return out.join("\n");
+}
+function fileBase(){ return DEV.name + "_" + PK.id.replace("+","p") + "_PinAssignment"; }
+function renderPreview(){
+  if(!selectedKeys().length){ $("preview").textContent = "No pins selected yet. Open the Selection tab or the package diagram to choose pins."; return; }
+  $("preview").textContent = pfmt === "csv" ? buildCsv() : pfmt === "json" ? buildJson() : buildHeader();
+}
+function download(name, content, mime){
+  try{
+    var blob = new Blob([content], {type: mime}), url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+    toast(name + " exported");
+  }catch(err){ toast("Download blocked here — use Copy preview instead.", true); }
+}
+function exportFmt(fmt){
+  if(!selectedKeys().length){ toast("Select at least one pin first", true); return; }
+  if(fmt === "csv") download(fileBase()+".csv", "\uFEFF"+buildCsv(), "text/csv;charset=utf-8");
+  if(fmt === "json") download(fileBase()+".json", buildJson(), "application/json");
+  if(fmt === "h") download(DEV.name.toLowerCase()+"_pinmap.h", buildHeader(), "text/x-c");
+}
+function exportSvg(){
+  var svg = $("dgBox").querySelector("svg");
+  if(!svg){ toast("No diagram to export", true); return; }
+  var c = svg.cloneNode(true);
+  var css = "text{font-family:monospace}.pad{fill:#f8fafc;stroke:#5a6b80}.pad.asg{stroke:#c8102e;stroke-width:2}"+
+    ".plab{font-size:8px;fill:#44566e}.plab.asg{fill:#c8102e;font-weight:700}.body{fill:#10233c}"+
+    ".bodytx{fill:#fff;text-anchor:middle}.bodysub{fill:#9fb6d1;text-anchor:middle}"+
+    ".axis{fill:#7a8aa0;text-anchor:middle;dominant-baseline:middle}";
+  var st = document.createElementNS(SVGNS,"style"); st.textContent = css;
+  c.insertBefore(st, c.firstChild);
+  c.querySelectorAll("circle[fill^='hsl'],circle[fill^='rgba'],circle[fill^='var']").forEach(function(e){ e.setAttribute("fill","#eef2f7"); });
+  c.querySelectorAll("[fill^='var'],[stroke^='var']").forEach(function(e){
+    if((e.getAttribute("fill")||"").indexOf("var") === 0) e.setAttribute("fill","#f8fafc");
+    if((e.getAttribute("stroke")||"").indexOf("var") === 0) e.setAttribute("stroke","#d7dee8");
+  });
+  download(DEV.name+"_"+PK.id.replace("+","p")+"_diagram.svg",
+    '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(c), "image/svg+xml");
+}
+
+/* ======================= BOOT ======================= */
+document.addEventListener("DOMContentLoaded", function(){
+  var tabs = document.querySelectorAll(".stab");
+  for(var i=0;i<tabs.length;i++) tabs[i].addEventListener("click", function(){
+    var t = document.querySelectorAll(".stab"), p = document.querySelectorAll(".panel");
+    for(var a=0;a<t.length;a++) t[a].classList.remove("active");
+    for(var b=0;b<p.length;b++) p[b].classList.remove("active");
+    this.classList.add("active");
+    $("panel-" + this.getAttribute("data-panel")).classList.add("active");
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+  var ths = $("pinTable").querySelectorAll("thead th[data-sort]");
+  for(var m=0;m<ths.length;m++) ths[m].addEventListener("click", function(){
+    var k = this.getAttribute("data-sort");
+    if(sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; }
+    renderPinTable();
+  });
+  $("pinSearch").addEventListener("input", renderPinTable);
+  $("selSearch").addEventListener("input", function(){ renderSelTable(); renderSidebar(); });
+  $("selBody").addEventListener("change", onSelChange);
+  $("selBody").addEventListener("input", function(e){ if(e.target.classList.contains("lbl")) onSelChange(e); });
+  $("btnClear").addEventListener("click", function(){
+    if(!Object.keys(sel).length){ toast("Nothing to clear", true); return; }
+    sel = {}; renderSelTable(); renderSidebar(); renderDiagram(); toast("All assignments cleared");
+  });
+  $("btnCsv").addEventListener("click", function(){ exportFmt("csv"); });
+  $("btnJson").addEventListener("click", function(){ exportFmt("json"); });
+  $("btnH").addEventListener("click", function(){ exportFmt("h"); });
+  $("btnSideExport").addEventListener("click", function(){ document.querySelector('.stab[data-panel="export"]').click(); });
+  var pt = document.querySelectorAll(".ptab");
+  for(var j=0;j<pt.length;j++) pt[j].addEventListener("click", function(){
+    pfmt = this.getAttribute("data-fmt");
+    var all = document.querySelectorAll(".ptab");
+    for(var z=0;z<all.length;z++) all[z].classList.toggle("active", all[z] === this);
+    renderPreview();
+  });
+  function selectPreview(){
+    var r = document.createRange(); r.selectNodeContents($("preview"));
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast("Preview selected — press Ctrl/Cmd+C to copy");
+  }
+  $("btnCopy").addEventListener("click", function(){
+    var txt = $("preview").textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText)
+      navigator.clipboard.writeText(txt).then(function(){ toast("Preview copied"); }, selectPreview);
+    else selectPreview();
+  });
+  /* diagram controls */
+  $("dgGroup").innerHTML = GROUPS.map(function(g){
+    return '<option value="'+g+'"'+(g===dgGroup?" selected":"")+'>'+(LABEL[g]||g)+'</option>'; }).join("");
+  $("dgGroup").addEventListener("change", function(){ dgGroup = this.value; renderDiagram(); });
+  var cm = document.querySelectorAll("[data-color]");
+  for(var c=0;c<cm.length;c++) cm[c].addEventListener("click", function(){
+    colorMode = this.getAttribute("data-color");
+    var all = document.querySelectorAll("[data-color]");
+    for(var z=0;z<all.length;z++) all[z].classList.toggle("on", all[z] === this);
+    $("dgGroup").style.display = colorMode === "group" ? "" : "none";
+    renderDiagram();
+  });
+  $("ctlLabels").addEventListener("click", function(){
+    showLabels = !showLabels; this.classList.toggle("on", showLabels); renderDiagram();
+  });
+  $("zIn").addEventListener("click", function(){ zoom = Math.min(2.4, zoom + 0.2); $("zRst").textContent = Math.round(zoom*100)+"%"; renderDiagram(); });
+  $("zOut").addEventListener("click", function(){ zoom = Math.max(0.4, zoom - 0.2); $("zRst").textContent = Math.round(zoom*100)+"%"; renderDiagram(); });
+  $("zRst").addEventListener("click", function(){ zoom = 1; this.textContent = "100%"; renderDiagram(); });
+  $("dgSearch").addEventListener("input", function(){ dgQuery = this.value.trim().toLowerCase(); renderDiagram(); });
+  $("dgSvg").addEventListener("click", exportSvg);
+  buildDevTabs();
+  setDevice("H743", true);
+});
+</script>
+</body>
+</html>
